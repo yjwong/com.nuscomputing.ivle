@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, ivleActivity!</string>
+    <string name="app_name">NUS IVLE</string>
+    <string name="sign_in">Sign In</string>
+    <string name="nusnet_id">NUSNET ID</string>
+    <string name="password">Password</string>
+    <string name="authenticator_activity_credentials_stored_securely">Your credentials will be stored securely. </string>
+    <string name="cancel">Cancel</string>
+    <string name="authenticator_activity_sign_in_to_ivle">Sign in to IVLE</string>
+    <string name="authenticator_activity_nusnet_id_or_password_invalid">NUSNET ID or password is invalid. Please try again. </string>
+    <string name="authenticator_activity_password_invalid">Password is invalid. Please try again. </string>
+    <string name="authenticator_activity_problem_communicating_with_server">There was a problem communicating with the server. Please try again later. </string>
+    <string name="ok">OK</string>
+    <string name="authenticator_activity_enter_nusnet_id">Please enter an NUSNET ID. </string>
+    <string name="authenticator_activity_enter_password">Please enter a password. </string>
+    <string name="signing_in">Signing in&#8230;</string>
+    <string name="settings">Settings</string>
+    <string name="authenticator_activity_account_successfully_added">Account has been successfully added. </string>
+    <string-array name="actionbar_spinner_items">
+        <item >What\'s New</item>
+        <item >Modules</item>
+        <item >Announcements</item>
+        <item >Forum</item>
+        <item >Gradebook</item>
+        <item >Polls</item>
+        <item >Webcasts</item>
+        <item >Workbin</item>
+    </string-array>
+    <string name="refresh">Refresh</string>
+
+</resources>

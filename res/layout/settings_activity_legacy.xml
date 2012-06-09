@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="ps_root" >
+    
+    <PreferenceCategory
+        android:key="account_management"
+        android:title="Account Management">
+    
+        <ListPreference
+            android:key="account"
+            android:summary="A0088826"
+            android:title="@string/nusnet_id"
+            android:defaultValue="A0088826"
+        />
+        
+        <Preference
+            android:key="add_account"
+            android:summary="Tap to add an account"
+            android:title="Add account..."
+        />
+        
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:key="second_category"
+        android:title="Second Category">
+        
+        <EditTextPreference
+            android:key="welcome_message"
+            android:title="Welcome Message"
+            android:summary="Define the welcome message to be shown"
+            android:dialogTitle="Welcome Message"
+            android:dialogMessage="Provide a message"
+            android:defaultValue="Hello world!"
+        />
+        
+    </PreferenceCategory>
+
+</PreferenceScreen>

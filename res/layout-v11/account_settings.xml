@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Preference screen for Accounts & Sync Settings -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="General Settings" />
+    <PreferenceScreen
+        android:key="account_settings"
+        android:title="Account Settings"
+        android:summary="Sync frequency, notifications, and more">
+        <!-- For Android versions >= 3.0 -->
+        <intent
+            android:action="com.nuscomputing.ivle.AccountSettingsActivity.MAIN"
+            android:targetClass="AccountSettingsActivity.class" />
+    </PreferenceScreen>
+</PreferenceScreen>
