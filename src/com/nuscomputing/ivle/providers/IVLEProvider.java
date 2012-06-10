@@ -41,28 +41,32 @@ public class IVLEProvider extends ContentProvider {
 	private static final int MODULES_GRADEBOOK_ITEMS_ID = 8;
 	private static final int MODULES_WEBCASTS = 9;
 	private static final int MODULES_WEBCASTS_ID = 10;
-	private static final int MODULES_WEBCAST_ITEM_GROUPS = 11;
-	private static final int MODULES_WEBCAST_ITEM_GROUPS_ID = 12;
-	private static final int MODULES_WEBLINKS  = 13;
-	private static final int MODULES_WEBLINKS_ID = 14;
-	private static final int MODULES_WORKBINS = 15;
-	private static final int MODULES_WORKBINS_ID = 16;
-	private static final int ANNOUNCEMENTS = 17;
-	private static final int ANNOUNCEMENTS_ID = 18;
-	private static final int GRADEBOOKS = 19;
-	private static final int GRADEBOOKS_ID = 20;
-	private static final int GRADEBOOK_ITEMS = 21;
-	private static final int GRADEBOOK_ITEMS_ID = 22;
-	private static final int USERS = 23;
-	private static final int USERS_ID = 24;
-	private static final int WEBCASTS = 25;
-	private static final int WEBCASTS_ID = 26;
-	private static final int WEBCAST_ITEM_GROUPS = 27;
-	private static final int WEBCAST_ITEM_GROUPS_ID = 28;
-	private static final int WEBLINKS = 29;
-	private static final int WEBLINKS_ID = 30;
-	private static final int WORKBINS = 31;
-	private static final int WORKBINS_ID = 32;
+	private static final int MODULES_WEBCAST_FILES = 11;
+	private static final int MODULES_WEBCAST_FILES_ID = 12;
+	private static final int MODULES_WEBCAST_ITEM_GROUPS = 13;
+	private static final int MODULES_WEBCAST_ITEM_GROUPS_ID = 14;
+	private static final int MODULES_WEBLINKS  = 15;
+	private static final int MODULES_WEBLINKS_ID = 16;
+	private static final int MODULES_WORKBINS = 17;
+	private static final int MODULES_WORKBINS_ID = 18;
+	private static final int ANNOUNCEMENTS = 19;
+	private static final int ANNOUNCEMENTS_ID = 20;
+	private static final int GRADEBOOKS = 21;
+	private static final int GRADEBOOKS_ID = 22;
+	private static final int GRADEBOOK_ITEMS = 23;
+	private static final int GRADEBOOK_ITEMS_ID = 24;
+	private static final int USERS = 25;
+	private static final int USERS_ID = 26;
+	private static final int WEBCASTS = 27;
+	private static final int WEBCASTS_ID = 28;
+	private static final int WEBCAST_FILES = 29;
+	private static final int WEBCAST_FILES_ID = 30;
+	private static final int WEBCAST_ITEM_GROUPS = 31;
+	private static final int WEBCAST_ITEM_GROUPS_ID = 32;
+	private static final int WEBLINKS = 33;
+	private static final int WEBLINKS_ID = 34;
+	private static final int WORKBINS = 35;
+	private static final int WORKBINS_ID = 36;
 	
 	// }}}
 	// {{{ methods
@@ -78,6 +82,8 @@ public class IVLEProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/gradebook_items/#", MODULES_GRADEBOOK_ITEMS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/webcasts", MODULES_WEBCASTS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/webcasts/#", MODULES_WEBCASTS_ID);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/webcast_files", MODULES_WEBCAST_FILES);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/webcast_files/#", MODULES_WEBCAST_FILES_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/webcast_item_groups", MODULES_WEBCAST_ITEM_GROUPS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/webcast_item_groups/#", MODULES_WEBCAST_ITEM_GROUPS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/weblinks", MODULES_WEBLINKS);
@@ -94,6 +100,8 @@ public class IVLEProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "users/#", USERS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcasts", WEBCASTS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcasts/#", WEBCASTS_ID);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcast_files", WEBCAST_FILES);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcast_files/#", WEBCAST_FILES_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcast_item_groups", WEBCAST_ITEM_GROUPS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcast_item_groups/#", WEBCAST_ITEM_GROUPS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "weblinks", WEBLINKS);
@@ -205,6 +213,26 @@ public class IVLEProvider extends ContentProvider {
 						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
 						")" : "");
 				ret = mDatabase.delete(DatabaseHelper.WEBCASTS_TABLE_NAME, 
+						whereClause, selectionArgs);
+				break;
+				
+			case MODULES_WEBCAST_FILES:
+				moduleId = uri.getPathSegments().get(2);
+				whereClause = WebcastFilesContract.MODULE_ID + "=" + moduleId +
+						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
+						")" : "");
+				ret = mDatabase.delete(DatabaseHelper.WEBCAST_FILES_TABLE_NAME, 
+						whereClause, selectionArgs);
+				break;
+			
+			case MODULES_WEBCAST_FILES_ID:
+				moduleId = uri.getPathSegments().get(2);
+				whereClause = WebcastFilesContract.MODULE_ID + "=" + moduleId +
+						" AND " + WebcastFilesContract.ID + "=" +
+						uri.getLastPathSegment() +
+						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
+						")" : "");
+				ret = mDatabase.delete(DatabaseHelper.WEBCAST_FILES_TABLE_NAME, 
 						whereClause, selectionArgs);
 				break;
 				
@@ -353,6 +381,23 @@ public class IVLEProvider extends ContentProvider {
 						selection, selectionArgs);
 				break;
 				
+			case WEBCAST_FILES_ID:
+				whereClause = WebcastFilesContract.ID + "=" +
+						uri.getLastPathSegment() +
+						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
+						")" : "");
+				ret = mDatabase.delete(DatabaseHelper.WEBCAST_FILES_TABLE_NAME,
+						whereClause, selectionArgs);
+				break;
+			
+			case WEBCAST_FILES:
+				if (selection == null && selectionArgs == null) {
+					Log.d(TAG, "Removing all webcast files");
+				}
+				ret = mDatabase.delete(DatabaseHelper.WEBCAST_FILES_TABLE_NAME,
+						selection, selectionArgs);
+				break;
+				
 			case WEBCAST_ITEM_GROUPS_ID:
 				whereClause = WebcastItemGroupsContract.ID + "=" + 
 						uri.getLastPathSegment() +
@@ -433,6 +478,7 @@ public class IVLEProvider extends ContentProvider {
 		String moduleId = null;
 		String userId = null;
 		String webcastId = null;
+		String webcastFileId = null;
 		String webcastItemGroupId = null;
 		String weblinkId = null;
 		String workbinId = null;
@@ -477,6 +523,14 @@ public class IVLEProvider extends ContentProvider {
 				webcastId = uri.getLastPathSegment();
 				selection = WebcastsContract.MODULE_ID + " = " + moduleId +
 						" AND " + WebcastsContract.ID + " = " + webcastId;
+				this.update(uri, values, selection, null);
+				break;
+				
+			case MODULES_WEBCAST_FILES_ID:
+				moduleId = uri.getPathSegments().get(2);
+				webcastFileId = uri.getLastPathSegment();
+				selection = WebcastFilesContract.MODULE_ID + " = " + moduleId +
+						" AND " + WebcastFilesContract.ID + " = " + webcastFileId;
 				this.update(uri, values, selection, null);
 				break;
 				
@@ -555,6 +609,17 @@ public class IVLEProvider extends ContentProvider {
 			case WEBCASTS_ID:
 				webcastId = uri.getLastPathSegment();
 				selection = WebcastsContract.ID + " = " + webcastId;
+				this.update(uri, values, selection, null);
+				break;
+				
+			case WEBCAST_FILES:
+				rowId = mDatabase.insert(DatabaseHelper.WEBCAST_FILES_TABLE_NAME, null, values);
+				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
+				break;
+			
+			case WEBCAST_FILES_ID:
+				webcastFileId = uri.getLastPathSegment();
+				selection = WebcastFilesContract.ID + " = " + webcastFileId;
 				this.update(uri, values, selection, null);
 				break;
 				
@@ -683,6 +748,19 @@ public class IVLEProvider extends ContentProvider {
 				);
 				break;
 				
+			case MODULES_WEBCAST_FILES_ID:
+				queryBuilder.appendWhere(
+						DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." +
+						WebcastFilesContract.ID + "=" + uri.getLastPathSegment()
+				);
+				
+			case MODULES_WEBCAST_FILES: // Fall through
+				queryBuilder.appendWhere(
+						DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + 
+						WebcastFilesContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
+				);
+				break;
+				
 			case MODULES_WEBCAST_ITEM_GROUPS_ID:
 				queryBuilder.appendWhere(
 						DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME + "." +
@@ -757,6 +835,13 @@ public class IVLEProvider extends ContentProvider {
 				);
 				break;
 				
+			case WEBCAST_FILES_ID:
+				queryBuilder.appendWhere(
+						DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." +
+						WebcastFilesContract.ID + "=" + uri.getPathSegments().get(1)
+				);
+				break;
+				
 			case WEBCAST_ITEM_GROUPS_ID:
 				queryBuilder.appendWhere(
 						DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME + "." +
@@ -784,6 +869,7 @@ public class IVLEProvider extends ContentProvider {
 			case GRADEBOOK_ITEMS:
 			case USERS:
 			case WEBCASTS:
+			case WEBCAST_FILES:
 			case WEBCAST_ITEM_GROUPS:
 			case WEBLINKS:
 			case WORKBINS:
@@ -912,6 +998,13 @@ public class IVLEProvider extends ContentProvider {
 				queryBuilder.setTables(DatabaseHelper.WEBCASTS_TABLE_NAME);
 				break;
 				
+			case MODULES_WEBCAST_FILES_ID:
+			case MODULES_WEBCAST_FILES:
+			case WEBCAST_FILES_ID:
+			case WEBCAST_FILES:
+				queryBuilder.setTables(DatabaseHelper.WEBCAST_FILES_TABLE_NAME);
+				break;
+				
 			case MODULES_WEBCAST_ITEM_GROUPS_ID:
 			case MODULES_WEBCAST_ITEM_GROUPS:
 			case WEBCAST_ITEM_GROUPS_ID:
@@ -985,6 +1078,12 @@ public class IVLEProvider extends ContentProvider {
 			case WEBCASTS_ID:
 			case WEBCASTS:
 				tableName = DatabaseHelper.WEBCASTS_TABLE_NAME;
+				break;
+			case MODULES_WEBCAST_FILES_ID:
+			case MODULES_WEBCAST_FILES:
+			case WEBCAST_FILES_ID:
+			case WEBCAST_FILES:
+				tableName = DatabaseHelper.WEBCAST_FILES_TABLE_NAME;
 				break;
 			case MODULES_WEBCAST_ITEM_GROUPS_ID:
 			case MODULES_WEBCAST_ITEM_GROUPS:
