@@ -94,6 +94,8 @@ public class IVLEProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "users/#", USERS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcasts", WEBCASTS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcasts/#", WEBCASTS_ID);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcast_item_groups", WEBCAST_ITEM_GROUPS);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcast_item_groups/#", WEBCAST_ITEM_GROUPS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "weblinks", WEBLINKS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "weblinks/#", WEBLINKS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "workbins", WORKBINS);
