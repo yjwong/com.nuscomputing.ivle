@@ -48,7 +48,6 @@ public class ModuleActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(TAG, "onCreate");
         
         // Obtain the requested module ID.
         Intent intent = getIntent();

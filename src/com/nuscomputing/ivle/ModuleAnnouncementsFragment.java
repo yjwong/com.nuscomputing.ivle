@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -126,7 +127,10 @@ public class ModuleAnnouncementsFragment extends ListFragment {
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
 				// Should start a webview here.
-				Log.v(TAG, "Webview not implemented");
+				Intent intent = new Intent();
+				intent.setClass(getActivity(), ViewAnnouncementActivity.class);
+				intent.putExtra("announcementId", id);
+				startActivity(intent);
 			}
 		});
 		

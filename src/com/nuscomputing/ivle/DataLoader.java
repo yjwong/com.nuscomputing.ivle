@@ -20,6 +20,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.webkit.WebView;
 import android.widget.Adapter;
 import android.widget.TextView;
 
@@ -37,6 +38,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int MODULES_FRAGMENT_LOADER = 1;
 	public static final int MODULE_INFO_FRAGMENT_LOADER = 2;
 	public static final int MODULE_ANNOUNCEMENT_FRAGMENT_LOADER = 3;
+	public static final int VIEW_ANNOUNCEMENT_FRAGMENT_LOADER = 4;
 	
 	/** The context */
 	private Activity mActivity;
@@ -60,9 +62,24 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		Log.v(TAG, "onCreateLoader");
 		
+		// Obtain the current account.
+		Account activeAccount = AccountUtils.getActiveAccount(mActivity, true);
+		if (activeAccount == null) {
+			// Launch activity to add account.
+			Log.e(TAG, "Error loading accounts");
+			return null;
+		}
+		
+		// Obtain the account name.
+		String accountName = activeAccount.name;
+		if (accountName == null) {
+			throw new IllegalStateException("Account name cannot be retrieved");
+		}
+		Log.d(TAG, "Account found, using " + accountName);
+		
 		// Select the correct loader based on the provided ID.
-		String accountName = null;
 		long moduleId = -1;
+		long announcementId = -1;
 		switch (id) {
 			case MODULE_INFO_FRAGMENT_LOADER:
 			case MODULE_ANNOUNCEMENT_FRAGMENT_LOADER:
@@ -71,22 +88,17 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				if (moduleId == -1) {
 					throw new IllegalStateException("No module ID was passed to DataLoader");
 				}
+				break;
 				
-			case MODULES_FRAGMENT_LOADER: // Fall through.
-				// Obtain the current account.
-				Account activeAccount = AccountUtils.getActiveAccount(mActivity, true);
-				if (activeAccount == null) {
-					// Launch activity to add account.
-					Log.e(TAG, "Error loading accounts");
-					return null;
+			case VIEW_ANNOUNCEMENT_FRAGMENT_LOADER:
+				// Obtain the announcement ID.
+				announcementId = args.getLong("announcementId", -1);
+				if (announcementId == -1) {
+					throw new IllegalStateException("No announcement ID was passed to DataLoader");
 				}
+				break;
 				
-				// Obtain the account name.
-				accountName = activeAccount.name;
-				if (accountName == null) {
-					throw new IllegalStateException("Account name cannot be retrieved");
-				}
-				Log.d(TAG, "Account found, using " + accountName);
+			case MODULES_FRAGMENT_LOADER:
 				break;
 				
 			default:
@@ -133,6 +145,20 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 					AnnouncementsContract.ID,
 					AnnouncementsContract.TITLE,
 					AnnouncementsContract.DESCRIPTION,
+					AnnouncementsContract.CREATED_DATE
+			));
+			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ?";
+			selectionArgsList.add(accountName);
+			
+			// Set up the cursor loader.
+			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId + "/announcements"));
+			
+		} else if (id == VIEW_ANNOUNCEMENT_FRAGMENT_LOADER) {
+			// Set up our query parameters.
+			projectionList.addAll(Arrays.asList(
+					AnnouncementsContract.ID,
+					AnnouncementsContract.TITLE,
+					AnnouncementsContract.DESCRIPTION,
 					AnnouncementsContract.CREATED_DATE,
 					"creator_" + UsersContract.NAME
 			));
@@ -140,7 +166,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			selectionArgsList.add(accountName);
 			
 			// Set up the cursor loader.
-			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId + "/announcements"));
+			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/announcements/" + announcementId));
 			
 		} else {
 			throw new IllegalArgumentException("No such loader");
@@ -188,6 +214,21 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				tvNoAnnouncements.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
+			
+			case VIEW_ANNOUNCEMENT_FRAGMENT_LOADER:
+				cursor.moveToFirst();
+				
+				// Set the title and subtitle.
+				TextView tvTitle = (TextView) mActivity.findViewById(R.id.view_announcement_fragment_title);
+				tvTitle.setText(cursor.getString(cursor.getColumnIndex(AnnouncementsContract.TITLE)));
+				tvTitle.setSelected(true);
+				TextView tvSubtitle = (TextView) mActivity.findViewById(R.id.view_announcement_fragment_subtitle);
+				tvSubtitle.setText(cursor.getString(cursor.getColumnIndex(UsersContract.NAME)));
+				
+				// Set the content for the webview.
+				WebView wvDescription = (WebView) mActivity.findViewById(R.id.view_announcement_fragment_webview);
+				wvDescription.loadData(cursor.getString(cursor.getColumnIndex(AnnouncementsContract.DESCRIPTION)), "text/html", null);
+				break;
 				
 			default:
 				throw new IllegalArgumentException("No such loader");
@@ -204,6 +245,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				break;
 				
 			case MODULE_INFO_FRAGMENT_LOADER:
+			case VIEW_ANNOUNCEMENT_FRAGMENT_LOADER:
 				// Do nothing.
 				break;
 				
