@@ -132,8 +132,9 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			projectionList.addAll(Arrays.asList(
 					AnnouncementsContract.ID,
 					AnnouncementsContract.TITLE,
-					"creator_" + UsersContract.NAME,
-					AnnouncementsContract.URL
+					AnnouncementsContract.DESCRIPTION,
+					AnnouncementsContract.CREATED_DATE,
+					"creator_" + UsersContract.NAME
 			));
 			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ?";
 			selectionArgsList.add(accountName);
