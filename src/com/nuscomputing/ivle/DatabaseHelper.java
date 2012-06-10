@@ -5,6 +5,7 @@ import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.UsersContract;
+import com.nuscomputing.ivle.providers.WebcastsContract;
 import com.nuscomputing.ivle.providers.WeblinksContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
 
@@ -21,7 +22,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -126,6 +127,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			UsersContract.USER_ID + " TEXT" +
 			");";
 	
+	/** Data for webcasts data table */
+	public static final String WEBCASTS_TABLE_NAME = "webcasts";
+	private static final String WEBCASTS_TABLE_CREATE =
+			"CREATE TABLE " + WEBCASTS_TABLE_NAME + "(" +
+			WebcastsContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			WebcastsContract.IVLE_ID + " TEXT, " +
+			WebcastsContract.MODULE_ID + " TEXT, " +
+			WebcastsContract.ACCOUNT + " TEXT, " +
+			WebcastsContract.CREATOR_ID + " TEXT, " +
+			WebcastsContract.BADGE_TOOL + " INTEGER, " +
+			WebcastsContract.PUBLISHED + " INTEGER, " +
+			WebcastsContract.TITLE + " TEXT" +
+			");";
+	
 	/** Data for weblinks data table */
 	public static final String WEBLINKS_TABLE_NAME = "weblinks";
 	private static final String WEBLINKS_TABLE_CREATE =
@@ -173,7 +188,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * Drops the entire table.
 	 */
 	public static void drop(SQLiteDatabase db, String table) {
-		db.execSQL("DROP TABLE " + table);
+		db.execSQL("DROP TABLE IF EXISTS " + table);
 	}
 	
 	/**
@@ -191,6 +206,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(GRADEBOOK_ITEMS_TABLE_CREATE);
 		db.execSQL(MODULES_TABLE_CREATE);
 		db.execSQL(USERS_TABLE_CREATE);
+		db.execSQL(WEBCASTS_TABLE_CREATE);
 		db.execSQL(WEBLINKS_TABLE_CREATE);
 		db.execSQL(WORKBINS_TABLE_CREATE);
 	}
@@ -203,7 +219,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// Currently we don't need an implementation of this yet...
+		// This is a very rudimentary implementation.
+		DatabaseHelper.drop(db, ANNOUNCEMENTS_TABLE_NAME);
+		DatabaseHelper.drop(db, GRADEBOOKS_TABLE_NAME);
+		DatabaseHelper.drop(db, GRADEBOOK_ITEMS_TABLE_NAME);
+		DatabaseHelper.drop(db, MODULES_TABLE_NAME);
+		DatabaseHelper.drop(db, USERS_TABLE_NAME);
+		DatabaseHelper.drop(db, WEBCASTS_TABLE_NAME);
+		DatabaseHelper.drop(db, WEBLINKS_TABLE_NAME);
+		DatabaseHelper.drop(db, WORKBINS_TABLE_NAME);
+		
+		// Recreate databases.
+		this.onCreate(db);
 		return;
 	}
 	
