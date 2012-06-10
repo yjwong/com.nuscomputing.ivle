@@ -15,7 +15,6 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +63,7 @@ public class ModuleAnnouncementsFragment extends ListFragment {
 		ModuleActivity activity = (ModuleActivity) getActivity();
 		mModuleId = activity.moduleId;
         if (mModuleId == -1) {
-        	throw new IllegalStateException("No module ID was passed to ModuleFragment");
+        	throw new IllegalStateException("No module ID was passed to ModuleAnnouncementsFragment");
         }
         
 		// Load the announcement data.
