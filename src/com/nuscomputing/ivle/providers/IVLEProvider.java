@@ -755,6 +755,7 @@ public class IVLEProvider extends ContentProvider {
 		}
 		
 		// Projection map to include user information.
+		Log.v(TAG, "query: " + queryBuilder.buildQuery(projection, selection, null, null, sortOrder, null));
 		Cursor cursor = queryBuilder.query(mDatabase, projection, selection, selectionArgs, null, null, sortOrder);
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return cursor;

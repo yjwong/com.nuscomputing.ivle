@@ -2,15 +2,10 @@ package com.nuscomputing.ivle;
 
 import com.nuscomputing.ivle.providers.ModulesContract;
 
-import android.accounts.Account;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
@@ -23,12 +18,14 @@ import android.widget.ListView;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModulesFragment extends ListFragment
-		implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ModulesFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
 	public static final String TAG = "ModulesFragment";
+	
+	/** Data loader instance */
+	private DataLoader mLoader;
 	
 	/** LoaderManager instance */
 	private LoaderManager mLoaderManager;
@@ -48,14 +45,15 @@ public class ModulesFragment extends ListFragment
 		int[] uiBindTo = { R.id.modules_fragment_list_course_code, R.id.modules_fragment_list_course_name };
 		
 		// Fetch data for the list adapter.
-		mLoaderManager = getLoaderManager();
-		mLoaderManager.initLoader(Constants.LOADER_MODULES, null, this);
 		mAdapter = new SimpleCursorAdapter(
 				getActivity(),
 				R.layout.modules_fragment_list_item,
 				null, uiBindFrom, uiBindTo,
 				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
 		);
+        mLoader = new DataLoader(getActivity(), mAdapter);
+        mLoaderManager = getLoaderManager();
+		mLoaderManager.initLoader(DataLoader.MODULES_FRAGMENT_LOADER, null, mLoader);
 		
 		// Get the listview.
 		ListView listView = (ListView) getActivity().findViewById(android.R.id.list);
@@ -75,48 +73,7 @@ public class ModulesFragment extends ListFragment
 	}
 	
 	public void restartLoader() {
-		mLoaderManager.restartLoader(Constants.LOADER_MODULES, null, this);
-	}
-	
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		mAdapter.swapCursor(cursor);
-		mAdapter.notifyDataSetChanged();
-	}
-	
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		// Obtain the current account.
-		Log.v(TAG, "onCreateLoader");
-		Account activeAccount = AccountUtils.getActiveAccount(getActivity(), true);
-		if (activeAccount == null) {
-			// Launch activity to add account.
-			Log.e(TAG, "Error loading accounts");
-			return null;
-		}
-		
-		// Obtain the account name.
-		String accountName = activeAccount.name;
-		Log.d(TAG, "Account found, using " + accountName);
-
-		// Set up our query parameters.
-		String[] projection = { ModulesContract.ID, ModulesContract.COURSE_CODE, ModulesContract.COURSE_NAME };
-		String selection = DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.ACCOUNT + " = ?";
-		String[] selectionArgs = { accountName };
-		
-		// Set up the cursor loader.
-		CursorLoader loader = new CursorLoader(getActivity());
-		Log.d(TAG, "Setting up cursorLoader");
-		loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules"));
-		loader.setProjection(projection);
-		loader.setSelection(selection);
-		loader.setSelectionArgs(selectionArgs);
-		return loader;
-	}
-	
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.swapCursor(null);
+		mLoaderManager.restartLoader(Constants.LOADER_MODULES, null, mLoader);
 	}
 	
 	// }}}
