@@ -5,6 +5,7 @@ import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.UsersContract;
+import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 import com.nuscomputing.ivle.providers.WebcastsContract;
 import com.nuscomputing.ivle.providers.WeblinksContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
@@ -22,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -141,6 +142,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			WebcastsContract.TITLE + " TEXT" +
 			");";
 	
+	/** Data for webcast item groups table */
+	public static final String WEBCAST_ITEM_GROUPS_TABLE_NAME = "webcast_item_groups";
+	private static final String WEBCAST_ITEM_GROUPS_TABLE_CREATE =
+			"CREATE TABLE " + WEBCAST_ITEM_GROUPS_TABLE_NAME + "(" +
+			WebcastItemGroupsContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			WebcastItemGroupsContract.IVLE_ID + " TEXT, " +
+			WebcastItemGroupsContract.MODULE_ID + " TEXT, " +
+			WebcastItemGroupsContract.WEBCAST_ID + " TEXT, " +
+			WebcastItemGroupsContract.ACCOUNT + " TEXT, " +
+			WebcastItemGroupsContract.ITEM_GROUP_TITLE + " TEXT" +
+			");";
+	
 	/** Data for weblinks data table */
 	public static final String WEBLINKS_TABLE_NAME = "weblinks";
 	private static final String WEBLINKS_TABLE_CREATE =
@@ -207,6 +220,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(MODULES_TABLE_CREATE);
 		db.execSQL(USERS_TABLE_CREATE);
 		db.execSQL(WEBCASTS_TABLE_CREATE);
+		db.execSQL(WEBCAST_ITEM_GROUPS_TABLE_CREATE);
 		db.execSQL(WEBLINKS_TABLE_CREATE);
 		db.execSQL(WORKBINS_TABLE_CREATE);
 	}
@@ -226,6 +240,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper.drop(db, MODULES_TABLE_NAME);
 		DatabaseHelper.drop(db, USERS_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBCASTS_TABLE_NAME);
+		DatabaseHelper.drop(db, WEBCAST_ITEM_GROUPS_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBLINKS_TABLE_NAME);
 		DatabaseHelper.drop(db, WORKBINS_TABLE_NAME);
 		

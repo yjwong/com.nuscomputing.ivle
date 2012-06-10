@@ -23,6 +23,7 @@ import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.UsersContract;
+import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 import com.nuscomputing.ivle.providers.WebcastsContract;
 import com.nuscomputing.ivle.providers.WeblinksContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
@@ -157,7 +158,14 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 					}
 					
 					// Insert webcasts.
-					this.insertWebcast(webcast, moduleId, webcastCreatorId);
+					int webcastId = this.insertWebcast(webcast, moduleId, webcastCreatorId);
+					
+					// Fetch webcast item groups.
+					Log.v(TAG, "Fetching webcast item groups");
+					Webcast.ItemGroup[] webcastItemGroups = webcast.getItemGroups();
+					for (Webcast.ItemGroup webcastItemGroup : webcastItemGroups) {
+						this.insertWebcastItemGroup(webcastItemGroup, moduleId, webcastId);
+					}
 				}
 				
 				// Fetch weblinks.
@@ -376,6 +384,27 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 	
 	/**
+	 * Method: insertWebcastItemGroup
+	 * <p>
+	 * Inserts a webcast item group into the webcast item group table.
+	 */
+	private int insertWebcastItemGroup(Webcast.ItemGroup item, int moduleId, 
+			int webcastId) throws RemoteException {
+		// Prepare the content values.
+		Log.v(TAG, "insertWebcastItemGroup: " + item.itemGroupTitle);
+		ContentValues values = new ContentValues();
+		values.put(WebcastItemGroupsContract.IVLE_ID, item.ID);
+		values.put(WebcastItemGroupsContract.MODULE_ID, moduleId);
+		values.put(WebcastItemGroupsContract.WEBCAST_ID, webcastId);
+		values.put(WebcastItemGroupsContract.ACCOUNT, mAccount.name);
+		values.put(WebcastItemGroupsContract.ITEM_GROUP_TITLE, item.itemGroupTitle);
+		
+		// Insert webcast item group.
+		Uri uri = mProvider.insert(WebcastItemGroupsContract.CONTENT_URI, values);
+		return Integer.parseInt(uri.getLastPathSegment());
+	}
+	
+	/**
 	 * Method: insertWeblink
 	 * <p>
 	 * Inserts a weblink into the user table.
@@ -485,6 +514,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		mProvider.delete(ModulesContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(UsersContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WebcastsContract.CONTENT_URI, selection, selectionArgs);
+		mProvider.delete(WebcastItemGroupsContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WeblinksContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WorkbinsContract.CONTENT_URI, selection, selectionArgs);
 	}
