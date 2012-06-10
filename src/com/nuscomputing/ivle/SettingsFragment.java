@@ -1,7 +1,5 @@
 package com.nuscomputing.ivle;
 
-import com.nuscomputing.ivlelapi.IVLE;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
@@ -13,7 +11,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
-import android.util.Log;
 
 public class SettingsFragment extends PreferenceFragment {
 	// {{{ properties
@@ -113,10 +110,9 @@ public class SettingsFragment extends PreferenceFragment {
 						dialog.dismiss();
 						
 						// Restart the application.
-						Intent intent = new Intent(MainApplication.getContext(), MainActivity.class);
+						Intent intent = new Intent(getActivity(), MainActivity.class);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-						MainApplication.getContext().startActivity(intent);
+						startActivity(intent);
 					}
 				});
 	    		dialog.show();
