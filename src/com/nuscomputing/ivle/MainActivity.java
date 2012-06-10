@@ -2,7 +2,6 @@ package com.nuscomputing.ivle;
 
 import android.accounts.Account;
 import android.app.ActionBar;
-import android.app.LoaderManager;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
