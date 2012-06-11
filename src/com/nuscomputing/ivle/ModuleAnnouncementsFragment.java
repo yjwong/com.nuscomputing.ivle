@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -118,9 +119,8 @@ public class ModuleAnnouncementsFragment extends ListFragment {
         mLoaderManager.initLoader(DataLoader.MODULE_ANNOUNCEMENT_FRAGMENT_LOADER, args, mLoader).forceLoad();
         
         // Get the listview.
-        ListView listView = (ListView) getActivity().findViewById(android.R.id.list);
-		
-		// Get the listview.
+        LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.module_announcements_fragment_linear_layout);
+        ListView listView = (ListView) layout.findViewById(android.R.id.list);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -133,6 +133,7 @@ public class ModuleAnnouncementsFragment extends ListFragment {
 			}
 		});
 		
+		// Set the list adapter.
 		setListAdapter(mAdapter);
 	}
 	

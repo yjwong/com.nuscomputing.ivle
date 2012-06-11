@@ -73,8 +73,17 @@ public class ModuleActivity extends FragmentActivity {
             		.setText("Info"), ModuleInfoFragment.class, null);
             mTabsAdapter.addTab(actionBar.newTab()
             		.setText("Announcements"), ModuleAnnouncementsFragment.class, null);
+            mTabsAdapter.addTab(actionBar.newTab()
+            		.setText("Webcasts"), ModuleWebcastsFragment.class, null);
         }
         
+        // Load the action bar title.
+        Bundle args = new Bundle();
+        args.putLong("moduleId", moduleId);
+        DataLoader loader = new DataLoader(this);
+        getSupportLoaderManager().initLoader(DataLoader.MODULE_ACTIVITY_LOADER, args, loader).forceLoad();
+        
+        // Set the content view.
         setContentView(mViewPager);
     }
     

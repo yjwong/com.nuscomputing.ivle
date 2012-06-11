@@ -66,6 +66,7 @@
         </service>
         <activity android:name="ModuleActivity"></activity>
         <activity android:name="ViewAnnouncementActivity" android:theme="@android:style/Theme.Holo.Dialog.NoActionBar"></activity>
+        <activity android:name="ViewWebcastActivity"></activity>
     </application>
 
 </manifest>
