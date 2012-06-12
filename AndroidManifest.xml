@@ -38,13 +38,13 @@
         <activity android:name="AuthenticatorActivity" android:theme="@android:style/Theme.Holo.NoActionBar" android:configChanges="keyboardHidden|orientation|screenSize"></activity>
         <activity android:name="SettingsActivity"></activity>
         <activity android:name="SettingsActivityLegacy"></activity>
-        <activity android:name="AccountSettingsActivity">
+        <activity android:name="AccountSettingsActivity" android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="com.nuscomputing.ivle.AccountSettingsActivity.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="AccountSettingsActivityLegacy">
+        <activity android:name="AccountSettingsActivityLegacy" android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="com.nuscomputing.ivle.AccountSettingsActivityLegacy.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>

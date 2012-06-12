@@ -62,10 +62,8 @@ public class ViewWebcastActivity extends FragmentActivity {
     	// Handle item selection.
     	switch (item.getItemId()) {
 			case android.R.id.home:
-				// App icon tapped, go home.
-				Intent intent = new Intent(this, MainActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
+				// Up pressed, go back to previous screen.
+				finish();
 				return true;
 				
     		default:
