@@ -23,6 +23,7 @@ import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.UsersContract;
+import com.nuscomputing.ivle.providers.WebcastFilesContract;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 import com.nuscomputing.ivle.providers.WebcastsContract;
 import com.nuscomputing.ivle.providers.WeblinksContract;
@@ -164,7 +165,22 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 					Log.v(TAG, "Fetching webcast item groups");
 					Webcast.ItemGroup[] webcastItemGroups = webcast.getItemGroups();
 					for (Webcast.ItemGroup webcastItemGroup : webcastItemGroups) {
-						this.insertWebcastItemGroup(webcastItemGroup, moduleId, webcastId);
+						int webcastItemGroupId = this.insertWebcastItemGroup(webcastItemGroup, moduleId, webcastId);
+						
+						// Fetch webcast files.
+						Log.v(TAG, "Fetching webcast files");
+						Webcast.File[] webcastFiles = webcastItemGroup.getFiles();
+						for (Webcast.File webcastFile : webcastFiles) {
+							// Insert the creator of the file into the user's table.
+							Integer webcastFileCreatorId = null;
+							if (webcastFile.creator.ID != null) {
+								Uri webcastFileCreatorUri = this.insertUserIfNotExists(webcastFile.creator);
+								webcastFileCreatorId = Integer.parseInt(webcastFileCreatorUri.getLastPathSegment());
+							}
+							
+							// Insert webcast files.
+							this.insertWebcastFile(webcastFile, moduleId, webcastItemGroupId, webcastFileCreatorId);
+						}
 					}
 				}
 				
@@ -172,6 +188,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				Log.v(TAG, "Fetching weblinks");
 				Weblink[] weblinks = module.getWeblinks();
 				for (Weblink weblink : weblinks) {
+					// Insert weblinks.
 					this.insertWeblink(weblink, moduleId);
 				}
 				
@@ -380,6 +397,37 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		
 		// Insert workbins.
 		Uri uri = mProvider.insert(WebcastsContract.CONTENT_URI, values);
+		return Integer.parseInt(uri.getLastPathSegment());
+	}
+	
+	/**
+	 * Method: insertWebcastFile
+	 * <p>
+	 * Inserts a webcast file into the webcast file table.
+	 */
+	private int insertWebcastFile(Webcast.File file, int moduleId,
+			int webcastItemGroupId, Integer creatorId) throws
+			RemoteException {
+		// Prepare the content values.
+		Log.v(TAG, "insertWebcastFile: " + file.fileTitle);
+		ContentValues values = new ContentValues();
+		values.put(WebcastFilesContract.IVLE_ID, file.ID);
+		values.put(WebcastFilesContract.MODULE_ID, moduleId);
+		values.put(WebcastFilesContract.WEBCAST_ITEM_GROUP_ID, webcastItemGroupId);
+		values.put(WebcastFilesContract.ACCOUNT, mAccount.name);
+		values.put(WebcastFilesContract.CREATOR_ID, creatorId);
+		values.put(WebcastFilesContract.BANK_ITEM_ID, file.bankItemID);
+		values.put(WebcastFilesContract.CREATE_DATE, file.createDate.toString());
+		values.put(WebcastFilesContract.FILE_DESCRIPTION, file.fileDescription);
+		values.put(WebcastFilesContract.FILE_NAME, file.fileName);
+		values.put(WebcastFilesContract.FILE_TITLE, file.fileTitle);
+		values.put(WebcastFilesContract.MP3, file.MP3);
+		values.put(WebcastFilesContract.MP4, file.MP4);
+		values.put(WebcastFilesContract.MEDIA_FORMAT, file.mediaFormat);
+		values.put(WebcastFilesContract.IS_READ, file.isRead);
+		
+		// Insert webcast files.
+		Uri uri = mProvider.insert(WebcastFilesContract.CONTENT_URI, values);
 		return Integer.parseInt(uri.getLastPathSegment());
 	}
 	

@@ -5,6 +5,7 @@ import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.UsersContract;
+import com.nuscomputing.ivle.providers.WebcastFilesContract;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 import com.nuscomputing.ivle.providers.WebcastsContract;
 import com.nuscomputing.ivle.providers.WeblinksContract;
@@ -23,7 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -142,6 +143,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			WebcastsContract.TITLE + " TEXT" +
 			");";
 	
+	/** Data for webcast files table */
+	public static final String WEBCAST_FILES_TABLE_NAME = "webcast_files";
+	private static final String WEBCAST_FILES_TABLE_CREATE =
+			"CREATE TABLE " + WEBCAST_FILES_TABLE_NAME + "(" +
+			WebcastFilesContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			WebcastFilesContract.IVLE_ID + " TEXT, " +
+			WebcastFilesContract.MODULE_ID + " TEXT, " +
+			WebcastFilesContract.WEBCAST_ITEM_GROUP_ID + " TEXT, " +
+			WebcastFilesContract.ACCOUNT + " TEXT, " +
+			WebcastFilesContract.CREATOR_ID + " TEXT, " +
+			WebcastFilesContract.BANK_ITEM_ID + " TEXT, " +
+			WebcastFilesContract.CREATE_DATE + " TEXT, " +
+			WebcastFilesContract.FILE_DESCRIPTION + " TEXT, " +
+			WebcastFilesContract.FILE_NAME + " TEXT, " +
+			WebcastFilesContract.FILE_TITLE + " TEXT, " +
+			WebcastFilesContract.MP3 + " TEXT, " +
+			WebcastFilesContract.MP4 + " TEXT, " +
+			WebcastFilesContract.MEDIA_FORMAT + " TEXT, " +
+			WebcastFilesContract.IS_READ + " BOOLEAN" +
+			");";
+	
 	/** Data for webcast item groups table */
 	public static final String WEBCAST_ITEM_GROUPS_TABLE_NAME = "webcast_item_groups";
 	private static final String WEBCAST_ITEM_GROUPS_TABLE_CREATE =
@@ -220,6 +242,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(MODULES_TABLE_CREATE);
 		db.execSQL(USERS_TABLE_CREATE);
 		db.execSQL(WEBCASTS_TABLE_CREATE);
+		db.execSQL(WEBCAST_FILES_TABLE_CREATE);
 		db.execSQL(WEBCAST_ITEM_GROUPS_TABLE_CREATE);
 		db.execSQL(WEBLINKS_TABLE_CREATE);
 		db.execSQL(WORKBINS_TABLE_CREATE);
@@ -240,6 +263,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper.drop(db, MODULES_TABLE_NAME);
 		DatabaseHelper.drop(db, USERS_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBCASTS_TABLE_NAME);
+		DatabaseHelper.drop(db, WEBCAST_FILES_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBCAST_ITEM_GROUPS_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBLINKS_TABLE_NAME);
 		DatabaseHelper.drop(db, WORKBINS_TABLE_NAME);

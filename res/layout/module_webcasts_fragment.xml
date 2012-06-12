@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/module_announcements_fragment_linear_layout"
+    android:id="@+id/module_webcasts_fragment_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     
     <TextView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/module_announcements_fragment_no_announcements"
+        android:id="@+id/module_webcasts_fragment_no_webcasts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="There are no announcements. "
+        android:text="There are no webcasts. "
         android:textSize="16sp"
         android:gravity="center"
         android:visibility="gone"
