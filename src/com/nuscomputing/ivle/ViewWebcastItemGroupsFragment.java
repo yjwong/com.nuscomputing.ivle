@@ -1,6 +1,8 @@
 package com.nuscomputing.ivle;
 
 import com.nuscomputing.ivle.providers.WebcastFilesContract;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.CursorAdapter;
@@ -78,6 +80,10 @@ public class ViewWebcastItemGroupsFragment extends ListFragment {
 					long id) {
 				// Invoke another item.
 				Log.v(TAG, "webcast file " + id);
+				Intent intent = new Intent();
+				intent.setClass(getActivity(), ViewWebcastFileActivity.class);
+				intent.putExtra("webcastFileId", id);
+				startActivity(intent);
 			}
 		});
 		

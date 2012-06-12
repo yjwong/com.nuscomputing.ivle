@@ -26,6 +26,7 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Adapter;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 /**
  * The primary loader for IVLE data.
@@ -47,6 +48,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int VIEW_WEBCAST_ACTIVITY_LOADER = 7;
 	public static final int VIEW_WEBCAST_FRAGMENT_LOADER = 8;
 	public static final int VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER = 9;
+	public static final int VIEW_WEBCAST_FILE_ACTIVITY_LOADER = 10;
 	
 	/** The context */
 	private Activity mActivity;
@@ -90,6 +92,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		long announcementId = -1;
 		long webcastId = -1;
 		long webcastItemGroupId = -1;
+		long webcastFileId = -1;
 		switch (id) {
 			case MODULE_ACTIVITY_LOADER:
 			case MODULE_INFO_FRAGMENT_LOADER:
@@ -124,6 +127,14 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				webcastItemGroupId = args.getLong("webcastItemGroupId", -1);
 				if (webcastItemGroupId == -1) {
 					throw new IllegalStateException("No webcast group ID was passed to DataLoader");
+				}
+				break;
+				
+			case VIEW_WEBCAST_FILE_ACTIVITY_LOADER:
+				// Obtain the webcast file ID.
+				webcastFileId = args.getLong("webcastFileId", -1);
+				if (webcastFileId == -1) {
+					throw new IllegalStateException("No webcast file ID was passed to DataLoader");
 				}
 				break;
 				
@@ -258,6 +269,19 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/webcast_files"));
 			
+		} else if (id == VIEW_WEBCAST_FILE_ACTIVITY_LOADER) { 
+			// Set up our query parameters.
+			projectionList.addAll(Arrays.asList(
+					WebcastFilesContract.MP4
+			));
+			selection = DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ACCOUNT + " = ?";
+			selection += " AND " + DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.WEBCAST_ITEM_GROUP_ID + " = ?";
+			selectionArgsList.add(accountName);
+			selectionArgsList.add(Long.toString(webcastFileId));
+			
+			// Set up the cursor loader.
+			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/webcast_files"));
+			
 		} else {
 			throw new IllegalArgumentException("No such loader");
 		}
@@ -341,6 +365,16 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			case VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER:
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
+			
+			case VIEW_WEBCAST_FILE_ACTIVITY_LOADER:
+				// Reset the cursor.
+				cursor.moveToFirst();
+				Log.v(TAG, "video =" + cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
+				Uri videoUri = Uri.parse(cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
+				VideoView videoView = (VideoView) mActivity.findViewById(R.id.view_webcast_file_video_view);
+				videoView.setVideoURI(videoUri);
+				videoView.start();
+				break;
 				
 			default:
 				throw new IllegalArgumentException("No such loader");
@@ -363,6 +397,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			case MODULE_INFO_FRAGMENT_LOADER:
 			case VIEW_WEBCAST_ACTIVITY_LOADER:
 			case VIEW_ANNOUNCEMENT_FRAGMENT_LOADER:
+			case VIEW_WEBCAST_FILE_ACTIVITY_LOADER:
 				// Do nothing.
 				break;
 				
