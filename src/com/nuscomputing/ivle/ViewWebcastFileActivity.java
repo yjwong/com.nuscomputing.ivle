@@ -9,16 +9,22 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.MediaController;
+import android.widget.Toast;
 import android.widget.VideoView;
 import android.app.ActionBar;
 import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 
 /**
  * Activity to view webcast videos.
@@ -163,37 +169,70 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
     	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.view_webcast_file_activity_menu, menu);
+    	inflater.inflate(R.menu.global, menu);
     	return true;
     }
 	
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection.
-    	switch (item.getItemId()) {
-    		case R.id.view_webcast_file_activity_menu_open_in_browser:
-    			Intent intent = new Intent(Intent.ACTION_VIEW);
-    			intent.setData(Uri.parse(mVideoFileName));
-    			startActivity(intent);
-    			return true;
-    			
-    		case R.id.view_webcast_file_activity_menu_save:
-    			// Request a save of the video file.
-    			String fileName = mVideoUri.getLastPathSegment();
-    			//String filePath = "IVLE Webcasts/" + fileName;
-    			DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
-    			request.allowScanningByMediaScanner();
-    			request.setDescription("IVLE Webcast");
-    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
-    			DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-    			manager.enqueue(request);
-    			return true;
-
-			case android.R.id.home:
-				finish();
-				return true;
-				
-			default:
-				return super.onOptionsItemSelected(item);
+    	if (!MainApplication.onOptionsItemSelected(this, item)) {
+	    	// Handle item selection.
+	    	switch (item.getItemId()) {
+	    		case R.id.view_webcast_file_activity_menu_open_in_browser:
+	    			Intent intent = new Intent(Intent.ACTION_VIEW);
+	    			intent.setData(Uri.parse(mVideoFileName));
+	    			startActivity(intent);
+	    			return true;
+	    			
+	    		case R.id.view_webcast_file_activity_menu_save:
+	    			// Obtain the preference manager.
+	    			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+	    			
+	    			// Check if we allow downloads over mobile network.
+	    			boolean downloadOverMobile = prefs.getBoolean("download_over_mobile_networks", true)	;
+	    			int allowedNetworkTypes = DownloadManager.Request.NETWORK_WIFI;
+	    			allowedNetworkTypes |= downloadOverMobile ? DownloadManager.Request.NETWORK_MOBILE : 0; 
+	    			
+	    			// Get connectivity state.
+	    			ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    			NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+	    			int networkType = networkInfo.getType();
+	    			
+	    			// Construct video file name.
+	    			String fileName = mVideoUri.getLastPathSegment();
+	    			//String filePath = "IVLE Webcasts/" + fileName;
+	    			DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
+	    			
+	    			// Request a save of the video file.
+	    			request.allowScanningByMediaScanner();
+	    			request.setDescription("IVLE Webcast");
+	    			request.setAllowedNetworkTypes(allowedNetworkTypes);
+	    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
+	    			DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+	    			manager.enqueue(request);
+	    			
+	    			// Show a toast.
+	    			if (networkType == ConnectivityManager.TYPE_MOBILE && !downloadOverMobile) {
+	    				Toast.makeText(this, "Webcast has been queued for download. Your download will start as soon you are connected to a WiFi network. ", Toast.LENGTH_SHORT)
+	    					.show();
+	    			} else {
+	    				Toast.makeText(this, "Webcast has been queued for download. Check the notification area for progress. ", Toast.LENGTH_SHORT)
+	    					.show();
+	    			}
+	    			
+	    			return true;
+	
+				case android.R.id.home:
+					finish();
+					return true;
+					
+				default:
+					return super.onOptionsItemSelected(item);
+	    	}
+	    	
+    	} else {
+    		return true;
     	}
     }
     
