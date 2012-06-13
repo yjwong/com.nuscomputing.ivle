@@ -272,7 +272,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		} else if (id == VIEW_WEBCAST_FILE_ACTIVITY_LOADER) { 
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
-					WebcastFilesContract.MP4
+					WebcastFilesContract.MP4,
+					WebcastFilesContract.FILE_TITLE
 			));
 			selection = DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ACCOUNT + " = ?";
 			selection += " AND " + DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.WEBCAST_ITEM_GROUP_ID + " = ?";
@@ -369,8 +370,16 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			case VIEW_WEBCAST_FILE_ACTIVITY_LOADER:
 				// Reset the cursor.
 				cursor.moveToFirst();
-				Log.v(TAG, "video =" + cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
+				
+				// Set the title.
+				if (Build.VERSION.SDK_INT >= 11) {
+					mActivity.getActionBar().setTitle(cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_TITLE)));
+				}
+				
+				// Start the video playback.
+				Log.v(TAG, "video = " + cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
 				Uri videoUri = Uri.parse(cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
+				((ViewWebcastFileActivity) mActivity).setVideoUri(videoUri);
 				VideoView videoView = (VideoView) mActivity.findViewById(R.id.view_webcast_file_video_view);
 				videoView.setVideoURI(videoUri);
 				videoView.start();
