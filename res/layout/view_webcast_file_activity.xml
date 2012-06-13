@@ -1,14 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#ff000000">
     
 	<VideoView xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:id="@+id/view_webcast_file_video_view"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:layout_gravity="center"
+	    android:layout_centerInParent="true"
 	    />
+	
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/view_webcast_file_progress_view"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_centerInParent="true"
+	    android:orientation="vertical">
+	    
+	    <ProgressBar xmlns:android="http://schemas.android.com/apk/res/android"
+	        style="?android:attr/progressBarStyleLarge"
+	        android:layout_gravity="center"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" />
+	    
+	    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:paddingTop="5dp"
+	        android:text="Loading video..."
+	        android:textSize="14sp"
+	        android:textColor="#ffffffff" />
+	    
+	</LinearLayout>
+	    
 
-</FrameLayout>
+</RelativeLayout>
