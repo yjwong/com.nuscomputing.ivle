@@ -91,49 +91,44 @@ public class ModuleActivity extends FragmentActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
     	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.main_menu, menu);
+    	inflater.inflate(R.menu.global, menu);
     	return true;
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection.
-    	switch (item.getItemId()) {
-    		case R.id.main_menu_settings:
-    			Intent intent = new Intent();
-    			if (Build.VERSION.SDK_INT >= 11) {
-    				intent.setClass(this, SettingsActivity.class);
-    			} else {
-    				intent.setClass(this, SettingsActivityLegacy.class);
-    			}
-    			intent.setAction(Intent.ACTION_MAIN);
-    			intent.addCategory(Intent.CATEGORY_PREFERENCE);
-    			startActivity(intent);
-    			return true;
-    		
-    		case R.id.main_menu_refresh:
-    			// Setup a ContentReceiver to receive sync completion events.
-    			Account account = AccountUtils.getActiveAccount(this);
-    			registerReceiver(new BroadcastReceiver() {
-    				@Override
-    				public void onReceive(Context context, Intent intent) {
-    					Log.v(TAG, "Received broadcast");
-    					unregisterReceiver(this);
-    				}
-    			}, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
-    			
-    			// Request a sync.
-    			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
-    			return true;
-    			
-    		case android.R.id.home:
-    			// App icon tapped, go home.
-    			intent = new Intent(this, MainActivity.class);
-    			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    			startActivity(intent);
-    			return true;
-    			
-    		default:
-    			return super.onOptionsItemSelected(item);
+    	if (!MainApplication.onOptionsItemSelected(this, item)) {
+	    	// Handle item selection.
+	    	switch (item.getItemId()) {
+	    		case R.id.main_menu_refresh:
+	    			// Setup a ContentReceiver to receive sync completion events.
+	    			Account account = AccountUtils.getActiveAccount(this);
+	    			registerReceiver(new BroadcastReceiver() {
+	    				@Override
+	    				public void onReceive(Context context, Intent intent) {
+	    					Log.v(TAG, "Received broadcast");
+	    					unregisterReceiver(this);
+	    				}
+	    			}, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
+	    			
+	    			// Request a sync.
+	    			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+	    			return true;
+	    			
+	    		case android.R.id.home:
+	    			// App icon tapped, go home.
+	    			Intent intent = new Intent(this, MainActivity.class);
+	    			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	    			startActivity(intent);
+	    			return true;
+	    			
+	    		default:
+	    			return super.onOptionsItemSelected(item);
+	    	}
+	    	
+    	} else {
+    		return true;
     	}
     }
 

@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 public class ViewWebcastActivity extends FragmentActivity {
@@ -58,16 +60,30 @@ public class ViewWebcastActivity extends FragmentActivity {
     }
     
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.global, menu);
+    	return true;
+    }
+    
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection.
-    	switch (item.getItemId()) {
-			case android.R.id.home:
-				// Up pressed, go back to previous screen.
-				finish();
-				return true;
-				
-    		default:
-    			return super.onOptionsItemSelected(item);
+    	if (!MainApplication.onOptionsItemSelected(this, item)) {
+	    	// Handle item selection.
+	    	switch (item.getItemId()) {
+				case android.R.id.home:
+					// Up pressed, go back to previous screen.
+					finish();
+					return true;
+					
+	    		default:
+	    			return super.onOptionsItemSelected(item);
+	    	}
+	    	
+    	} else {
+    		return true;
     	}
     }
 	
