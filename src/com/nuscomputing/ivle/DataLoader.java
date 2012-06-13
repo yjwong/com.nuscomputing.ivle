@@ -259,7 +259,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					WebcastFilesContract.ID,
-					WebcastFilesContract.FILE_TITLE
+					WebcastFilesContract.FILE_TITLE,
+					WebcastFilesContract.FILE_DESCRIPTION
 			));
 			selection = DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ACCOUNT + " = ?";
 			selection += " AND " + DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.WEBCAST_ITEM_GROUP_ID + " = ?";
@@ -273,7 +274,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					WebcastFilesContract.MP4,
-					WebcastFilesContract.FILE_TITLE
+					WebcastFilesContract.FILE_TITLE,
+					WebcastFilesContract.FILE_NAME
 			));
 			selection = DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ACCOUNT + " = ?";
 			selection += " AND " + DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.WEBCAST_ITEM_GROUP_ID + " = ?";
@@ -383,6 +385,10 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				VideoView videoView = (VideoView) mActivity.findViewById(R.id.view_webcast_file_video_view);
 				videoView.setVideoURI(videoUri);
 				videoView.start();
+				
+				// Set the file name.
+				String fileName = cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_NAME));
+				((ViewWebcastFileActivity) mActivity).setVideoFileName(fileName);
 				break;
 				
 			default:

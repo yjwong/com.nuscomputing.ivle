@@ -9,10 +9,20 @@
     <TextView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/view_webcast_item_group_fragment_list_file_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:textColor="?android:attr/textColorPrimary"
+        android:maxLines="2"
+        />
+    
+    <TextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/view_webcast_item_group_fragment_list_file_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="?android:attr/textColorSecondary"
         android:maxLines="2"
         />
    

@@ -2,16 +2,22 @@ package com.nuscomputing.ivle;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager.LayoutParams;
 import android.widget.MediaController;
 import android.widget.VideoView;
 import android.app.ActionBar;
+import android.app.DownloadManager;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 
 /**
@@ -43,6 +49,9 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 	/** The URL of the video */
 	private Uri mVideoUri;
 	
+	/** The file name of the video */
+	private String mVideoFileName;
+	
 	/** Checks if the video is already playing */
 	Handler mHandler = new Handler();
 	Runnable mPlayingChecker = new Runnable() {
@@ -72,10 +81,11 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 		// Use overlaid action bar.
 		if (Build.VERSION.SDK_INT >= 11) {
 			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+			getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
 			getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.view_webcast_file_activity_action_bar_background));
 			
 			ActionBar bar = getActionBar();
-			bar.setHomeButtonEnabled(true);
+			bar.setDisplayHomeAsUpEnabled(true);
 		}
 		
 		// Set to full screen.
@@ -150,9 +160,34 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 	}
 	
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.view_webcast_file_activity_menu, menu);
+    	return true;
+    }
+	
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection.
     	switch (item.getItemId()) {
+    		case R.id.view_webcast_file_activity_menu_open_in_browser:
+    			Intent intent = new Intent(Intent.ACTION_VIEW);
+    			intent.setData(Uri.parse(mVideoFileName));
+    			startActivity(intent);
+    			return true;
+    			
+    		case R.id.view_webcast_file_activity_menu_save:
+    			// Request a save of the video file.
+    			String fileName = mVideoUri.getLastPathSegment();
+    			//String filePath = "IVLE Webcasts/" + fileName;
+    			DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
+    			request.allowScanningByMediaScanner();
+    			request.setDescription("IVLE Webcast");
+    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
+    			DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+    			manager.enqueue(request);
+    			return true;
+
 			case android.R.id.home:
 				finish();
 				return true;
@@ -174,6 +209,10 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
     
     public void setVideoUri(Uri uri) {
     	mVideoUri = uri;
+    }
+    
+    public void setVideoFileName(String fileName) {
+    	mVideoFileName = fileName;
     }
 	
 	// }}}
