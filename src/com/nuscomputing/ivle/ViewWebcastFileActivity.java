@@ -243,7 +243,7 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
     }
     
     public void onCompletion(MediaPlayer player) {
-    	// Nothing to here.
+    	finish();
     }
     
     public void setVideoUri(Uri uri) {
