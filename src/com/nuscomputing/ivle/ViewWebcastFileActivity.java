@@ -5,7 +5,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.MediaController;
@@ -64,9 +66,29 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 		public void run() {
 			if (mVideoView.isPlaying()) {
 				mProgressView.setVisibility(View.GONE);
+				
+				// Once the video is playing, hide the action bar.
+				mHandler.postDelayed(mActionBarHider, 3000);
+				
 			} else {
 				mHandler.postDelayed(mPlayingChecker, 250);
 			}
+		}
+	};
+	
+	/** Hides the action bar */
+	Runnable mActionBarHider = new Runnable() {
+		public void run() {
+			ActionBar bar = getActionBar();
+			bar.hide();
+		}
+	};
+	
+	/** Shows the action bar */
+	Runnable mActionBarShower = new Runnable() {
+		public void run() {
+			ActionBar bar = getActionBar();
+			bar.show();
 		}
 	};
 
@@ -129,6 +151,19 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 				mVideoView.seekTo(videoCurrentPosition);
 			}
 		}
+		
+		// Hide/show the action bar on touches.
+		getWindow().getDecorView().setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					mHandler.removeCallbacks(mActionBarHider);
+					mHandler.post(mActionBarShower);
+					mHandler.postDelayed(mActionBarHider, 3000);
+				}
+				return false;
+			}
+		});
 	}
 	
 	@Override
