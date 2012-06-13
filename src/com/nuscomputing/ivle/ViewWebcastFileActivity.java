@@ -2,17 +2,31 @@ package com.nuscomputing.ivle;
 
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
+import android.view.WindowManager.LayoutParams;
 import android.widget.MediaController;
+import android.widget.Toast;
 import android.widget.VideoView;
 import android.app.ActionBar;
+import android.app.DownloadManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 
 /**
  * Activity to view webcast videos.
@@ -43,15 +57,38 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 	/** The URL of the video */
 	private Uri mVideoUri;
 	
+	/** The file name of the video */
+	private String mVideoFileName;
+	
 	/** Checks if the video is already playing */
 	Handler mHandler = new Handler();
 	Runnable mPlayingChecker = new Runnable() {
 		public void run() {
 			if (mVideoView.isPlaying()) {
 				mProgressView.setVisibility(View.GONE);
+				
+				// Once the video is playing, hide the action bar.
+				mHandler.postDelayed(mActionBarHider, 3000);
+				
 			} else {
 				mHandler.postDelayed(mPlayingChecker, 250);
 			}
+		}
+	};
+	
+	/** Hides the action bar */
+	Runnable mActionBarHider = new Runnable() {
+		public void run() {
+			ActionBar bar = getActionBar();
+			bar.hide();
+		}
+	};
+	
+	/** Shows the action bar */
+	Runnable mActionBarShower = new Runnable() {
+		public void run() {
+			ActionBar bar = getActionBar();
+			bar.show();
 		}
 	};
 
@@ -72,10 +109,11 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 		// Use overlaid action bar.
 		if (Build.VERSION.SDK_INT >= 11) {
 			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+			getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
 			getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.view_webcast_file_activity_action_bar_background));
 			
 			ActionBar bar = getActionBar();
-			bar.setHomeButtonEnabled(true);
+			bar.setDisplayHomeAsUpEnabled(true);
 		}
 		
 		// Set to full screen.
@@ -113,6 +151,19 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 				mVideoView.seekTo(videoCurrentPosition);
 			}
 		}
+		
+		// Hide/show the action bar on touches.
+		getWindow().getDecorView().setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					mHandler.removeCallbacks(mActionBarHider);
+					mHandler.post(mActionBarShower);
+					mHandler.postDelayed(mActionBarHider, 3000);
+				}
+				return false;
+			}
+		});
 	}
 	
 	@Override
@@ -150,15 +201,73 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 	}
 	
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.view_webcast_file_activity_menu, menu);
+    	inflater.inflate(R.menu.global, menu);
+    	return true;
+    }
+	
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection.
-    	switch (item.getItemId()) {
-			case android.R.id.home:
-				finish();
-				return true;
-				
-			default:
-				return super.onOptionsItemSelected(item);
+    	if (!MainApplication.onOptionsItemSelected(this, item)) {
+	    	// Handle item selection.
+	    	switch (item.getItemId()) {
+	    		case R.id.view_webcast_file_activity_menu_open_in_browser:
+	    			Intent intent = new Intent(Intent.ACTION_VIEW);
+	    			intent.setData(Uri.parse(mVideoFileName));
+	    			startActivity(intent);
+	    			return true;
+	    			
+	    		case R.id.view_webcast_file_activity_menu_save:
+	    			// Obtain the preference manager.
+	    			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+	    			
+	    			// Check if we allow downloads over mobile network.
+	    			boolean downloadOverMobile = prefs.getBoolean("download_over_mobile_networks", true)	;
+	    			int allowedNetworkTypes = DownloadManager.Request.NETWORK_WIFI;
+	    			allowedNetworkTypes |= downloadOverMobile ? DownloadManager.Request.NETWORK_MOBILE : 0; 
+	    			
+	    			// Get connectivity state.
+	    			ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    			NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+	    			int networkType = networkInfo.getType();
+	    			
+	    			// Construct video file name.
+	    			String fileName = mVideoUri.getLastPathSegment();
+	    			//String filePath = "IVLE Webcasts/" + fileName;
+	    			DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
+	    			
+	    			// Request a save of the video file.
+	    			request.allowScanningByMediaScanner();
+	    			request.setDescription("IVLE Webcast");
+	    			request.setAllowedNetworkTypes(allowedNetworkTypes);
+	    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
+	    			DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+	    			manager.enqueue(request);
+	    			
+	    			// Show a toast.
+	    			if (networkType == ConnectivityManager.TYPE_MOBILE && !downloadOverMobile) {
+	    				Toast.makeText(this, "Webcast has been queued for download. Your download will start as soon you are connected to a WiFi network. ", Toast.LENGTH_SHORT)
+	    					.show();
+	    			} else {
+	    				Toast.makeText(this, "Webcast has been queued for download. Check the notification area for progress. ", Toast.LENGTH_SHORT)
+	    					.show();
+	    			}
+	    			
+	    			return true;
+	
+				case android.R.id.home:
+					finish();
+					return true;
+					
+				default:
+					return super.onOptionsItemSelected(item);
+	    	}
+	    	
+    	} else {
+    		return true;
     	}
     }
     
@@ -169,11 +278,15 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
     }
     
     public void onCompletion(MediaPlayer player) {
-    	// Nothing to here.
+    	finish();
     }
     
     public void setVideoUri(Uri uri) {
     	mVideoUri = uri;
+    }
+    
+    public void setVideoFileName(String fileName) {
+    	mVideoFileName = fileName;
     }
 	
 	// }}}

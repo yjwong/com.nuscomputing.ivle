@@ -22,18 +22,16 @@
     </PreferenceCategory>
     
     <PreferenceCategory
-        android:key="second_category"
-        android:title="Second Category">
+        android:key="webcast_downloads"
+        android:title="Webcast Downloads">
         
-        <EditTextPreference
-            android:key="welcome_message"
-            android:title="Welcome Message"
-            android:summary="Define the welcome message to be shown"
-            android:dialogTitle="Welcome Message"
-            android:dialogMessage="Provide a message"
-            android:defaultValue="Hello world!"
+        <CheckBoxPreference
+            android:key="download_over_mobile_networks"
+            android:title="Download over mobile networks"
+            android:summary="Allow use of 3G/4G for downloads"
+            android:defaultValue="true"
         />
-        
+                
     </PreferenceCategory>
 
 </PreferenceScreen>
