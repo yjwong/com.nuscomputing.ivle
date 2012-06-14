@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle;
 
+import java.util.ArrayList;
+
 import android.accounts.Account;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -13,8 +15,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,26 +43,20 @@ public class MainActivity extends FragmentActivity {
 	/** Is there a refresh in progress? */
 	private boolean mRefreshInProgress;
 	
-	/** The menu */
-	private Menu mMenu;
-	
 	/** The refresh menu item */
 	private MenuItem mRefreshMenuItem;
+	
+	/** The view pager */
+	private ViewPager mViewPager;
+	
+	/** Tabs adapter for view pager */
+	private TabsAdapter mTabsAdapter;
 	
 	/** The refresh receiver */
 	private boolean mIsReceiverRegistered = false;
 	private BroadcastReceiver mRefreshReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.v(TAG, "Received broadcast");
-			
-			// Reload the fragment.
-			FragmentManager manager = getSupportFragmentManager();
-			ModulesFragment fragment = (ModulesFragment) manager.findFragmentByTag("TAG_MODULES");
-			if (fragment != null) {
-				fragment.restartLoader();
-			}
-			
 			// Reset the refresh button.
 			mRefreshMenuItem.setActionView(null);
 			mRefreshInProgress = false;
@@ -91,6 +87,10 @@ public class MainActivity extends FragmentActivity {
 			return;
 		}
         
+        // Create the view pager.
+        mViewPager = new ViewPager(this);
+        mViewPager.setId(R.id.main_view_pager);
+		
         // Newer versions of Android: Action Bar
         if (Build.VERSION.SDK_INT >= 11) {
         	// Configure the action bar.
@@ -100,20 +100,15 @@ public class MainActivity extends FragmentActivity {
         	// Set the title appropriately.
         	actionBar.setTitle("NUS IVLE (" + mActiveAccount.name + ")");
         	
-        	// Create the actionbar tabs.
-        	Log.v(TAG, "creating action bar tabs");
-        	actionBar.addTab(actionBar.newTab()
-        			.setText("Modules")
-        			.setTabListener(new TabListener<ModulesFragment>(
-        					this, "TAG_MODULES", ModulesFragment.class)));
-        	
-        	actionBar.addTab(actionBar.newTab()
-        			.setText("What's New")
-        			.setTabListener(new TabListener<WhatsNewFragment>(
-        					this, "TAG_WHATS_NEW", WhatsNewFragment.class)));
+            // Plug the pager tabs.
+            mTabsAdapter = new TabsAdapter(this, mViewPager);
+            mTabsAdapter.addTab(actionBar.newTab()
+            		.setText("Modules"), ModulesFragment.class, null);
+            mTabsAdapter.addTab(actionBar.newTab()
+            		.setText("What's New"), WhatsNewFragment.class, null);
         }
         
-        setContentView(R.layout.main);
+        setContentView(mViewPager);
     }
     
     @Override
@@ -135,17 +130,7 @@ public class MainActivity extends FragmentActivity {
     			if (resultCode == RESULT_OK) {
         			// Setup a ContentReceiver to receive sync completion events.
     				Log.v(TAG, "Authentication suceeded");
-        			Account account = AccountUtils.getActiveAccount(this);
-        			registerReceiver(new BroadcastReceiver() {
-        				@Override
-        				public void onReceive(Context context, Intent intent) {
-        					Log.v(TAG, "Account added, performing initial sync");
-        					unregisterReceiver(this);
-        				}
-        			}, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
-        			
-        			// Request a sync.
-        			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+    				this.performRefresh(null);
     			}
     	}
     }
@@ -208,8 +193,6 @@ public class MainActivity extends FragmentActivity {
     	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.main_menu, menu);
     	inflater.inflate(R.menu.global, menu);
-    	mMenu = menu;
-    	
     	// Find the refresh item, since we do need when the state is restored.
     	mRefreshMenuItem = menu.findItem(R.id.main_menu_refresh);
     	
@@ -222,22 +205,7 @@ public class MainActivity extends FragmentActivity {
     	if (!MainApplication.onOptionsItemSelected(this, item)) {
         	switch (item.getItemId()) {
 	    		case R.id.main_menu_refresh:
-	    			// Inflate custom layout for refresh animation.
-	    			LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-	    			final View progressView = inflater.inflate(R.layout.refresh_view, null);
-	    			final MenuItem refreshItem = item;
-	    			refreshItem.setActionView(progressView);
-	    			
-	    			// Setup a ContentReceiver to receive sync completion events.
-	    			Account account = AccountUtils.getActiveAccount(this);
-	    			registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
-	    			mIsReceiverRegistered = true;
-	    			
-	    			// Request a sync.
-	    			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
-	    			
-	    			// Set refresh in progress.
-	    			mRefreshInProgress = true;
+	    			this.performRefresh(null);
 	    			return true;
 	    			
 	    		default:
@@ -248,83 +216,120 @@ public class MainActivity extends FragmentActivity {
     		return true;
     	}
     }
+    
+    private void performRefresh(Account account) {
+		// Inflate custom layout for refresh animation.
+		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		final View progressView = inflater.inflate(R.layout.refresh_view, null);
+		mRefreshMenuItem.setActionView(progressView);
+		
+		// Setup a ContentReceiver to receive sync completion events.
+		account = (account == null) ? AccountUtils.getActiveAccount(this) : account;
+		registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
+		mIsReceiverRegistered = true;
+		
+		// Request a sync.
+		ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+		
+		// Set refresh in progress.
+		mRefreshInProgress = true;
+    }
 
     // }}}
     // {{{ classes
     
     /**
-     * Listener for tabs in the UI.
-     * @author Wong Yong Jie
+     * Helper class for tab management.
+     * @author yjwong
      */
-    private class TabListener<T extends Fragment> implements ActionBar.TabListener {
+    public static class TabsAdapter extends FragmentPagerAdapter
+    		implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
     	// {{{ properties
     	
-    	private Fragment mFragment;
-    	private final Activity mActivity;
-    	private final String mTag;
-    	private final Class<T> mClass;
+    	private final Context mContext;
+    	private final ActionBar mActionBar;
+    	private final ViewPager mViewPager;
+    	private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
     	
     	// }}}
     	// {{{ methods
     	
-    	/**
-    	 * Constructor used each time a new time is created.
-    	 * 
-    	 * @param activity The host Activity, used to instantiate the fragment.
-    	 * @param tag      The identifier tag for the fragment.
-    	 * @param clazz    The fragment's class, used to instantiate the
-    	 *                  fragment.
-    	 */
-    	public TabListener(Activity activity, String tag, Class<T> clazz) {
-    		mActivity = activity;
-    		mTag = tag;
-    		mClass = clazz;
+    	public TabsAdapter(Activity activity, ViewPager pager) {
+    		super(((FragmentActivity) activity).getSupportFragmentManager());
+    		mContext = activity;
+    		mActionBar = activity.getActionBar();
+    		mViewPager = pager;
+    		mViewPager.setAdapter(this);
+    		mViewPager.setOnPageChangeListener(this);
     	}
     	
-		@Override
-		public void onTabReselected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
-			// User selected the already selected tab. Do nothing.
-		}
-
-		@Override
-		public void onTabSelected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
-			// Create a FragmentTransaction.
-			FragmentManager manager = getSupportFragmentManager();
-			FragmentTransaction transaction = manager.beginTransaction();
-			Log.v(TAG, "onTabSelected: " + mClass.getName());
-			
-			// Check if the fragment is already instantiated.
-			mFragment = manager.findFragmentByTag(mTag);
-			if (mFragment == null) {
-				// If not, instantiate it.
-				mFragment = Fragment.instantiate(mActivity, mClass.getName());
-				transaction.add(R.id.main_activity_fragment_container, mFragment, mTag);
-				Log.v(TAG, "Created new fragment " + mTag);
-			} else {
-				transaction.attach(mFragment);
-				Log.v(TAG, "Attached old fragment " + mTag);
-			}
-			
-			// We can call commit because we're not using the passed in
-			// FragmentTransaction.
-			transaction.commit();
-		}
-
-		@Override
-		public void onTabUnselected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
-			// Create a FragmentTransaction.
-			FragmentManager manager = getSupportFragmentManager();
-			FragmentTransaction transaction = manager.beginTransaction();
-			Log.v(TAG, "onTabUnselected: " + mClass.getName());
-			
-			if (mFragment != null) {
-				transaction.detach(mFragment);
-			}
-			
-			transaction.commit();
-		}
+    	public void addTab(ActionBar.Tab tab, Class<?> clazz, Bundle args) {
+    		TabInfo info = new TabInfo(clazz, args);
+    		tab.setTag(info);
+    		tab.setTabListener(this);
+    		mTabs.add(info);
+    		mActionBar.addTab(tab);
+    		notifyDataSetChanged();
+    	}
     	
-		// }}}
+    	@Override
+    	public int getCount() {
+    		return mTabs.size();
+    	}
+    	
+    	@Override
+    	public Fragment getItem(int position) {
+    		TabInfo info = mTabs.get(position);
+    		return Fragment.instantiate(mContext, info.mClass.getName(), info.mArgs);
+    	}
+    	
+    	@Override
+    	public void onPageScrolled(int position, float positionOffset,
+    			int positionOffsetPixels) {
+    		
+    	}
+    	
+    	@Override
+    	public void onPageSelected(int position) {
+    		mActionBar.setSelectedNavigationItem(position);
+    	}
+    	
+    	@Override
+    	public void onPageScrollStateChanged(int state) {
+    		
+    	}
+    	
+    	public void onTabSelected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
+    		Object tag = tab.getTag();
+    		for (int i = 0; i < mTabs.size(); i++) {
+    			if (mTabs.get(i) == tag) {
+    				mViewPager.setCurrentItem(i);
+    			}
+    		}
+    	}
+    	
+    	public void onTabReselected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
+    		
+    	}
+    	
+    	public void onTabUnselected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
+    		
+    	}
+    	
+    	// }}}
+    	// {{{ classes
+    	
+    	static final class TabInfo {
+    		private final Class<?> mClass;
+    		private final Bundle mArgs;
+    		
+    		TabInfo(Class<?> clazz, Bundle args) {
+    			mClass = clazz;
+    			mArgs = args;
+    		}
+    	}
+    	
+    	// }}}
     }
     
     // }}}
