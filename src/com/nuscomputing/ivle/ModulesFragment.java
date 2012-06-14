@@ -2,7 +2,10 @@ package com.nuscomputing.ivle;
 
 import com.nuscomputing.ivle.providers.ModulesContract;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -32,6 +35,15 @@ public class ModulesFragment extends ListFragment {
 	
 	/** The list adapter */
 	public SimpleCursorAdapter mAdapter = null;
+	
+	/** The refresh receiver */
+	private BroadcastReceiver mRefreshReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.v(TAG, "Received sync completion broadcast, reloading data");
+			mLoaderManager.restartLoader(DataLoader.MODULES_FRAGMENT_LOADER, null, mLoader);
+		}
+	};
 	
 	// }}}
 	// {{{ methods
@@ -72,8 +84,16 @@ public class ModulesFragment extends ListFragment {
 		setListAdapter(mAdapter);
 	}
 	
-	public void restartLoader() {
-		mLoaderManager.restartLoader(Constants.LOADER_MODULES, null, mLoader);
+	@Override
+	public void onPause() {
+		super.onPause();
+		getActivity().getApplicationContext().unregisterReceiver(mRefreshReceiver);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		getActivity().getApplicationContext().registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
 	}
 	
 	// }}}

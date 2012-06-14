@@ -69,7 +69,7 @@
         <activity android:name="ModuleActivity"></activity>
         <activity android:name="ViewAnnouncementActivity" android:theme="@android:style/Theme.Holo.Dialog.NoActionBar"></activity>
         <activity android:name="ViewWebcastActivity"></activity>
-        <activity android:name="ViewWebcastFileActivity" android:immersive="true" android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden"></activity>
+        <activity android:name="ViewWebcastFileActivity" android:immersive="true" android:screenOrientation="sensorLandscape" android:configChanges="orientation|keyboardHidden"></activity>
     </application>
 
 </manifest>

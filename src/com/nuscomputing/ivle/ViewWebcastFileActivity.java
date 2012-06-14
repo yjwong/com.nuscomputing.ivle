@@ -81,6 +81,9 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 		public void run() {
 			ActionBar bar = getActionBar();
 			bar.hide();
+			
+			// Set to low profile mode again.
+			getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 		}
 	};
 	
