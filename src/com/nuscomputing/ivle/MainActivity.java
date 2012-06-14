@@ -16,9 +16,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 /**
  * Main IVLE application activity.
@@ -35,6 +37,39 @@ public class MainActivity extends FragmentActivity {
 	
 	/** Intent request code */
 	public static final int REQUEST_AUTH = 1;
+	
+	/** Is there a refresh in progress? */
+	private boolean mRefreshInProgress;
+	
+	/** The menu */
+	private Menu mMenu;
+	
+	/** The refresh menu item */
+	private MenuItem mRefreshMenuItem;
+	
+	/** The refresh receiver */
+	private boolean mIsReceiverRegistered = false;
+	private BroadcastReceiver mRefreshReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.v(TAG, "Received broadcast");
+			
+			// Reload the fragment.
+			FragmentManager manager = getSupportFragmentManager();
+			ModulesFragment fragment = (ModulesFragment) manager.findFragmentByTag("TAG_MODULES");
+			if (fragment != null) {
+				fragment.restartLoader();
+			}
+			
+			// Reset the refresh button.
+			mRefreshMenuItem.setActionView(null);
+			mRefreshInProgress = false;
+			
+			// Unregister the broadcast receiver.
+			mIsReceiverRegistered = false;
+			unregisterReceiver(this);
+		}
+	};
 	
 	// }}}
 	// {{{ methods
@@ -121,9 +156,17 @@ public class MainActivity extends FragmentActivity {
     	
     	// Restore the active tab.
     	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
-    	ActionBar actionBar = getActionBar();
-    	actionBar.setSelectedNavigationItem(currentTabPosition);
-    	Log.v(TAG, "Restoring action bar tab, currently selected: " + currentTabPosition);
+    	getActionBar().setSelectedNavigationItem(currentTabPosition);
+    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
+    	
+    	// Restore the state of the refresh.
+    	mRefreshInProgress = savedInstanceState.getBoolean("refreshInProgress", false);
+    	Log.v(TAG, "onRestoreInstanceState: Restoring refresh state, currently = " + mRefreshInProgress);
+    	if (mRefreshInProgress) {
+    		LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+    		final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
+    		mRefreshMenuItem.setActionView(progressView);
+    	}
     }
     
     @Override
@@ -134,7 +177,30 @@ public class MainActivity extends FragmentActivity {
     	ActionBar actionBar = getActionBar();
     	int currentTabPosition = actionBar.getSelectedNavigationIndex();
     	outState.putInt("currentTab", currentTabPosition);
-    	Log.v(TAG, "Saving action bar tab, currently selected: " + currentTabPosition);
+    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
+    	
+    	// Save the state of the refresh.
+    	outState.putBoolean("refreshInProgress", mRefreshInProgress);
+    	Log.v(TAG, "onSaveInstanceState: Saving refresh state, currently = " + mRefreshInProgress);
+    }
+    
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	if (mIsReceiverRegistered) {
+    		mIsReceiverRegistered = false;
+    		unregisterReceiver(mRefreshReceiver);
+    		Log.v(TAG, "onPause: refresh receiver stopped");
+    	}
+    }
+    
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	if (!mIsReceiverRegistered && mRefreshInProgress) {
+    		registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
+    		Log.v(TAG, "onResume: refresh receiver resumed");
+    	}
     }
     
     @Override
@@ -142,6 +208,11 @@ public class MainActivity extends FragmentActivity {
     	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.main_menu, menu);
     	inflater.inflate(R.menu.global, menu);
+    	mMenu = menu;
+    	
+    	// Find the refresh item, since we do need when the state is restored.
+    	mRefreshMenuItem = menu.findItem(R.id.main_menu_refresh);
+    	
     	return true;
     }
     
@@ -151,26 +222,22 @@ public class MainActivity extends FragmentActivity {
     	if (!MainApplication.onOptionsItemSelected(this, item)) {
         	switch (item.getItemId()) {
 	    		case R.id.main_menu_refresh:
+	    			// Inflate custom layout for refresh animation.
+	    			LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+	    			final View progressView = inflater.inflate(R.layout.refresh_view, null);
+	    			final MenuItem refreshItem = item;
+	    			refreshItem.setActionView(progressView);
+	    			
 	    			// Setup a ContentReceiver to receive sync completion events.
 	    			Account account = AccountUtils.getActiveAccount(this);
-	    			registerReceiver(new BroadcastReceiver() {
-	    				@Override
-	    				public void onReceive(Context context, Intent intent) {
-	    					Log.v(TAG, "Received broadcast");
-	    					
-	    					// Reload the fragment.
-	    					FragmentManager manager = getSupportFragmentManager();
-	    					ModulesFragment fragment = (ModulesFragment) manager.findFragmentByTag("TAG_MODULES");
-	    					if (fragment != null) {
-	    						fragment.restartLoader();
-	    					}
-	    					
-	    					unregisterReceiver(this);
-	    				}
-	    			}, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
+	    			registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
+	    			mIsReceiverRegistered = true;
 	    			
 	    			// Request a sync.
 	    			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+	    			
+	    			// Set refresh in progress.
+	    			mRefreshInProgress = true;
 	    			return true;
 	    			
 	    		default:
