@@ -42,6 +42,9 @@ public class ModuleActivity extends FragmentActivity {
 	/** The module ID */
 	public long moduleId;
 	
+	/** The module name */
+	public String moduleCourseName;
+	
 	/** The view pager */
 	private ViewPager mViewPager;
 	
@@ -61,6 +64,7 @@ public class ModuleActivity extends FragmentActivity {
         
         // Obtain the requested module ID.
         Intent intent = getIntent();
+        moduleCourseName = intent.getStringExtra("moduleCourseName");
         moduleId = intent.getLongExtra("moduleId", -1);
         if (moduleId == -1) {
         	throw new IllegalStateException("No module ID was passed to ModuleActivity");
@@ -109,12 +113,6 @@ public class ModuleActivity extends FragmentActivity {
 				public void onPageScrollStateChanged(int state) { }
         	});
         }
-        
-        // Load the action bar title.
-        Bundle args = new Bundle();
-        args.putLong("moduleId", moduleId);
-        DataLoader loader = new DataLoader(this);
-        getSupportLoaderManager().initLoader(DataLoader.MODULE_ACTIVITY_LOADER, args, loader).forceLoad();
         
         // Set the content view.
         setContentView(mViewPager);
@@ -203,6 +201,11 @@ public class ModuleActivity extends FragmentActivity {
     			TextView tvItem = (TextView) convertView.findViewById(R.id.module_activity_spinner_subtitle);
     			if (tvItem != null) {
     				tvItem.setText(item);
+    			}
+    			
+    			TextView tvTitle = (TextView) convertView.findViewById(R.id.module_activity_spinner_title);
+    			if (tvTitle != null) {
+    				tvTitle.setText(moduleCourseName);
     			}
     		}
     		

@@ -42,18 +42,17 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	
 	/** Loader IDs */
 	public static final int MODULES_FRAGMENT_LOADER = 1;
-	public static final int MODULE_ACTIVITY_LOADER = 2;
-	public static final int MODULE_INFO_FRAGMENT_LOADER = 3;
-	public static final int MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER = 4;
-	public static final int MODULE_WEBCASTS_FRAGMENT_LOADER = 5;
-	public static final int MODULE_WORKBINS_FRAGMENT_LOADER = 6;
-	public static final int VIEW_ANNOUNCEMENT_FRAGMENT_LOADER = 7;
-	public static final int VIEW_WEBCAST_ACTIVITY_LOADER = 8;
-	public static final int VIEW_WEBCAST_FRAGMENT_LOADER = 9;
-	public static final int VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER = 10;
-	public static final int VIEW_WEBCAST_FILE_ACTIVITY_LOADER = 11;
-	public static final int VIEW_WORKBIN_ACTIVITY_LOADER = 12;
-	public static final int VIEW_WORKBIN_FRAGMENT_LOADER = 13;
+	public static final int MODULE_INFO_FRAGMENT_LOADER = 2;
+	public static final int MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER = 3;
+	public static final int MODULE_WEBCASTS_FRAGMENT_LOADER = 4;
+	public static final int MODULE_WORKBINS_FRAGMENT_LOADER = 5;
+	public static final int VIEW_ANNOUNCEMENT_FRAGMENT_LOADER = 6;
+	public static final int VIEW_WEBCAST_ACTIVITY_LOADER = 7;
+	public static final int VIEW_WEBCAST_FRAGMENT_LOADER = 8;
+	public static final int VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER = 9;
+	public static final int VIEW_WEBCAST_FILE_ACTIVITY_LOADER = 10;
+	public static final int VIEW_WORKBIN_ACTIVITY_LOADER = 11;
+	public static final int VIEW_WORKBIN_FRAGMENT_LOADER = 12;
 	
 	/** The context */
 	private Activity mActivity;
@@ -100,7 +99,6 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		long webcastFileId = -1;
 		long workbinId = -1;
 		switch (id) {
-			case MODULE_ACTIVITY_LOADER:
 			case MODULE_INFO_FRAGMENT_LOADER:
 			case MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER:
 			case MODULE_WEBCASTS_FRAGMENT_LOADER:
@@ -180,15 +178,6 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			
 			// Set up the cursor loader.
 			loader.setUri(ModulesContract.CONTENT_URI);
-			
-		} else if (id == MODULE_ACTIVITY_LOADER) {
-			// Set up our query parameters.
-			projectionList.add(ModulesContract.COURSE_NAME);
-			selection = DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.ACCOUNT + " = ?";
-			selectionArgsList.add(accountName);
-			
-			// Set up the cursor loader.
-			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId));
 			
 		} else if (id == MODULE_INFO_FRAGMENT_LOADER) {
 			// Set up our query parameters.
@@ -357,15 +346,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				((SimpleCursorAdapter) mAdapter).notifyDataSetChanged();
 				break;
-				
-			case MODULE_ACTIVITY_LOADER:
-				cursor.moveToFirst();
-				if (Build.VERSION.SDK_INT >= 11) {
-					ActionBar actionBar = mActivity.getActionBar();
-					actionBar.setTitle(cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
-				}
-				break;
-				
+
 			case MODULE_INFO_FRAGMENT_LOADER:
 				// Reset the cursor.
 				cursor.moveToFirst();
@@ -480,7 +461,6 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				((SimpleCursorAdapter) mAdapter).swapCursor(null);
 				break;
 				
-			case MODULE_ACTIVITY_LOADER:
 			case MODULE_INFO_FRAGMENT_LOADER:
 			case VIEW_ANNOUNCEMENT_FRAGMENT_LOADER:
 			case VIEW_WEBCAST_ACTIVITY_LOADER:
