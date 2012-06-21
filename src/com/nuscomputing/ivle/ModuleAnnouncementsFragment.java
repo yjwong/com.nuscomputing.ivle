@@ -116,7 +116,7 @@ public class ModuleAnnouncementsFragment extends ListFragment {
         args.putLong("moduleId", mModuleId);
         mLoader = new DataLoader(getActivity(), mAdapter);
         mLoaderManager = getLoaderManager();
-        mLoaderManager.initLoader(DataLoader.MODULE_ANNOUNCEMENT_FRAGMENT_LOADER, args, mLoader).forceLoad();
+        mLoaderManager.initLoader(DataLoader.MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER, args, mLoader).forceLoad();
         
         // Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.module_announcements_fragment_linear_layout);

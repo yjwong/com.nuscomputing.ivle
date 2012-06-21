@@ -10,6 +10,8 @@ import com.nuscomputing.ivle.providers.UsersContract;
 import com.nuscomputing.ivle.providers.WebcastFilesContract;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 import com.nuscomputing.ivle.providers.WebcastsContract;
+import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
+import com.nuscomputing.ivle.providers.WorkbinsContract;
 
 import android.accounts.Account;
 import android.app.ActionBar;
@@ -42,13 +44,15 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int MODULES_FRAGMENT_LOADER = 1;
 	public static final int MODULE_ACTIVITY_LOADER = 2;
 	public static final int MODULE_INFO_FRAGMENT_LOADER = 3;
-	public static final int MODULE_ANNOUNCEMENT_FRAGMENT_LOADER = 4;
-	public static final int MODULE_WEBCAST_FRAGMENT_LOADER = 5;
-	public static final int VIEW_ANNOUNCEMENT_FRAGMENT_LOADER = 6;
-	public static final int VIEW_WEBCAST_ACTIVITY_LOADER = 7;
-	public static final int VIEW_WEBCAST_FRAGMENT_LOADER = 8;
-	public static final int VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER = 9;
-	public static final int VIEW_WEBCAST_FILE_ACTIVITY_LOADER = 10;
+	public static final int MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER = 4;
+	public static final int MODULE_WEBCASTS_FRAGMENT_LOADER = 5;
+	public static final int MODULE_WORKBINS_FRAGMENT_LOADER = 6;
+	public static final int VIEW_ANNOUNCEMENT_FRAGMENT_LOADER = 7;
+	public static final int VIEW_WEBCAST_ACTIVITY_LOADER = 8;
+	public static final int VIEW_WEBCAST_FRAGMENT_LOADER = 9;
+	public static final int VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER = 10;
+	public static final int VIEW_WEBCAST_FILE_ACTIVITY_LOADER = 11;
+	public static final int VIEW_WORKBIN_FRAGMENT_LOADER = 12;
 	
 	/** The context */
 	private Activity mActivity;
@@ -93,11 +97,13 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		long webcastId = -1;
 		long webcastItemGroupId = -1;
 		long webcastFileId = -1;
+		long workbinId = -1;
 		switch (id) {
 			case MODULE_ACTIVITY_LOADER:
 			case MODULE_INFO_FRAGMENT_LOADER:
-			case MODULE_ANNOUNCEMENT_FRAGMENT_LOADER:
-			case MODULE_WEBCAST_FRAGMENT_LOADER:
+			case MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER:
+			case MODULE_WEBCASTS_FRAGMENT_LOADER:
+			case MODULE_WORKBINS_FRAGMENT_LOADER:
 				// Obtain the module ID.
 				moduleId = args.getLong("moduleId", -1);
 				if (moduleId == -1) {
@@ -135,6 +141,14 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				webcastFileId = args.getLong("webcastFileId", -1);
 				if (webcastFileId == -1) {
 					throw new IllegalStateException("No webcast file ID was passed to DataLoader");
+				}
+				break;
+			
+			case VIEW_WORKBIN_FRAGMENT_LOADER:
+				// Obtain the workbin ID.
+				workbinId = args.getLong("workbinId", -1);
+				if (workbinId == -1) {
+					throw new IllegalStateException("No workbin ID was passed to DataLoader");
 				}
 				break;
 				
@@ -188,7 +202,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId));
 
-		} else if (id == MODULE_ANNOUNCEMENT_FRAGMENT_LOADER) {
+		} else if (id == MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER) {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					AnnouncementsContract.ID,
@@ -202,7 +216,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId + "/announcements"));
 			
-		} else if (id == MODULE_WEBCAST_FRAGMENT_LOADER) {
+		} else if (id == MODULE_WEBCASTS_FRAGMENT_LOADER) {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					WebcastsContract.ID,
@@ -213,6 +227,19 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId + "/webcasts"));
+			
+		} else if (id == MODULE_WORKBINS_FRAGMENT_LOADER) {
+			// Set up our query parameters.
+			projectionList.addAll(Arrays.asList(
+					WorkbinsContract.ID,
+					WorkbinsContract.TITLE
+			));
+			selection = DatabaseHelper.WORKBINS_TABLE_NAME + "." + WorkbinsContract.ACCOUNT + " = ?";
+			selectionArgsList.add(accountName);
+			
+			// Set up the cursor loader.
+			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId + "/workbins"));
+			
 			
 		} else if (id == VIEW_ANNOUNCEMENT_FRAGMENT_LOADER) {
 			// Set up our query parameters.
@@ -285,6 +312,20 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/webcast_files"));
 			
+		} else if (id == VIEW_WORKBIN_FRAGMENT_LOADER) {
+			// Set up our query parameters.
+			projectionList.addAll(Arrays.asList(
+					WorkbinFoldersContract.ID,
+					WorkbinFoldersContract.FOLDER_NAME
+			));
+			selection = DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." + WorkbinFoldersContract.ACCOUNT + " = ?";
+			selection += " AND " + DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." + WorkbinFoldersContract.WORKBIN_ID + " = ?";
+			selectionArgsList.add(accountName);
+			selectionArgsList.add(Long.toString(workbinId));
+			
+			// Set up the cursor loader.
+			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/workbin_folders"));
+			
 		} else {
 			throw new IllegalArgumentException("No such loader");
 		}
@@ -325,16 +366,22 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				tvCourseAcadYear.setText(cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_ACAD_YEAR)));
 				break;
 			
-			case MODULE_ANNOUNCEMENT_FRAGMENT_LOADER:
+			case MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER:
 				// Change the visibility message.
 				TextView tvNoAnnouncements = (TextView) mActivity.findViewById(R.id.module_announcements_fragment_no_announcements);
 				tvNoAnnouncements.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
 				
-			case MODULE_WEBCAST_FRAGMENT_LOADER:
+			case MODULE_WEBCASTS_FRAGMENT_LOADER:
 				TextView tvNoWebcasts = (TextView) mActivity.findViewById(R.id.module_webcasts_fragment_no_webcasts);
 				tvNoWebcasts.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
+				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
+				break;
+				
+			case MODULE_WORKBINS_FRAGMENT_LOADER:
+				TextView tvNoWorkbins = (TextView) mActivity.findViewById(R.id.module_workbins_fragment_no_workbins);
+				tvNoWorkbins.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
 			
@@ -391,6 +438,10 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				((ViewWebcastFileActivity) mActivity).setVideoFileName(fileName);
 				break;
 				
+			case VIEW_WORKBIN_FRAGMENT_LOADER:
+				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
+				break;
+				
 			default:
 				throw new IllegalArgumentException("No such loader");
 		}
@@ -401,8 +452,9 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		// Select the correct action based on ID.
 		switch (loader.getId()) {
 			case MODULES_FRAGMENT_LOADER:
-			case MODULE_ANNOUNCEMENT_FRAGMENT_LOADER:
-			case MODULE_WEBCAST_FRAGMENT_LOADER:
+			case MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER:
+			case MODULE_WEBCASTS_FRAGMENT_LOADER:
+			case MODULE_WORKBINS_FRAGMENT_LOADER:
 			case VIEW_WEBCAST_FRAGMENT_LOADER:
 			case VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER:
 				((SimpleCursorAdapter) mAdapter).swapCursor(null);
@@ -410,9 +462,10 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				
 			case MODULE_ACTIVITY_LOADER:
 			case MODULE_INFO_FRAGMENT_LOADER:
-			case VIEW_WEBCAST_ACTIVITY_LOADER:
 			case VIEW_ANNOUNCEMENT_FRAGMENT_LOADER:
+			case VIEW_WEBCAST_ACTIVITY_LOADER:
 			case VIEW_WEBCAST_FILE_ACTIVITY_LOADER:
+			case VIEW_WORKBIN_FRAGMENT_LOADER:
 				// Do nothing.
 				break;
 				

@@ -27,6 +27,7 @@ import com.nuscomputing.ivle.providers.WebcastFilesContract;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 import com.nuscomputing.ivle.providers.WebcastsContract;
 import com.nuscomputing.ivle.providers.WeblinksContract;
+import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
 import com.nuscomputing.ivlelapi.Announcement;
 import com.nuscomputing.ivlelapi.FailedLoginException;
@@ -196,7 +197,15 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				Log.v(TAG, "Fetching workbins");
 				Workbin[] workbins = module.getWorkbins();
 				for (Workbin workbin : workbins) {
-					this.insertWorkbin(workbin, moduleId);
+					int workbinId = this.insertWorkbin(workbin, moduleId);
+					
+					// Fetch workbin folders.
+					Log.v(TAG, "Fetching workbin folders");
+					Workbin.Folder[] workbinFolders = workbin.getFolders();
+					for (Workbin.Folder workbinFolder : workbinFolders) {
+						// Insert workbin folders.
+						this.insertWorkbinFolder(workbinFolder, moduleId, workbinId);
+					}
 				}
 			}
 			
@@ -495,6 +504,36 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		
 		// Insert workbins.
 		Uri uri = mProvider.insert(WorkbinsContract.CONTENT_URI, values);
+		return Integer.parseInt(uri.getLastPathSegment());
+	}
+	
+	/**
+	 * Method: insertWorkbinFolder
+	 * <p>
+	 * Inserts a workbin folder into the workbin folder table.
+	 */
+	private int insertWorkbinFolder(Workbin.Folder folder, int moduleId,
+			int workbinId) throws RemoteException {
+		// Prepare the content values.
+		Log.v(TAG, "insertWorkbinFolder: " + folder.folderName);
+		ContentValues values = new ContentValues();
+		values.put(WorkbinFoldersContract.IVLE_ID, folder.ID);
+		values.put(WorkbinFoldersContract.MODULE_ID, moduleId);
+		values.put(WorkbinFoldersContract.ACCOUNT, mAccount.name);
+		values.put(WorkbinFoldersContract.WORKBIN_ID, workbinId);
+		values.put(WorkbinFoldersContract.ALLOW_UPLOAD, folder.allowUpload);
+		values.put(WorkbinFoldersContract.ALLOW_VIEW, folder.allowView);
+		values.put(WorkbinFoldersContract.CLOSE_DATE, folder.closeDate.toString());
+		values.put(WorkbinFoldersContract.COMMENT_OPTION, folder.commentOption.toString());
+		values.put(WorkbinFoldersContract.FILE_COUNT, folder.fileCount);
+		values.put(WorkbinFoldersContract.FOLDER_NAME, folder.folderName);
+		values.put(WorkbinFoldersContract.ORDER, folder.order);
+		values.put(WorkbinFoldersContract.OPEN_DATE, folder.openDate.toString());
+		values.put(WorkbinFoldersContract.SORT_FILES_BY, folder.sortFilesBy);
+		values.put(WorkbinFoldersContract.UPLOAD_DISPLAY_OPTION, folder.uploadDisplayOption);
+	
+		// Insert workbin folders.
+		Uri uri = mProvider.insert(WorkbinFoldersContract.CONTENT_URI, values);
 		return Integer.parseInt(uri.getLastPathSegment());
 	}
 	

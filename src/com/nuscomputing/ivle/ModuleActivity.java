@@ -75,6 +75,8 @@ public class ModuleActivity extends FragmentActivity {
             		.setText("Announcements"), ModuleAnnouncementsFragment.class, null);
             mTabsAdapter.addTab(actionBar.newTab()
             		.setText("Webcasts"), ModuleWebcastsFragment.class, null);
+            mTabsAdapter.addTab(actionBar.newTab()
+            		.setText("Workbins"), ModuleWorkbinsFragment.class, null);
         }
         
         // Load the action bar title.

@@ -9,6 +9,7 @@ import com.nuscomputing.ivle.providers.WebcastFilesContract;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 import com.nuscomputing.ivle.providers.WebcastsContract;
 import com.nuscomputing.ivle.providers.WeblinksContract;
+import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
 
 import android.content.Context;
@@ -24,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 6;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -205,6 +206,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			WorkbinsContract.TITLE + " TEXT" +
 			");";
 	
+	/** Data for workbin folders data table */
+	public static final String WORKBIN_FOLDERS_TABLE_NAME = "workbin_folders";
+	private static final String WORKBIN_FOLDERS_TABLE_CREATE =
+			"CREATE TABLE " + WORKBIN_FOLDERS_TABLE_NAME + "(" +
+			WorkbinFoldersContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			WorkbinFoldersContract.IVLE_ID + " TEXT, " +
+			WorkbinFoldersContract.MODULE_ID + " TEXT, " +
+			WorkbinFoldersContract.ACCOUNT + " TEXT, " +
+			WorkbinFoldersContract.WORKBIN_ID + " TEXT, " +
+			WorkbinFoldersContract.ALLOW_UPLOAD + " BOOLEAN, " + 
+			WorkbinFoldersContract.ALLOW_VIEW + " BOOLEAN, " +
+			WorkbinFoldersContract.CLOSE_DATE + " TEXT, " +
+			WorkbinFoldersContract.COMMENT_OPTION + " TEXT, " +
+			WorkbinFoldersContract.FILE_COUNT + " INTEGER, " +
+			WorkbinFoldersContract.FOLDER_NAME + " TEXT, " +
+			WorkbinFoldersContract.ORDER + " INTEGER, " +
+			WorkbinFoldersContract.OPEN_DATE + " TEXT, " +
+			WorkbinFoldersContract.SORT_FILES_BY + " TEXT, " +
+			WorkbinFoldersContract.UPLOAD_DISPLAY_OPTION + " TEXT" +
+			");";
+	
 	// }}}
 	// {{{ methods
 	
@@ -246,6 +268,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(WEBCAST_ITEM_GROUPS_TABLE_CREATE);
 		db.execSQL(WEBLINKS_TABLE_CREATE);
 		db.execSQL(WORKBINS_TABLE_CREATE);
+		db.execSQL(WORKBIN_FOLDERS_TABLE_CREATE);
 	}
 	
 	/**
@@ -267,6 +290,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper.drop(db, WEBCAST_ITEM_GROUPS_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBLINKS_TABLE_NAME);
 		DatabaseHelper.drop(db, WORKBINS_TABLE_NAME);
+		DatabaseHelper.drop(db, WORKBIN_FOLDERS_TABLE_NAME);
 		
 		// Recreate databases.
 		this.onCreate(db);
