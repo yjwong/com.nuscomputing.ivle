@@ -66,6 +66,7 @@ public class ModuleActivity extends FragmentActivity {
         	ActionBar actionBar = getActionBar();
         	actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         	actionBar.setDisplayHomeAsUpEnabled(true);
+        	actionBar.setDisplayShowTitleEnabled(false);
         	
             // Plug the pager tabs.
             mTabsAdapter = new TabsAdapter(this, mViewPager);

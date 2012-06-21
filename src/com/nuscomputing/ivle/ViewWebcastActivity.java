@@ -1,6 +1,5 @@
 package com.nuscomputing.ivle;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,10 +35,9 @@ public class ViewWebcastActivity extends FragmentActivity {
         	throw new IllegalStateException("No webcast ID was passed to ViewWebcastActivity");
         }
         
-        // Get action bar.
+        // Set action bar parameters.
         if (Build.VERSION.SDK_INT >= 11) {
-        	ActionBar actionBar = getActionBar();
-        	actionBar.setDisplayHomeAsUpEnabled(true);
+        	getActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
         // Set up our view.

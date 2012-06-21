@@ -52,7 +52,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int VIEW_WEBCAST_FRAGMENT_LOADER = 9;
 	public static final int VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER = 10;
 	public static final int VIEW_WEBCAST_FILE_ACTIVITY_LOADER = 11;
-	public static final int VIEW_WORKBIN_FRAGMENT_LOADER = 12;
+	public static final int VIEW_WORKBIN_ACTIVITY_LOADER = 12;
+	public static final int VIEW_WORKBIN_FRAGMENT_LOADER = 13;
 	
 	/** The context */
 	private Activity mActivity;
@@ -144,6 +145,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				}
 				break;
 			
+			case VIEW_WORKBIN_ACTIVITY_LOADER:
 			case VIEW_WORKBIN_FRAGMENT_LOADER:
 				// Obtain the workbin ID.
 				workbinId = args.getLong("workbinId", -1);
@@ -312,6 +314,17 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/webcast_files"));
 			
+		} else if (id == VIEW_WORKBIN_ACTIVITY_LOADER) {
+			// Set up our query parameters.
+			projectionList.addAll(Arrays.asList(
+					WorkbinsContract.TITLE
+			));
+			selection = DatabaseHelper.WORKBINS_TABLE_NAME + "." + WorkbinsContract.ACCOUNT + " = ?";
+			selectionArgsList.add(accountName);
+			
+			// Set up the cursor loader.
+			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/workbins/" + workbinId));
+			
 		} else if (id == VIEW_WORKBIN_FRAGMENT_LOADER) {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
@@ -438,6 +451,13 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				((ViewWebcastFileActivity) mActivity).setVideoFileName(fileName);
 				break;
 				
+			case VIEW_WORKBIN_ACTIVITY_LOADER:
+				cursor.moveToFirst();
+				if (Build.VERSION.SDK_INT >= 11) {
+					mActivity.getActionBar().setTitle(cursor.getString(cursor.getColumnIndex(WorkbinsContract.TITLE)));
+				}
+				break;
+				
 			case VIEW_WORKBIN_FRAGMENT_LOADER:
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
@@ -465,6 +485,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			case VIEW_ANNOUNCEMENT_FRAGMENT_LOADER:
 			case VIEW_WEBCAST_ACTIVITY_LOADER:
 			case VIEW_WEBCAST_FILE_ACTIVITY_LOADER:
+			case VIEW_WORKBIN_ACTIVITY_LOADER:
 			case VIEW_WORKBIN_FRAGMENT_LOADER:
 				// Do nothing.
 				break;
