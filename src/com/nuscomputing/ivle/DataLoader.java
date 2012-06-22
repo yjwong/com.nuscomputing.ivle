@@ -369,7 +369,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					WorkbinFoldersContract.ID,
-					WorkbinFoldersContract.FOLDER_NAME
+					WorkbinFoldersContract.FOLDER_NAME,
+					WorkbinFoldersContract.FILE_COUNT
 			));
 			selection = DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." + WorkbinFoldersContract.ACCOUNT + " = ?";
 			selection += " AND " + DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." + WorkbinFoldersContract.WORKBIN_ID + "= ?";
