@@ -27,6 +27,8 @@ import com.nuscomputing.ivle.providers.WebcastFilesContract;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 import com.nuscomputing.ivle.providers.WebcastsContract;
 import com.nuscomputing.ivle.providers.WeblinksContract;
+import com.nuscomputing.ivle.providers.WorkbinFilesContract;
+import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
 import com.nuscomputing.ivlelapi.Announcement;
 import com.nuscomputing.ivlelapi.FailedLoginException;
@@ -196,7 +198,15 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				Log.v(TAG, "Fetching workbins");
 				Workbin[] workbins = module.getWorkbins();
 				for (Workbin workbin : workbins) {
-					this.insertWorkbin(workbin, moduleId);
+					int workbinId = this.insertWorkbin(workbin, moduleId);
+					
+					// Fetch workbin folders.
+					Log.v(TAG, "Fetching workbin folders");
+					Workbin.Folder[] workbinFolders = workbin.getFolders();
+					for (Workbin.Folder workbinFolder : workbinFolders) {
+						// Insert workbin folders.
+						this.insertWorkbinFolder(workbinFolder, moduleId, workbinId, null);
+					}
 				}
 			}
 			
@@ -499,6 +509,93 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 	
 	/**
+	 * Method: insertWorkbinFolder
+	 * <p>
+	 * Inserts a workbin folder into the workbin folders table.
+	 */
+	private int insertWorkbinFolder(Workbin.Folder folder, int moduleId,
+			int workbinId, Integer workbinFolderId) throws RemoteException {
+		// Prepare the content values.
+		Log.v(TAG, "insertWorkbinFolder: " + folder.folderName);
+		ContentValues values = new ContentValues();
+		values.put(WorkbinFoldersContract.IVLE_ID, folder.ID);
+		values.put(WorkbinFoldersContract.MODULE_ID, moduleId);
+		values.put(WorkbinFoldersContract.ACCOUNT, mAccount.name);
+		values.put(WorkbinFoldersContract.WORKBIN_ID, workbinId);
+		values.put(WorkbinFoldersContract.WORKBIN_FOLDER_ID, workbinFolderId);
+		values.put(WorkbinFoldersContract.ALLOW_UPLOAD, folder.allowUpload);
+		values.put(WorkbinFoldersContract.ALLOW_VIEW, folder.allowView);
+		values.put(WorkbinFoldersContract.CLOSE_DATE, folder.closeDate.toString());
+		values.put(WorkbinFoldersContract.COMMENT_OPTION, folder.commentOption.toString());
+		values.put(WorkbinFoldersContract.FILE_COUNT, folder.fileCount);
+		values.put(WorkbinFoldersContract.FOLDER_NAME, folder.folderName);
+		values.put(WorkbinFoldersContract.ORDER, folder.order);
+		values.put(WorkbinFoldersContract.OPEN_DATE, folder.openDate.toString());
+		values.put(WorkbinFoldersContract.SORT_FILES_BY, folder.sortFilesBy);
+		values.put(WorkbinFoldersContract.UPLOAD_DISPLAY_OPTION, folder.uploadDisplayOption);
+	
+		// Insert workbin folders.
+		Uri uri = mProvider.insert(WorkbinFoldersContract.CONTENT_URI, values);
+		int insertedWorkbinFolderId = Integer.parseInt(uri.getLastPathSegment());
+		
+		// Insert the files inside this folder.
+		Workbin.File[] files = folder.getFiles();
+		for (Workbin.File file : files) {
+			Integer creatorId = null;
+			if (file.creator.ID != null) {
+				Uri creatorUri = this.insertUserIfNotExists(file.creator);
+				creatorId = Integer.parseInt(creatorUri.getLastPathSegment());
+			}
+			
+			Integer commenterId = null;
+			if (file.commenter.ID != null) {
+				Uri commenterUri = this.insertUserIfNotExists(file.commenter);
+				commenterId = Integer.parseInt(commenterUri.getLastPathSegment());
+			}
+			
+			this.insertWorkbinFile(file, moduleId, insertedWorkbinFolderId, creatorId, commenterId);
+		}
+		
+		// Insert the subfolders.
+		Workbin.Folder[] subfolders = folder.getFolders();
+		for (Workbin.Folder subfolder : subfolders) {
+			this.insertWorkbinFolder(subfolder, moduleId, workbinId, insertedWorkbinFolderId);
+		}
+		
+		return insertedWorkbinFolderId;
+	}
+	
+	/**
+	 * Method: insertWorkbinFile
+	 * <p>
+	 * Inserts a workbin file into the workbin files table.
+	 */
+	private int insertWorkbinFile(Workbin.File file, int moduleId,
+			int workbinFolderId, int creatorId, int commenterId) throws
+			RemoteException {
+		// Prepare the content values.
+		Log.v(TAG, "insertWorkbinFile: " + file.fileName);
+		ContentValues values = new ContentValues();
+		values.put(WorkbinFilesContract.IVLE_ID, file.ID);
+		values.put(WorkbinFilesContract.MODULE_ID, moduleId);
+		values.put(WorkbinFilesContract.ACCOUNT, mAccount.name);
+		values.put(WorkbinFilesContract.WORKBIN_FOLDER_ID, workbinFolderId);
+		values.put(WorkbinFilesContract.CREATOR_ID, creatorId);
+		values.put(WorkbinFilesContract.COMMENTER_ID, commenterId);
+		values.put(WorkbinFilesContract.FILE_DESCRIPTION, file.fileDescription);
+		values.put(WorkbinFilesContract.FILE_NAME, file.fileName);
+		values.put(WorkbinFilesContract.FILE_REMARKS, file.fileRemarks);
+		values.put(WorkbinFilesContract.FILE_REMARKS_ATTACHMENT, file.fileRemarksAttachment);
+		values.put(WorkbinFilesContract.FILE_SIZE, file.fileSize);
+		values.put(WorkbinFilesContract.FILE_TYPE, file.fileType);
+		values.put(WorkbinFilesContract.IS_DOWNLOADED, file.isDownloaded);
+		
+		// Insert workbin files.
+		Uri uri = mProvider.insert(WorkbinFilesContract.CONTENT_URI, values);
+		return Integer.parseInt(uri.getLastPathSegment());
+	}
+	
+	/**
 	 * Method: insertUserIfNotExists
 	 * <p>
 	 * Inserts a user into the user table if the user doesn't already
@@ -563,8 +660,11 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		mProvider.delete(UsersContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WebcastsContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WebcastItemGroupsContract.CONTENT_URI, selection, selectionArgs);
+		mProvider.delete(WebcastFilesContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WeblinksContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WorkbinsContract.CONTENT_URI, selection, selectionArgs);
+		mProvider.delete(WorkbinFoldersContract.CONTENT_URI, selection, selectionArgs);
+		mProvider.delete(WorkbinFilesContract.CONTENT_URI, selection, selectionArgs);
 	}
 	
 	// }}}

@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * Fragment to list modules.
@@ -73,10 +74,15 @@ public class ModulesFragment extends ListFragment {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
+				// Obtain the module name.
+				TextView tvCourseName = (TextView) view.findViewById(R.id.modules_fragment_list_course_name);
+				String courseName = tvCourseName.getText().toString();
+				
 				// Start the module info activity.
 				Intent intent = new Intent();
 				intent.setClass(getActivity(), ModuleActivity.class);
 				intent.putExtra("moduleId", id);
+				intent.putExtra("moduleCourseName", courseName);
 				startActivity(intent);
 			}
 		});
