@@ -51,26 +51,30 @@ public class IVLEProvider extends ContentProvider {
 	private static final int MODULES_WORKBINS_ID = 18;
 	private static final int MODULES_WORKBIN_FOLDERS = 19;
 	private static final int MODULES_WORKBIN_FOLDERS_ID = 20;
-	private static final int ANNOUNCEMENTS = 21;
-	private static final int ANNOUNCEMENTS_ID = 22;
-	private static final int GRADEBOOKS = 23;
-	private static final int GRADEBOOKS_ID = 24;
-	private static final int GRADEBOOK_ITEMS = 25;
-	private static final int GRADEBOOK_ITEMS_ID = 26;
-	private static final int USERS = 27;
-	private static final int USERS_ID = 28;
-	private static final int WEBCASTS = 29;
-	private static final int WEBCASTS_ID = 30;
-	private static final int WEBCAST_FILES = 31;
-	private static final int WEBCAST_FILES_ID = 32;
-	private static final int WEBCAST_ITEM_GROUPS = 33;
-	private static final int WEBCAST_ITEM_GROUPS_ID = 34;
-	private static final int WEBLINKS = 35;
-	private static final int WEBLINKS_ID = 36;
-	private static final int WORKBINS = 37;
-	private static final int WORKBINS_ID = 38;
-	private static final int WORKBIN_FOLDERS = 39;
-	private static final int WORKBIN_FOLDERS_ID = 40;
+	private static final int MODULES_WORKBIN_FILES = 21;
+	private static final int MODULES_WORKBIN_FILES_ID = 22;
+	private static final int ANNOUNCEMENTS = 23;
+	private static final int ANNOUNCEMENTS_ID = 24;
+	private static final int GRADEBOOKS = 25;
+	private static final int GRADEBOOKS_ID = 26;
+	private static final int GRADEBOOK_ITEMS = 27;
+	private static final int GRADEBOOK_ITEMS_ID = 28;
+	private static final int USERS = 29;
+	private static final int USERS_ID = 30;
+	private static final int WEBCASTS = 31;
+	private static final int WEBCASTS_ID = 32;
+	private static final int WEBCAST_FILES = 33;
+	private static final int WEBCAST_FILES_ID = 34;
+	private static final int WEBCAST_ITEM_GROUPS = 35;
+	private static final int WEBCAST_ITEM_GROUPS_ID = 36;
+	private static final int WEBLINKS = 37;
+	private static final int WEBLINKS_ID = 38;
+	private static final int WORKBINS = 39;
+	private static final int WORKBINS_ID = 40;
+	private static final int WORKBIN_FOLDERS = 41;
+	private static final int WORKBIN_FOLDERS_ID = 42;
+	private static final int WORKBIN_FILES = 43;
+	private static final int WORKBIN_FILES_ID = 44;
 	
 	// }}}
 	// {{{ methods
@@ -96,6 +100,8 @@ public class IVLEProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/workbins/#", MODULES_WORKBINS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/workbin_folders", MODULES_WORKBIN_FOLDERS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/workbin_folders/#", MODULES_WORKBIN_FOLDERS_ID);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/workbin_files", MODULES_WORKBIN_FILES);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/workbin_files/#", MODULES_WORKBIN_FILES_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "announcements", ANNOUNCEMENTS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "announcements/#", ANNOUNCEMENTS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "gradebooks", GRADEBOOKS);
@@ -116,6 +122,8 @@ public class IVLEProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "workbins/#", WORKBINS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "workbin_folders", WORKBIN_FOLDERS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "workbin_folders/#", WORKBIN_FOLDERS_ID);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "workbin_files", WORKBIN_FILES);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "workbin_files/#", WORKBIN_FILES_ID);
 	}
 
 	@Override
@@ -324,6 +332,26 @@ public class IVLEProvider extends ContentProvider {
 						whereClause, selectionArgs);
 				break;
 				
+			case MODULES_WORKBIN_FILES:
+				moduleId = uri.getPathSegments().get(2);
+				whereClause = WorkbinFilesContract.MODULE_ID + "=" + moduleId +
+						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
+						")" : "");
+				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FILES_TABLE_NAME,
+						whereClause, selectionArgs);
+				break;
+			
+			case MODULES_WORKBIN_FILES_ID:
+				moduleId = uri.getPathSegments().get(2);
+				whereClause = WorkbinFilesContract.MODULE_ID + "=" + moduleId +
+						" AND " + WorkbinFilesContract.ID + "=" +
+						uri.getLastPathSegment() +
+						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
+						")" : "");
+				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FILES_TABLE_NAME,
+						whereClause, selectionArgs);
+				break;
+				
 			case ANNOUNCEMENTS_ID:
 				whereClause = AnnouncementsContract.ID + "=" +
 						uri.getLastPathSegment() +
@@ -488,9 +516,26 @@ public class IVLEProvider extends ContentProvider {
 			
 			case WORKBIN_FOLDERS:
 				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all workbins");
+					Log.d(TAG, "Removing all workbin folders");
 				}
 				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME,
+						selection, selectionArgs);
+				break;
+				
+			case WORKBIN_FILES_ID:
+				whereClause = WorkbinFilesContract.ID + "=" +
+						uri.getLastPathSegment() +
+						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
+						")" : "");
+				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FILES_TABLE_NAME,
+						whereClause, selectionArgs);
+				break;
+			
+			case WORKBIN_FILES:
+				if (selection == null && selectionArgs == null) {
+					Log.d(TAG, "Removing all workbin files");
+				}
+				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FILES_TABLE_NAME,
 						selection, selectionArgs);
 				break;
 			
@@ -528,6 +573,7 @@ public class IVLEProvider extends ContentProvider {
 		String weblinkId = null;
 		String workbinId = null;
 		String workbinFolderId = null;
+		String workbinFileId = null;
 		long rowId = 0;
 		switch (sUriMatcher.match(uri)) {
 			case MODULES:
@@ -608,6 +654,14 @@ public class IVLEProvider extends ContentProvider {
 				workbinFolderId = uri.getLastPathSegment();
 				selection = WorkbinFoldersContract.MODULE_ID + " = " + moduleId +
 						" AND " + WorkbinFoldersContract.ID + " = " + workbinFolderId;
+				this.update(uri, values, selection, null);
+				break;
+				
+			case MODULES_WORKBIN_FILES_ID:
+				moduleId = uri.getPathSegments().get(2);
+				workbinFileId = uri.getLastPathSegment();
+				selection = WorkbinFilesContract.MODULE_ID + " = " + moduleId +
+						" AND " + WorkbinFilesContract.ID + " = " + workbinFileId;
 				this.update(uri, values, selection, null);
 				break;
 				
@@ -718,6 +772,17 @@ public class IVLEProvider extends ContentProvider {
 			case WORKBIN_FOLDERS_ID:
 				workbinFolderId = uri.getLastPathSegment();
 				selection = WorkbinFoldersContract.ID + " = " + workbinFolderId;
+				this.update(uri, values, selection, null);
+				break;
+				
+			case WORKBIN_FILES:
+				rowId = mDatabase.insert(DatabaseHelper.WORKBIN_FILES_TABLE_NAME, null, values);
+				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
+				break;
+			
+			case WORKBIN_FILES_ID:
+				workbinFileId = uri.getLastPathSegment();
+				selection = WorkbinFilesContract.ID + " = " + workbinFileId;
 				this.update(uri, values, selection, null);
 				break;
 				
@@ -878,6 +943,19 @@ public class IVLEProvider extends ContentProvider {
 				);
 				break;
 				
+			case MODULES_WORKBIN_FILES_ID:
+				queryBuilder.appendWhere(
+						DatabaseHelper.WORKBIN_FILES_TABLE_NAME + "." +
+						WorkbinFilesContract.ID + "=" + uri.getLastPathSegment()
+				);
+				
+			case MODULES_WORKBIN_FILES: // Fall through
+				queryBuilder.appendWhere(
+						DatabaseHelper.WORKBIN_FILES_TABLE_NAME + "." + 
+						WorkbinFilesContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
+				);
+				break;
+				
 			case ANNOUNCEMENTS_ID:
 				queryBuilder.appendWhere(
 						DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." +
@@ -940,6 +1018,20 @@ public class IVLEProvider extends ContentProvider {
 						WorkbinsContract.ID + "=" + uri.getPathSegments().get(1)
 				);
 				break;
+				
+			case WORKBIN_FOLDERS_ID:
+				queryBuilder.appendWhere(
+						DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." +
+						WorkbinFoldersContract.ID + "=" + uri.getPathSegments().get(1)
+				);
+				break;
+				
+			case WORKBIN_FILES_ID:
+				queryBuilder.appendWhere(
+						DatabaseHelper.WORKBIN_FILES_TABLE_NAME + "." +
+						WorkbinFilesContract.ID + "" + uri.getPathSegments().get(1)
+				);
+				break;
 			
 			case MODULES:
 			case ANNOUNCEMENTS:
@@ -952,6 +1044,7 @@ public class IVLEProvider extends ContentProvider {
 			case WEBLINKS:
 			case WORKBINS:
 			case WORKBIN_FOLDERS:
+			case WORKBIN_FILES:
 				break;
 				
 			default:
@@ -1112,6 +1205,13 @@ public class IVLEProvider extends ContentProvider {
 				queryBuilder.setTables(DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME);
 				break;
 				
+			case MODULES_WORKBIN_FILES_ID:
+			case MODULES_WORKBIN_FILES:
+			case WORKBIN_FILES_ID:
+			case WORKBIN_FILES:
+				queryBuilder.setTables(DatabaseHelper.WORKBIN_FILES_TABLE_NAME);
+				break;
+				
 			default:
 				throw new IllegalArgumentException();
 		}
@@ -1194,6 +1294,12 @@ public class IVLEProvider extends ContentProvider {
 			case WORKBIN_FOLDERS_ID:
 			case WORKBIN_FOLDERS:
 				tableName = DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME;
+				break;
+			case MODULES_WORKBIN_FILES_ID:
+			case MODULES_WORKBIN_FILES:
+			case WORKBIN_FILES_ID:
+			case WORKBIN_FILES:
+				tableName = DatabaseHelper.WORKBIN_FILES_TABLE_NAME;
 				break;
 			default:
 				throw new IllegalArgumentException();
