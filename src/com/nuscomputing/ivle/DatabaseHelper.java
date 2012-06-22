@@ -26,7 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 8;
+	private static final int DATABASE_VERSION = 9;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -216,6 +216,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			WorkbinFoldersContract.MODULE_ID + " TEXT, " +
 			WorkbinFoldersContract.ACCOUNT + " TEXT, " +
 			WorkbinFoldersContract.WORKBIN_ID + " TEXT, " +
+			WorkbinFoldersContract.WORKBIN_FOLDER_ID + " TEXT, " +
 			WorkbinFoldersContract.ALLOW_UPLOAD + " BOOLEAN, " + 
 			WorkbinFoldersContract.ALLOW_VIEW + " BOOLEAN, " +
 			WorkbinFoldersContract.CLOSE_DATE + " TEXT, " +

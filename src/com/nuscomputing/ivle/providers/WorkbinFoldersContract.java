@@ -28,6 +28,9 @@ public class WorkbinFoldersContract {
 	/** The workbin ID */
 	public static final String WORKBIN_ID = "workbin_id";
 	
+	/** The parent workbin folder ID */
+	public static final String WORKBIN_FOLDER_ID = "workbin_folder_id";
+	
 	/** Other columns */
 	public static final String ALLOW_UPLOAD = "allowUpload";
 	public static final String ALLOW_VIEW = "allowView";

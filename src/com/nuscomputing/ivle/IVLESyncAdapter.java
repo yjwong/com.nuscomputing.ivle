@@ -205,7 +205,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 					Workbin.Folder[] workbinFolders = workbin.getFolders();
 					for (Workbin.Folder workbinFolder : workbinFolders) {
 						// Insert workbin folders.
-						this.insertWorkbinFolder(workbinFolder, moduleId, workbinId);
+						this.insertWorkbinFolder(workbinFolder, moduleId, workbinId, null);
 					}
 				}
 			}
@@ -514,7 +514,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * Inserts a workbin folder into the workbin folders table.
 	 */
 	private int insertWorkbinFolder(Workbin.Folder folder, int moduleId,
-			int workbinId) throws RemoteException {
+			int workbinId, Integer workbinFolderId) throws RemoteException {
 		// Prepare the content values.
 		Log.v(TAG, "insertWorkbinFolder: " + folder.folderName);
 		ContentValues values = new ContentValues();
@@ -522,6 +522,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		values.put(WorkbinFoldersContract.MODULE_ID, moduleId);
 		values.put(WorkbinFoldersContract.ACCOUNT, mAccount.name);
 		values.put(WorkbinFoldersContract.WORKBIN_ID, workbinId);
+		values.put(WorkbinFoldersContract.WORKBIN_FOLDER_ID, workbinFolderId);
 		values.put(WorkbinFoldersContract.ALLOW_UPLOAD, folder.allowUpload);
 		values.put(WorkbinFoldersContract.ALLOW_VIEW, folder.allowView);
 		values.put(WorkbinFoldersContract.CLOSE_DATE, folder.closeDate.toString());
@@ -535,7 +536,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	
 		// Insert workbin folders.
 		Uri uri = mProvider.insert(WorkbinFoldersContract.CONTENT_URI, values);
-		int workbinFolderId = Integer.parseInt(uri.getLastPathSegment());
+		int insertedWorkbinFolderId = Integer.parseInt(uri.getLastPathSegment());
 		
 		// Insert the files inside this folder.
 		Workbin.File[] files = folder.getFiles();
@@ -552,16 +553,16 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				commenterId = Integer.parseInt(commenterUri.getLastPathSegment());
 			}
 			
-			this.insertWorkbinFile(file, moduleId, workbinFolderId, creatorId, commenterId);
+			this.insertWorkbinFile(file, moduleId, insertedWorkbinFolderId, creatorId, commenterId);
 		}
 		
 		// Insert the subfolders.
 		Workbin.Folder[] subfolders = folder.getFolders();
 		for (Workbin.Folder subfolder : subfolders) {
-			this.insertWorkbinFolder(subfolder, moduleId, workbinId);
+			this.insertWorkbinFolder(subfolder, moduleId, workbinId, insertedWorkbinFolderId);
 		}
 		
-		return workbinFolderId;
+		return insertedWorkbinFolderId;
 	}
 	
 	/**
