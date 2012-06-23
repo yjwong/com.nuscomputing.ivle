@@ -13,8 +13,7 @@
         android:layout_margin="8dp"
         android:textColor="#ffffffff"
         android:singleLine="true"
-        android:textSize="14sp"
-        android:text="Course Code" />
+        android:textSize="14sp" />
     
 	<TextView
 	    xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,7 +21,6 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_margin="8dp"
-	    android:textSize="16sp"
-	    android:text="Course Name" />
+	    android:textSize="16sp" />
 	    
 </LinearLayout>

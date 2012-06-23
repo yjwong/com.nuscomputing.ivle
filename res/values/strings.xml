@@ -29,5 +29,15 @@
         <item >Workbin</item>
     </string-array>
     <string name="refresh">Refresh</string>
+    <string name="module_announcements_fragment_no_announcements">There are no announcements.</string>
+    <string name="module_webcasts_fragment_no_webcasts">There are no webcasts.</string>
+    <string name="module_workbins_fragment_no_workbins">There are no workbins.</string>
+    <string name="view_webcast_file_activity_loading_video">Loading Video&#8230;</string>
+    <string name="view_webcast_fragment_no_webcast_item_groups">There are no webcast groups.</string>
+    <string name="view_webcast_item_group_fragment_no_files">There are no files.</string>
+    <string name="view_workbin_contents_fragment_no_contents">There are no files or folders in this workbin.</string>
+    <string name="view_workbin_files_fragment_no_files">There are no files.</string>
+    <string name="view_workbin_folders_fragment_no_folders">There are no folders.</string>
+    <string name="view_workbin_fragment_no_workbin_folders">There are no folders.</string>
 
 </resources>

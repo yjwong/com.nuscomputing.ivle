@@ -9,7 +9,7 @@
         android:id="@+id/view_workbin_fragment_no_workbin_folders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="There are no folders in this workbin. "
+        android:text="@string/view_workbin_fragment_no_workbin_folders"
         android:textSize="16sp"
         android:gravity="center"
         android:visibility="gone"

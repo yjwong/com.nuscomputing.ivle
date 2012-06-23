@@ -10,7 +10,7 @@
         android:id="@+id/module_workbins_fragment_no_workbins"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="There are no workbins.  "
+        android:text="@string/module_workbins_fragment_no_workbins"
         android:textSize="16sp"
         android:gravity="center"
         android:visibility="gone"
