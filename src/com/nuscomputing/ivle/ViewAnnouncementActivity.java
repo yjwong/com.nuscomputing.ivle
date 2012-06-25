@@ -34,7 +34,7 @@ public class ViewAnnouncementActivity extends FragmentActivity {
         
         // Set up our view.
         setContentView(R.layout.view_announcement_activity);
-        getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        getWindow().setLayout(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
         
         // Add the fragment.
         Fragment fragment = new ViewAnnouncementFragment();
