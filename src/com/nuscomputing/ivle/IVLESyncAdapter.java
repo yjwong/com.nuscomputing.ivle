@@ -1,6 +1,7 @@
 package com.nuscomputing.ivle;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -589,6 +590,12 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		values.put(WorkbinFilesContract.FILE_SIZE, file.fileSize);
 		values.put(WorkbinFilesContract.FILE_TYPE, file.fileType);
 		values.put(WorkbinFilesContract.IS_DOWNLOADED, file.isDownloaded);
+		
+		try {
+			values.put(WorkbinFilesContract.DOWNLOAD_URL, file.getDownloadURL().toString());
+		} catch (MalformedURLException e) {
+			// Ignore the exception.
+		}
 		
 		// Insert workbin files.
 		Uri uri = mProvider.insert(WorkbinFilesContract.CONTENT_URI, values);

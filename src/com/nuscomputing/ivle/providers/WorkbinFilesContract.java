@@ -43,5 +43,8 @@ public class WorkbinFilesContract {
 	public static final String FILE_TYPE = "fileType";
 	public static final String IS_DOWNLOADED = "isDownloaded";
 	
+	/** Additional column for download URL */
+	public static final String DOWNLOAD_URL = "downloadUrl";
+	
 	// }}}
 }

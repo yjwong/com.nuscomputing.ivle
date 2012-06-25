@@ -349,7 +349,9 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					WorkbinFilesContract.ID,
-					WorkbinFilesContract.FILE_NAME
+					WorkbinFilesContract.FILE_NAME,
+					WorkbinFilesContract.DOWNLOAD_URL,
+					WorkbinFilesContract.FILE_SIZE
 			));
 			selection = DatabaseHelper.WORKBIN_FILES_TABLE_NAME + "." + WorkbinFilesContract.ACCOUNT + " = ?";
 			selectionArgsList.add(accountName);

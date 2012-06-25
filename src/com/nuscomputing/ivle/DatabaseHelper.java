@@ -26,7 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 11;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -244,9 +244,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			WorkbinFilesContract.FILE_NAME + " TEXT, " +
 			WorkbinFilesContract.FILE_REMARKS + " TEXT, " +
 			WorkbinFilesContract.FILE_REMARKS_ATTACHMENT + " TEXT, " +
-			WorkbinFilesContract.FILE_SIZE + " INTEGER, " +
+			WorkbinFilesContract.FILE_SIZE + " DOUBLE, " +
 			WorkbinFilesContract.FILE_TYPE + " TEXT, " +
-			WorkbinFilesContract.IS_DOWNLOADED + " BOOLEAN" +
+			WorkbinFilesContract.IS_DOWNLOADED + " BOOLEAN," +
+			WorkbinFilesContract.DOWNLOAD_URL + " TEXT" +
 			");";
 	
 	// }}}

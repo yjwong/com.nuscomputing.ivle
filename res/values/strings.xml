@@ -39,5 +39,8 @@
     <string name="view_workbin_files_fragment_no_files">There are no files.</string>
     <string name="view_workbin_folders_fragment_no_folders">There are no folders.</string>
     <string name="view_workbin_fragment_no_workbin_folders">There are no folders.</string>
-
+    <string name="workbin_file_download_dialog_fragment_progress">%1$s of %2$s (%3$d%%)</string>
+    <string name="workbin_file_download_dialog_fragment_unable_to_download">Unable to download file. \nPlease check your network connection.</string>
+	<string name="workbin_file_download_dialog_fragment_no_app_found">No application can be found to open this file.</string>
+    
 </resources>
