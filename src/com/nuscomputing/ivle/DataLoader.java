@@ -349,7 +349,9 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					WorkbinFilesContract.ID,
-					WorkbinFilesContract.FILE_NAME
+					WorkbinFilesContract.FILE_NAME,
+					WorkbinFilesContract.DOWNLOAD_URL,
+					WorkbinFilesContract.FILE_SIZE
 			));
 			selection = DatabaseHelper.WORKBIN_FILES_TABLE_NAME + "." + WorkbinFilesContract.ACCOUNT + " = ?";
 			selectionArgsList.add(accountName);
@@ -369,7 +371,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					WorkbinFoldersContract.ID,
-					WorkbinFoldersContract.FOLDER_NAME
+					WorkbinFoldersContract.FOLDER_NAME,
+					WorkbinFoldersContract.FILE_COUNT
 			));
 			selection = DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." + WorkbinFoldersContract.ACCOUNT + " = ?";
 			selection += " AND " + DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." + WorkbinFoldersContract.WORKBIN_ID + "= ?";

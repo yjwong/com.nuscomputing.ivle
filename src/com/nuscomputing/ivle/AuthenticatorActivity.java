@@ -322,6 +322,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     	toast.show();
     	
     	// Activate sync automatically.
+    	ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
     	ContentResolver.setSyncAutomatically(account, Constants.PROVIDER_AUTHORITY, true);
     	
     	// Return to the caller.
@@ -331,7 +332,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     	setAccountAuthenticatorResult(intent.getExtras());
     	
     	// Okay, done.
-    	setResult(RESULT_OK);
+    	setResult(RESULT_OK, intent);
     	finish();
     }
     

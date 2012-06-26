@@ -7,13 +7,21 @@
     android:padding="8dp">
 
     <TextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/view_workbin_folders_fragment_list_folder_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:textColor="?android:attr/textColorPrimary"
         android:maxLines="2"
+        />
+    
+    <TextView
+        android:id="@+id/view_workbin_folders_fragment_list_file_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:maxLines="1"
         />
    
 </LinearLayout>

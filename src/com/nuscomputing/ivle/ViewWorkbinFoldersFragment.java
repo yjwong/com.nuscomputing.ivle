@@ -3,17 +3,20 @@ package com.nuscomputing.ivle;
 import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
@@ -53,10 +56,12 @@ public class ViewWorkbinFoldersFragment extends ListFragment {
 		
 		// Load the workbin file data.
 		String[] uiBindFrom = {
-				WorkbinFoldersContract.FOLDER_NAME
+				WorkbinFoldersContract.FOLDER_NAME,
+				WorkbinFoldersContract.FILE_COUNT
 		};
 		int[] uiBindTo = {
-				R.id.view_workbin_folders_fragment_list_folder_name
+				R.id.view_workbin_folders_fragment_list_folder_name,
+				R.id.view_workbin_folders_fragment_list_file_count
 		};
 		mAdapter = new SimpleCursorAdapter(
 				getActivity(),
@@ -64,6 +69,21 @@ public class ViewWorkbinFoldersFragment extends ListFragment {
 				null, uiBindFrom, uiBindTo,
 				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
 		);
+		mAdapter.setViewBinder(new ViewBinder() {
+			@Override
+			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				// The description field.
+				if (columnIndex == cursor.getColumnIndex(WorkbinFoldersContract.FILE_COUNT)) {
+					// Filter HTML in description.
+					String fileCount = cursor.getInt(columnIndex) + " file(s)";
+					TextView tvFileCount = (TextView) view;
+					tvFileCount.setText(fileCount);
+					return true;
+				}
+
+				return false;
+			}
+		});
 		mLoader = new DataLoader(getActivity(), mAdapter);
 		mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(DataLoader.VIEW_WORKBIN_FOLDERS_FRAGMENT_LOADER, args, mLoader);
