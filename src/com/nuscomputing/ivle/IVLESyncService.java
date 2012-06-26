@@ -22,6 +22,12 @@ public class IVLESyncService extends Service {
 	/** The sync adapter */
 	private static IVLESyncAdapter sSyncAdapter = null;
 	
+	/** Sync started flag */
+	public static final String ACTION_SYNC_STARTED = "com.nuscomputing.ivle.intent.action.SYNC_STARTED";
+	
+	/** Sync success flag */
+	public static final String ACTION_SYNC_SUCCESS = "com.nuscomputing.ivle.intent.action.SYNC_SUCCESS";
+	
 	/** Sync completion flag */
 	public static final String ACTION_SYNC_COMPLETE = "com.nuscomputing.ivle.intent.action.SYNC_COMPLETE";
 	
@@ -30,6 +36,9 @@ public class IVLESyncService extends Service {
 	
 	/** Sync failure flag */
 	public static final String ACTION_SYNC_FAILED = "com.nuscomputing.ivle.intent.action.SYNC_FAILED";
+	
+	/** SharedPreferences key for sync_in_progress */
+	public static final String KEY_SYNC_IN_PROGRESS = "sync_in_progress";
 	
 	// }}}
 	// {{{ methods
@@ -51,6 +60,15 @@ public class IVLESyncService extends Service {
 	}
 	
 	/**
+	 * Method: getSyncInProgressKey
+	 * <p>
+	 * Gets the shared preference key for sync status.
+	 */
+	public static String getSyncInProgressKey(Account account) {
+		return KEY_SYNC_IN_PROGRESS + "_" + account.name;
+	}
+	
+	/**
 	 * Method: getSyncAdapter
 	 * <p>
 	 * Gets the sync adapter for this service. If the sync adapter has not been
@@ -67,6 +85,29 @@ public class IVLESyncService extends Service {
 	}
 	
 	/**
+	 * Method: isSyncInProgress
+	 * <p>
+	 * Returns true if a sync is in progress for the specified account, false
+	 * otherwise.
+	 */
+	public static boolean isSyncInProgress(Context context, Account account) {
+		return IVLESyncAdapter.isSyncInProgress(context, account);
+	}
+	
+	/**
+	 * Method: broadcastSyncStarted
+	 * <p>
+	 * Sends a system broadcast that our sync is started.
+	 * This is made because there is not many ways of knowing the status of a
+	 * sync operation in Android's current sync framework.
+	 */
+	public static void broadcastSyncStarted(Context context, Account account) {
+		Intent intent = new Intent(IVLESyncService.ACTION_SYNC_STARTED);
+		intent.putExtra("com.nuscomputing.ivle.Account", account);
+		context.sendBroadcast(intent);
+	}
+	
+	/**
 	 * Method: broadcastSyncCanceled
 	 * <p>
 	 * Sends a system broadcast that our sync has been canceled.
@@ -79,14 +120,15 @@ public class IVLESyncService extends Service {
 	}
 	
 	/**
-	 * Method: broadcastSyncComplete
+	 * Method: broadcastSyncSuccess
 	 * <p>
 	 * Sends a system broadcast that our sync has succeeded.
 	 * This is made because there is not many ways of knowing the status of a
 	 * sync operation in Android's current sync framework.
 	 */
-	public static void broadcastSyncSuccess(Context context) {
-		Intent intent = new Intent(IVLESyncService.ACTION_SYNC_COMPLETE);
+	public static void broadcastSyncSuccess(Context context, Account account) {
+		Intent intent = new Intent(IVLESyncService.ACTION_SYNC_SUCCESS);
+		intent.putExtra("com.nuscomputing.ivle.Account", account);
 		context.sendBroadcast(intent);
 	}
 	

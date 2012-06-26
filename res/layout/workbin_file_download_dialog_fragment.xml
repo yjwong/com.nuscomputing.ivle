@@ -12,8 +12,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="18dp"
-        android:text="File Name.txt" />
+        android:textSize="18dp" />
 
     <ProgressBar
         android:id="@+id/workbin_file_download_dialog_fragment_progress_bar"

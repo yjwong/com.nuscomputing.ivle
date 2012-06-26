@@ -322,6 +322,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     	toast.show();
     	
     	// Activate sync automatically.
+    	ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
     	ContentResolver.setSyncAutomatically(account, Constants.PROVIDER_AUTHORITY, true);
     	
     	// Return to the caller.

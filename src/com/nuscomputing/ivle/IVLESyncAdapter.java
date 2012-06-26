@@ -11,12 +11,14 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
@@ -94,6 +96,10 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		this.mAccount = account;
 		this.mProvider = provider;
 		this.mSyncResult = syncResult;
+		
+		// Tell interested listeners that sync has started.
+		this.setSyncInProgress(account, true);
+		IVLESyncService.broadcastSyncStarted(mContext, account);
 		
 		// Obtain an IVLE object.
 		Log.d(TAG, "Performing sync of IVLE data");
@@ -212,17 +218,43 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 			}
 			
 			Log.d(TAG, "Sync complete");
-			IVLESyncService.broadcastSyncSuccess(mContext);
+			IVLESyncService.broadcastSyncSuccess(mContext, account);
 			
 		} catch (Exception e) {
 			// Handle any sync exceptions.
 			this.handleSyncExceptions(authToken, e);
+			
+		} finally {
+			this.setSyncInProgress(account, false);
 		}
 	}
 	
 	@Override
 	public void onSyncCanceled(Thread thread) {
 		IVLESyncService.broadcastSyncCanceled(mContext);
+	}
+	
+	/**
+	 * Method: isSyncInProgress
+	 * <p>
+	 * Returns true if a sync is in progress, false otherwise.
+	 */
+	public static boolean isSyncInProgress(Context context, Account account) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		return prefs.getBoolean(IVLESyncService.KEY_SYNC_IN_PROGRESS + "_" + account.name, false);
+	}
+	
+	/**
+	 * Method: setSyncInProgress
+	 * <p>
+	 * Sets whether the sync is in progress or not.
+	 */
+	private void setSyncInProgress(Account account, boolean inProgress) {
+		// Abuse of shared preferences to set sync status ):
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext.getApplicationContext());
+		SharedPreferences.Editor prefsEditor = prefs.edit();
+		prefsEditor.putBoolean(IVLESyncService.KEY_SYNC_IN_PROGRESS + "_" + account.name, inProgress);
+		prefsEditor.commit();
 	}
 	
 	/**

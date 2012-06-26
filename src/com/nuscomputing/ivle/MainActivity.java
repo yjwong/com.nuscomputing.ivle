@@ -11,8 +11,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -23,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 
 /**
  * Main IVLE application activity.
@@ -40,9 +43,6 @@ public class MainActivity extends FragmentActivity {
 	/** Intent request code */
 	public static final int REQUEST_AUTH = 1;
 	
-	/** Is there a refresh in progress? */
-	private boolean mRefreshInProgress;
-	
 	/** The refresh menu item */
 	private MenuItem mRefreshMenuItem;
 	
@@ -52,18 +52,31 @@ public class MainActivity extends FragmentActivity {
 	/** Tabs adapter for view pager */
 	private TabsAdapter mTabsAdapter;
 	
-	/** The refresh receiver */
-	private boolean mIsReceiverRegistered = false;
-	private BroadcastReceiver mRefreshReceiver = new BroadcastReceiver() {
+	/** The shared preferences */
+	private SharedPreferences mPrefs;
+	
+	/** Is a sync currently in progress? */
+	private boolean mSyncInProgress;
+	
+	/** Sync started broadcast receiver */
+	private BroadcastReceiver mSyncStartedReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			// Reset the refresh button.
-			mRefreshMenuItem.setActionView(null);
-			mRefreshInProgress = false;
-			
-			// Unregister the broadcast receiver.
-			mIsReceiverRegistered = false;
-			unregisterReceiver(this);
+			Account account = intent.getParcelableExtra("com.nuscomputing.ivle.Account");
+			if (account.name.equals(mActiveAccount.name)) {
+				showSyncInProgress();
+			}
+		}
+	};
+	
+	/** Sync success broadcast receiver */
+	private BroadcastReceiver mSyncSuccessReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Account account = intent.getParcelableExtra("com.nuscomputing.ivle.Account");
+			if (account.name.equals(mActiveAccount.name)) {
+				hideSyncInProgress();
+			}
 		}
 	};
 	
@@ -74,8 +87,11 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(TAG, "onCreate");
-        
+		
+        // Create the view pager.
+		setContentView(R.layout.main);
+		mViewPager = (ViewPager) findViewById(R.id.main_view_pager);
+		
         // Check if there's an active account.
 		mActiveAccount = AccountUtils.getActiveAccount(this, true);
 		if (mActiveAccount == null) {
@@ -84,31 +100,26 @@ public class MainActivity extends FragmentActivity {
 			Intent intent = new Intent();
 			intent.setClass(this, AuthenticatorActivity.class);
 			startActivityForResult(intent, REQUEST_AUTH);
-			return;
 		}
-        
-        // Create the view pager.
-        mViewPager = new ViewPager(this);
-        mViewPager.setId(R.id.main_view_pager);
 		
         // Newer versions of Android: Action Bar
         if (Build.VERSION.SDK_INT >= 11) {
         	// Configure the action bar.
-        	ActionBar actionBar = getActionBar();
-        	actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        	
-        	// Set the title appropriately.
-        	actionBar.setTitle("NUS IVLE (" + mActiveAccount.name + ")");
+        	ActionBar bar = getActionBar();
+        	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         	
             // Plug the pager tabs.
             mTabsAdapter = new TabsAdapter(this, mViewPager);
-            mTabsAdapter.addTab(actionBar.newTab()
+            mTabsAdapter.addTab(bar.newTab()
             		.setText("Modules"), ModulesFragment.class, null);
-            mTabsAdapter.addTab(actionBar.newTab()
-            		.setText("What's New"), WhatsNewFragment.class, null);
+            mTabsAdapter.addTab(bar.newTab()
+            		.setText("My Agenda"), MyAgendaFragment.class, null);
+            
+        	// Set the title appropriately.
+        	if (mActiveAccount != null) {
+        		bar.setTitle("NUS IVLE (" + mActiveAccount.name + ")");
+        	}
         }
-        
-        setContentView(mViewPager);
     }
     
     @Override
@@ -128,7 +139,6 @@ public class MainActivity extends FragmentActivity {
     			
     			// If it passes, perform an initial sync.
     			if (resultCode == RESULT_OK) {
-        			// Setup a ContentReceiver to receive sync completion events.
     				Log.v(TAG, "Authentication suceeded");
     				this.performRefresh(null);
     			}
@@ -143,15 +153,6 @@ public class MainActivity extends FragmentActivity {
     	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
     	getActionBar().setSelectedNavigationItem(currentTabPosition);
     	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
-    	
-    	// Restore the state of the refresh.
-    	mRefreshInProgress = savedInstanceState.getBoolean("refreshInProgress", false);
-    	Log.v(TAG, "onRestoreInstanceState: Restoring refresh state, currently = " + mRefreshInProgress);
-    	if (mRefreshInProgress) {
-    		LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-    		final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
-    		mRefreshMenuItem.setActionView(progressView);
-    	}
     }
     
     @Override
@@ -163,28 +164,31 @@ public class MainActivity extends FragmentActivity {
     	int currentTabPosition = actionBar.getSelectedNavigationIndex();
     	outState.putInt("currentTab", currentTabPosition);
     	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
-    	
-    	// Save the state of the refresh.
-    	outState.putBoolean("refreshInProgress", mRefreshInProgress);
-    	Log.v(TAG, "onSaveInstanceState: Saving refresh state, currently = " + mRefreshInProgress);
     }
     
     @Override
     public void onPause() {
     	super.onPause();
-    	if (mIsReceiverRegistered) {
-    		mIsReceiverRegistered = false;
-    		unregisterReceiver(mRefreshReceiver);
-    		Log.v(TAG, "onPause: refresh receiver stopped");
-    	}
+    	
+    	// Unregister receiving sync events.
+    	unregisterReceiver(mSyncStartedReceiver);
     }
     
     @Override
     public void onResume() {
     	super.onResume();
-    	if (!mIsReceiverRegistered && mRefreshInProgress) {
-    		registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
-    		Log.v(TAG, "onResume: refresh receiver resumed");
+    	
+    	// Register receiving sync events.
+    	registerReceiver(mSyncStartedReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_STARTED));
+    	registerReceiver(mSyncSuccessReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_SUCCESS));
+    	
+    	// Obtain the shared preferences.
+    	mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    	mSyncInProgress = mPrefs.getBoolean(IVLESyncService.KEY_SYNC_IN_PROGRESS + "_" + mActiveAccount.name, false);
+    	if (mSyncInProgress) {
+    		showSyncInProgress();
+    	} else {
+    		hideSyncInProgress();
     	}
     }
     
@@ -193,8 +197,14 @@ public class MainActivity extends FragmentActivity {
     	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.main_menu, menu);
     	inflater.inflate(R.menu.global, menu);
-    	// Find the refresh item, since we do need when the state is restored.
+    	
+    	// Restore the state of the refresh item.
     	mRefreshMenuItem = menu.findItem(R.id.main_menu_refresh);
+    	if (mSyncInProgress) {
+			showSyncInProgress();
+    	} else {
+    		hideSyncInProgress();
+    	}
     	
     	return true;
     }
@@ -217,22 +227,47 @@ public class MainActivity extends FragmentActivity {
     	}
     }
     
-    private void performRefresh(Account account) {
-		// Inflate custom layout for refresh animation.
-		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-		final View progressView = inflater.inflate(R.layout.refresh_view, null);
-		mRefreshMenuItem.setActionView(progressView);
+    private void showSyncInProgress() {
+		// Change the refresh button to a ProgressBar action view.
+    	if (mRefreshMenuItem != null) {
+			LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+			final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
+			mRefreshMenuItem.setActionView(progressView);
+    	}
 		
-		// Setup a ContentReceiver to receive sync completion events.
-		account = (account == null) ? AccountUtils.getActiveAccount(this) : account;
-		registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
-		mIsReceiverRegistered = true;
+		// Hide the view pager.
+		mViewPager.setVisibility(View.GONE);
+		
+		// Show the sync in progress notice.
+		LinearLayout viewWaitingForSync = (LinearLayout) findViewById(R.id.main_waiting_for_sync_linear_layout);
+		viewWaitingForSync.setVisibility(View.VISIBLE);
+    }
+    
+    private void hideSyncInProgress() {
+		// Reset the refresh button.
+    	if (mRefreshMenuItem != null) {
+    		mRefreshMenuItem.setActionView(null);
+    	}
+		
+		// Show the view pager.
+		mViewPager.setVisibility(View.VISIBLE);
+		
+		// Hide the sync in progress notice.
+		LinearLayout viewWaitingForSync = (LinearLayout) findViewById(R.id.main_waiting_for_sync_linear_layout);
+		viewWaitingForSync.setVisibility(View.GONE);
+    }
+    
+    private void performRefresh(Account account) {
+    	account = (account == null) ? AccountUtils.getActiveAccount(this) : account;
+    	
+		// Update the title.
+		ActionBar bar = getActionBar();
+		bar.setTitle("NUS IVLE (" + account.name + ")");
 		
 		// Request a sync.
-		ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
-		
-		// Set refresh in progress.
-		mRefreshInProgress = true;
+    	if (!IVLESyncService.isSyncInProgress(getApplicationContext(), account)) {
+			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+    	}
     }
 
     // }}}

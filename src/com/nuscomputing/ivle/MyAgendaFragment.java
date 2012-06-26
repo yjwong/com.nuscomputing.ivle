@@ -10,7 +10,7 @@ import android.view.ViewGroup;
  * Fragment for "What's New" screen.
  * @author yjwong
  */
-public class WhatsNewFragment extends Fragment {
+public class MyAgendaFragment extends Fragment {
 	// {{{ properties
 	
 	/** TAG for logging */
