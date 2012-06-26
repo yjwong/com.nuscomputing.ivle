@@ -3,13 +3,9 @@ package com.nuscomputing.ivle;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import android.accounts.Account;
 import android.app.ActionBar;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +14,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -121,7 +116,6 @@ public class ModuleActivity extends FragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.main_menu, menu);
     	inflater.inflate(R.menu.global, menu);
     	return true;
     }
@@ -132,21 +126,6 @@ public class ModuleActivity extends FragmentActivity {
     	if (!MainApplication.onOptionsItemSelected(this, item)) {
 	    	// Handle item selection.
 	    	switch (item.getItemId()) {
-	    		case R.id.main_menu_refresh:
-	    			// Setup a ContentReceiver to receive sync completion events.
-	    			Account account = AccountUtils.getActiveAccount(this);
-	    			registerReceiver(new BroadcastReceiver() {
-	    				@Override
-	    				public void onReceive(Context context, Intent intent) {
-	    					Log.v(TAG, "Received broadcast");
-	    					unregisterReceiver(this);
-	    				}
-	    			}, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
-	    			
-	    			// Request a sync.
-	    			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
-	    			return true;
-	    			
 	    		case android.R.id.home:
 	    			// App icon tapped, go home.
 	    			Intent intent = new Intent(this, MainActivity.class);

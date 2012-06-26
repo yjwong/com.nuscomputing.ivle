@@ -332,7 +332,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     	setAccountAuthenticatorResult(intent.getExtras());
     	
     	// Okay, done.
-    	setResult(RESULT_OK);
+    	setResult(RESULT_OK, intent);
     	finish();
     }
     

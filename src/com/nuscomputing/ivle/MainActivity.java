@@ -140,7 +140,10 @@ public class MainActivity extends FragmentActivity {
     			// If it passes, perform an initial sync.
     			if (resultCode == RESULT_OK) {
     				Log.v(TAG, "Authentication suceeded");
-    				this.performRefresh(null);
+    				if (mActiveAccount == null) {
+    					showSyncInProgress();
+    				}    				
+    				this.performRefresh();
     			}
     	}
     }
@@ -184,11 +187,13 @@ public class MainActivity extends FragmentActivity {
     	
     	// Obtain the shared preferences.
     	mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    	mSyncInProgress = mPrefs.getBoolean(IVLESyncService.KEY_SYNC_IN_PROGRESS + "_" + mActiveAccount.name, false);
-    	if (mSyncInProgress) {
-    		showSyncInProgress();
-    	} else {
-    		hideSyncInProgress();
+    	if (mActiveAccount != null) {
+        	mSyncInProgress = mPrefs.getBoolean(IVLESyncService.KEY_SYNC_IN_PROGRESS + "_" + mActiveAccount.name, false);
+        	if (mSyncInProgress) {
+        		showSyncInProgress();
+        	} else {
+        		hideSyncInProgress();
+        	}
     	}
     }
     
@@ -215,7 +220,7 @@ public class MainActivity extends FragmentActivity {
     	if (!MainApplication.onOptionsItemSelected(this, item)) {
         	switch (item.getItemId()) {
 	    		case R.id.main_menu_refresh:
-	    			this.performRefresh(null);
+	    			this.performRefresh();
 	    			return true;
 	    			
 	    		default:
@@ -257,16 +262,16 @@ public class MainActivity extends FragmentActivity {
 		viewWaitingForSync.setVisibility(View.GONE);
     }
     
-    private void performRefresh(Account account) {
-    	account = (account == null) ? AccountUtils.getActiveAccount(this) : account;
+    private void performRefresh() {
+    	mActiveAccount = AccountUtils.getActiveAccount(this);
     	
 		// Update the title.
 		ActionBar bar = getActionBar();
-		bar.setTitle("NUS IVLE (" + account.name + ")");
+		bar.setTitle("NUS IVLE (" + mActiveAccount.name + ")");
 		
 		// Request a sync.
-    	if (!IVLESyncService.isSyncInProgress(getApplicationContext(), account)) {
-			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+    	if (!IVLESyncService.isSyncInProgress(getApplicationContext(), mActiveAccount)) {
+			ContentResolver.requestSync(mActiveAccount, Constants.PROVIDER_AUTHORITY, new Bundle());
     	}
     }
 

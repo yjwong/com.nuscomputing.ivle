@@ -22,6 +22,43 @@ public class AccountUtils {
 	// {{{ methods
 	
 	/**
+	 * Method: setActiveAccount
+	 * <p>
+	 * Sets the active account and stores it into the preferences.
+	 */
+	public static void setActiveAccount(Context context, String accountName) {
+		// Obtain the preference manager.
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		// Create an account manager.
+		AccountManager am = AccountManager.get(context.getApplicationContext());
+		Account[] accounts = am.getAccountsByType(Constants.ACCOUNT_TYPE);
+		
+		// Check if the specified account exists.
+		if (accountName != null) {
+			// Find the account.
+			boolean accountFound = false;
+			for (Account account : accounts) {
+				if (account.name.equals(accountName)) {
+					accountFound = true;
+				}
+			}
+			
+			if (!accountFound) {
+				throw new IllegalArgumentException("The specified account cannot be found");
+			} else {
+				// Set the preference.
+				Editor prefsEditor = prefs.edit();
+				prefsEditor.putString("account", accountName);
+				prefsEditor.commit();
+			}
+			
+		} else {
+			throw new NullPointerException("accountName was null");
+		}
+	}
+	
+	/**
 	 * Method: getActiveAccount
 	 * <p>
 	 * Gets the current active account as specified in the preferences.
