@@ -17,13 +17,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * Fragment to view a workbin's files.
  * @author yjwong
  */
-public class ViewWorkbinFilesFragment extends ListFragment {
+public class ViewWorkbinFilesFragment extends ListFragment 
+		implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -92,7 +94,7 @@ public class ViewWorkbinFilesFragment extends ListFragment {
 				return false;
 			}
 		});
-		mLoader = new DataLoader(getActivity(), mAdapter);
+		mLoader = new DataLoader(getActivity(), mAdapter, this);
 		mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(DataLoader.VIEW_WORKBIN_FILES_FRAGMENT_LOADER, args, mLoader);
 		
@@ -136,6 +138,11 @@ public class ViewWorkbinFilesFragment extends ListFragment {
 		DialogFragment fragment = new WorkbinFileDownloadDialogFragment();
 		fragment.setArguments(args);
 		fragment.show(transaction, "DOWNLOAD_DIALOG");
+	}
+	
+	public void onLoaderFinished(Bundle result) {
+		TextView tvNoFiles = (TextView) getActivity().findViewById(R.id.view_workbin_files_fragment_no_files);
+		tvNoFiles.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}
 	
 	// }}}

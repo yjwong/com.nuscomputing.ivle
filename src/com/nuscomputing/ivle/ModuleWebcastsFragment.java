@@ -16,12 +16,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleWebcastsFragment extends ListFragment {
+public class ModuleWebcastsFragment extends ListFragment
+		implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -75,7 +77,7 @@ public class ModuleWebcastsFragment extends ListFragment {
 		);
         Bundle args = new Bundle();
         args.putLong("moduleId", mModuleId);
-        mLoader = new DataLoader(getActivity(), mAdapter);
+        mLoader = new DataLoader(getActivity(), mAdapter, this);
         mLoaderManager = getLoaderManager();
         mLoaderManager.initLoader(DataLoader.MODULE_WEBCASTS_FRAGMENT_LOADER, args, mLoader);
         
@@ -96,6 +98,11 @@ public class ModuleWebcastsFragment extends ListFragment {
 		});
 		
 		setListAdapter(mAdapter);
+	}
+	
+	public void onLoaderFinished(Bundle result) {
+		TextView tvNoWebcasts = (TextView) getActivity().findViewById(R.id.module_webcasts_fragment_no_webcasts);
+		tvNoWebcasts.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}
 	
 	// }}}

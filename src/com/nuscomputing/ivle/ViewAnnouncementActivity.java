@@ -1,12 +1,13 @@
 package com.nuscomputing.ivle;
 
+import android.app.ActionBar;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.view.WindowManager.LayoutParams;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 public class ViewAnnouncementActivity extends FragmentActivity {
 	// {{{ properties
@@ -16,7 +17,7 @@ public class ViewAnnouncementActivity extends FragmentActivity {
 	
 	/** The announcement ID */
 	public long announcementId;
-	
+
 	// }}}
 	// {{{ methods
 	
@@ -32,16 +33,40 @@ public class ViewAnnouncementActivity extends FragmentActivity {
         	throw new IllegalStateException("No announcement ID was passed to ViewAnnouncementActivity");
         }
         
+        // Set up the action bar.
+        if (Build.VERSION.SDK_INT >= 11) {
+        	ActionBar bar = getActionBar();
+        	bar.setDisplayHomeAsUpEnabled(true);
+        }
+        
         // Set up our view.
         setContentView(R.layout.view_announcement_activity);
-        getWindow().setLayout(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-        
-        // Add the fragment.
-        Fragment fragment = new ViewAnnouncementFragment();
-        FragmentManager manager = getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        transaction.add(R.id.view_announcement_activity_fragment_container, fragment);
-        transaction.commit();
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.global, menu);
+    	return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	// Handle item selection.
+    	if (!MainApplication.onOptionsItemSelected(this, item)) {
+	    	// Handle item selection.
+	    	switch (item.getItemId()) {
+	    		case android.R.id.home:
+	    			finish();
+	    			return true;
+	    		
+	    		default:
+	    			return super.onOptionsItemSelected(item);
+	    	}
+	    	
+    	} else {
+    		return true;
+    	}
     }
 	
 	// }}}
