@@ -13,8 +13,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -324,6 +327,12 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     	// Activate sync automatically.
     	ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
     	ContentResolver.setSyncAutomatically(account, Constants.PROVIDER_AUTHORITY, true);
+    	
+    	// Say we have a pending sync.
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    	Editor prefsEditor = prefs.edit();
+    	prefsEditor.putBoolean(IVLESyncService.KEY_SYNC_IN_PROGRESS + "_" + mUsername, true);
+    	prefsEditor.commit();
     	
     	// Return to the caller.
     	final Intent intent = new Intent();

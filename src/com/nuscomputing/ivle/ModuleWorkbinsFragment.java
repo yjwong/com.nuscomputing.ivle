@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
@@ -24,7 +25,8 @@ import android.widget.ListView;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleWorkbinsFragment extends ListFragment {
+public class ModuleWorkbinsFragment extends ListFragment
+		implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -85,7 +87,7 @@ public class ModuleWorkbinsFragment extends ListFragment {
 		);
         Bundle args = new Bundle();
         args.putLong("moduleId", mModuleId);
-        mLoader = new DataLoader(getActivity(), mAdapter);
+        mLoader = new DataLoader(getActivity(), mAdapter, this);
         mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(DataLoader.MODULE_WORKBINS_FRAGMENT_LOADER, args, mLoader);
 		
@@ -117,6 +119,11 @@ public class ModuleWorkbinsFragment extends ListFragment {
 	public void onResume() {
 		super.onResume();
 		getActivity().getApplicationContext().registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
+	}
+	
+	public void onLoaderFinished(Bundle result) {
+		TextView tvNoWorkbins = (TextView) getActivity().findViewById(R.id.module_workbins_fragment_no_workbins);
+		tvNoWorkbins.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}
 	
 	// }}}

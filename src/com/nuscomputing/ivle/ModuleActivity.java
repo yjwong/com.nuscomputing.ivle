@@ -87,12 +87,10 @@ public class ModuleActivity extends FragmentActivity {
         	
             // Plug the pager tabs.
         	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
-        	fragmentList.addAll(Arrays.asList(
-        		new ModuleInfoFragment(),
-        		new ModuleAnnouncementsFragment(),
-        		new ModuleWebcastsFragment(),
-        		new ModuleWorkbinsFragment()
-        	));
+        	fragmentList.add(new ModuleInfoFragment());
+        	fragmentList.add(new ModuleAnnouncementsFragment());
+        	fragmentList.add(new ModuleWebcastsFragment());
+        	fragmentList.add(new ModuleWorkbinsFragment());
         	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
         	mViewPager.setAdapter(mPagerAdapter);
         	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {

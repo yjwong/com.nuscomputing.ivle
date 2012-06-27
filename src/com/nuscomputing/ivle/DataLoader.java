@@ -15,21 +15,16 @@ import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
 
 import android.accounts.Account;
-import android.app.ActionBar;
-import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
-import android.webkit.WebView;
 import android.widget.Adapter;
-import android.widget.TextView;
-import android.widget.VideoView;
 
 /**
  * The primary loader for IVLE data.
@@ -57,8 +52,11 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int VIEW_WORKBIN_FILES_FRAGMENT_LOADER = 13;
 	public static final int VIEW_WORKBIN_FOLDERS_FRAGMENT_LOADER = 14;
 	
+	/** Listener for data loader events */
+	private DataLoaderListener mListener;
+	
 	/** The context */
-	private Activity mActivity;
+	private Context mContext;
 	
 	/** The adapter, if any */
 	private Adapter mAdapter;
@@ -66,13 +64,26 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	// }}}
 	// {{{ methods
 	
-	public DataLoader(Activity activity) {
-		mActivity = activity;
+	public DataLoader(Context context) {
+		mContext = context;
+		mListener = null;
 	}
 	
-	public DataLoader(Activity activity, Adapter adapter) {
-		mActivity = activity;
+	public DataLoader(Context context, DataLoaderListener listener) {
+		mContext = context;
+		mListener = listener;
+	}
+	
+	public DataLoader(Context context, Adapter adapter) {
+		mContext = context;
 		mAdapter = adapter;
+		mListener = null;
+	}
+	
+	public DataLoader(Context context, Adapter adapter, DataLoaderListener listener) {
+		mContext = context;
+		mAdapter = adapter;
+		mListener = listener;
 	}
 	
 	@Override
@@ -80,7 +91,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		Log.v(TAG, "onCreateLoader");
 		
 		// Obtain the current account.
-		Account activeAccount = AccountUtils.getActiveAccount(mActivity, true);
+		Account activeAccount = AccountUtils.getActiveAccount(mContext, true);
 		if (activeAccount == null) {
 			// Launch activity to add account.
 			Log.e(TAG, "Error loading accounts");
@@ -176,7 +187,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		}
 		
 		// Set up query parameters.
-		CursorLoader loader = new CursorLoader(mActivity);
+		CursorLoader loader = new CursorLoader(mContext);
 		List<String> projectionList = new ArrayList<String>();
 		List<String> selectionArgsList = new ArrayList<String>();
 		String selection;
@@ -403,6 +414,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		// Select the correct action based on ID.
+		Bundle result = new Bundle();
 		switch (loader.getId()) {
 			case MODULES_FRAGMENT_LOADER:
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
@@ -410,115 +422,65 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				break;
 
 			case MODULE_INFO_FRAGMENT_LOADER:
-				// Reset the cursor.
 				cursor.moveToFirst();
-				
-				// Set the view data.
-				TextView tvCourseName = (TextView) mActivity.findViewById(R.id.module_info_fragment_course_name);
-				tvCourseName.setText(cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
-				TextView tvCourseCode = (TextView) mActivity.findViewById(R.id.module_info_fragment_course_code);
-				tvCourseCode.setText(cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_CODE)));
-				TextView tvCourseAcadYear = (TextView) mActivity.findViewById(R.id.module_info_fragment_course_acad_year);
-				tvCourseAcadYear.setText(cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_ACAD_YEAR)));
+				result.putString("courseName", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
+				result.putString("courseCode", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_CODE)));
+				result.putString("courseAcadYear", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_ACAD_YEAR)));
 				break;
 			
 			case MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER:
-				TextView tvNoAnnouncements = (TextView) mActivity.findViewById(R.id.module_announcements_fragment_no_announcements);
-				tvNoAnnouncements.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
-				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
-				break;
-				
 			case MODULE_WEBCASTS_FRAGMENT_LOADER:
-				TextView tvNoWebcasts = (TextView) mActivity.findViewById(R.id.module_webcasts_fragment_no_webcasts);
-				tvNoWebcasts.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
-				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
-				break;
-				
 			case MODULE_WORKBINS_FRAGMENT_LOADER:
-				TextView tvNoWorkbins = (TextView) mActivity.findViewById(R.id.module_workbins_fragment_no_workbins);
-				tvNoWorkbins.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
+				result.putInt("cursorCount", cursor.getCount());
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
 			
 			case VIEW_ANNOUNCEMENT_FRAGMENT_LOADER:
 				cursor.moveToFirst();
-				
-				// Set the title and subtitle.
-				TextView tvTitle = (TextView) mActivity.findViewById(R.id.view_announcement_fragment_title);
-				tvTitle.setText(cursor.getString(cursor.getColumnIndex(AnnouncementsContract.TITLE)));
-				tvTitle.setSelected(true);
-				TextView tvSubtitle = (TextView) mActivity.findViewById(R.id.view_announcement_fragment_subtitle);
-				tvSubtitle.setText(cursor.getString(cursor.getColumnIndex(UsersContract.NAME)));
-				
-				// Set the content for the webview.
-				WebView wvDescription = (WebView) mActivity.findViewById(R.id.view_announcement_fragment_webview);
-				wvDescription.loadData(cursor.getString(cursor.getColumnIndex(AnnouncementsContract.DESCRIPTION)), "text/html", null);
+				result.putString("title", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.TITLE)));
+				result.putString("userName", cursor.getString(cursor.getColumnIndex(UsersContract.NAME)));
+				result.putString("description", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.DESCRIPTION)));
 				break;
 			
 			case VIEW_WEBCAST_ACTIVITY_LOADER:
 				cursor.moveToFirst();
-				if (Build.VERSION.SDK_INT >= 11) {
-					ActionBar actionBar = mActivity.getActionBar();
-					actionBar.setTitle(cursor.getString(cursor.getColumnIndex(WebcastsContract.TITLE)));
-				}
+				result.putString("title", cursor.getString(cursor.getColumnIndex(WebcastsContract.TITLE)));
 				break;
 				
+			case VIEW_WORKBIN_FRAGMENT_LOADER:
 			case VIEW_WEBCAST_FRAGMENT_LOADER:
-				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
-				break;
-			
 			case VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER:
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
 			
 			case VIEW_WEBCAST_FILE_ACTIVITY_LOADER:
-				// Reset the cursor.
 				cursor.moveToFirst();
-				
-				// Set the title.
-				if (Build.VERSION.SDK_INT >= 11) {
-					mActivity.getActionBar().setTitle(cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_TITLE)));
-				}
-				
-				// Start the video playback.
-				Log.v(TAG, "video = " + cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
-				Uri videoUri = Uri.parse(cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
-				((ViewWebcastFileActivity) mActivity).setVideoUri(videoUri);
-				VideoView videoView = (VideoView) mActivity.findViewById(R.id.view_webcast_file_video_view);
-				videoView.setVideoURI(videoUri);
-				videoView.start();
-				
-				// Set the file name.
-				String fileName = cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_NAME));
-				((ViewWebcastFileActivity) mActivity).setVideoFileName(fileName);
+				result.putString("fileTitle", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_TITLE)));
+				result.putString("fileName", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_NAME)));
+				result.putString("MP4", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
 				break;
 				
 			case VIEW_WORKBIN_ACTIVITY_LOADER:
 				cursor.moveToFirst();
-				if (Build.VERSION.SDK_INT >= 11) {
-					mActivity.getActionBar().setTitle(cursor.getString(cursor.getColumnIndex(WorkbinsContract.TITLE)));
-				}
-				break;
-				
-			case VIEW_WORKBIN_FRAGMENT_LOADER:
-				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
+				result.putString("title", cursor.getString(cursor.getColumnIndex(WorkbinsContract.TITLE)));
 				break;
 				
 			case VIEW_WORKBIN_FILES_FRAGMENT_LOADER:
-				TextView tvNoFiles = (TextView) mActivity.findViewById(R.id.view_workbin_files_fragment_no_files);
-				tvNoFiles.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
+				result.putInt("cursorCount", cursor.getCount());
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
 			
 			case VIEW_WORKBIN_FOLDERS_FRAGMENT_LOADER:
-				Log.v(TAG, "cursor: " + cursor.getCount());
-				TextView tvNoFolders = (TextView) mActivity.findViewById(R.id.view_workbin_folders_fragment_no_folders);
-				tvNoFolders.setVisibility((cursor.getCount() == 0) ? TextView.VISIBLE : TextView.GONE);
+				result.putInt("cursorCount", cursor.getCount());
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
 				
 			default:
 				throw new IllegalArgumentException("No such loader");
+		}
+		
+		if (mListener != null) {
+			((DataLoaderListener) mListener).onLoaderFinished(result);
 		}
 	}
 

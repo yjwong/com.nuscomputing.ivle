@@ -11,7 +11,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-public class ViewWebcastActivity extends FragmentActivity {
+public class ViewWebcastActivity extends FragmentActivity
+		implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -53,7 +54,7 @@ public class ViewWebcastActivity extends FragmentActivity {
         // Load the action bar title.
         Bundle args = new Bundle();
         args.putLong("webcastId", webcastId);
-        DataLoader loader = new DataLoader(this);
+        DataLoader loader = new DataLoader(this, this);
         getSupportLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_ACTIVITY_LOADER, args, loader).forceLoad();
     }
     
@@ -83,6 +84,13 @@ public class ViewWebcastActivity extends FragmentActivity {
     	} else {
     		return true;
     	}
+    }
+    
+    public void onLoaderFinished(Bundle result) {
+    	// Set the title.
+		if (Build.VERSION.SDK_INT >= 11) {
+			getActionBar().setTitle(result.getString("title"));
+		}
     }
 	
 	// }}}

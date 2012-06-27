@@ -33,7 +33,8 @@ import android.preference.PreferenceManager;
  * @author yjwong
  */
 public class ViewWebcastFileActivity extends FragmentActivity implements 
-		MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+		MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
+		DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -143,7 +144,7 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 		// Load the activity and start video playback.
         Bundle args = new Bundle();
         args.putLong("webcastFileId", webcastFileId);
-        DataLoader loader = new DataLoader(this);
+        DataLoader loader = new DataLoader(this, this);
 		getSupportLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_FILE_ACTIVITY_LOADER, args, loader);
 		
 		// Restore video position.
@@ -290,6 +291,25 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
     
     public void setVideoFileName(String fileName) {
     	mVideoFileName = fileName;
+    }
+    
+    public void onLoaderFinished(Bundle result) {
+		// Set the title.
+		if (Build.VERSION.SDK_INT >= 11) {
+			getActionBar().setTitle(result.getString("fileTitle"));
+		}
+		
+		// Start the video playback.
+		Log.v(TAG, "video = " + result.getString("MP4"));
+		Uri videoUri = Uri.parse(result.getString("MP4"));
+		setVideoUri(videoUri);
+		VideoView videoView = (VideoView) findViewById(R.id.view_webcast_file_video_view);
+		videoView.setVideoURI(videoUri);
+		videoView.start();
+		
+		// Set the file name.
+		String fileName = result.getString("fileName");
+		setVideoFileName(fileName);
     }
 	
 	// }}}

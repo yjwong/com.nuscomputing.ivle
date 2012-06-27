@@ -68,7 +68,7 @@
             <meta-data android:name="android.content.SyncAdapter" android:resource="@xml/ivle_sync_adapter"/>
         </service>
         <activity android:name="ModuleActivity"></activity>
-        <activity android:name="ViewAnnouncementActivity" android:theme="@android:style/Theme.Holo.Dialog.NoActionBar"></activity>
+        <activity android:name="ViewAnnouncementActivity"></activity>
         <activity android:name="ViewWebcastActivity"></activity>
         <activity android:name="ViewWebcastFileActivity" android:immersive="true" android:screenOrientation="sensorLandscape" android:configChanges="orientation|keyboardHidden"></activity>
         <activity android:name="ViewWorkbinActivity"></activity>

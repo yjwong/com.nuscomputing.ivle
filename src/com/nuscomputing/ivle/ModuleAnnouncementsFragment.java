@@ -28,7 +28,8 @@ import android.widget.TextView;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleAnnouncementsFragment extends ListFragment {
+public class ModuleAnnouncementsFragment extends ListFragment
+		implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -114,9 +115,9 @@ public class ModuleAnnouncementsFragment extends ListFragment {
 		});
         Bundle args = new Bundle();
         args.putLong("moduleId", mModuleId);
-        mLoader = new DataLoader(getActivity(), mAdapter);
+        mLoader = new DataLoader(getActivity(), mAdapter, this);
         mLoaderManager = getLoaderManager();
-        mLoaderManager.initLoader(DataLoader.MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER, args, mLoader).forceLoad();
+        mLoaderManager.initLoader(DataLoader.MODULE_ANNOUNCEMENTS_FRAGMENT_LOADER, args, mLoader);
         
         // Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.module_announcements_fragment_linear_layout);
@@ -135,6 +136,11 @@ public class ModuleAnnouncementsFragment extends ListFragment {
 		
 		// Set the list adapter.
 		setListAdapter(mAdapter);
+	}
+	
+	public void onLoaderFinished(Bundle result) {
+		TextView tvNoAnnouncements = (TextView) getActivity().findViewById(R.id.module_announcements_fragment_no_announcements);
+		tvNoAnnouncements.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}
 	
 	// }}}

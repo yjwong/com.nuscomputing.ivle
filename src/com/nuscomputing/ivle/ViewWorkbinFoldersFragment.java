@@ -23,7 +23,8 @@ import android.widget.AdapterView.OnItemClickListener;
  * Fragment to view a workbin's folders.
  * @author yjwong
  */
-public class ViewWorkbinFoldersFragment extends ListFragment {
+public class ViewWorkbinFoldersFragment extends ListFragment
+		implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -84,7 +85,7 @@ public class ViewWorkbinFoldersFragment extends ListFragment {
 				return false;
 			}
 		});
-		mLoader = new DataLoader(getActivity(), mAdapter);
+		mLoader = new DataLoader(getActivity(), mAdapter, this);
 		mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(DataLoader.VIEW_WORKBIN_FOLDERS_FRAGMENT_LOADER, args, mLoader);
 		
@@ -106,6 +107,11 @@ public class ViewWorkbinFoldersFragment extends ListFragment {
 		
 		// Set the list adapter.
 		setListAdapter(mAdapter);
+	}
+	
+	public void onLoaderFinished(Bundle result) {
+		TextView tvNoFolders = (TextView) getActivity().findViewById(R.id.view_workbin_folders_fragment_no_folders);
+		tvNoFolders.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}
 	
 	// }}}
