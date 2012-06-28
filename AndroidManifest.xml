@@ -38,16 +38,20 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
-        <activity android:name="AuthenticatorActivity" android:theme="@android:style/Theme.Holo.NoActionBar" android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+        <activity android:name="AuthenticatorActivity"
+            android:theme="@android:style/Theme.Holo.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
         <activity android:name="SettingsActivity"></activity>
         <activity android:name="SettingsActivityLegacy"></activity>
-        <activity android:name="AccountSettingsActivity" android:launchMode="singleInstance">
+        <activity android:name="AccountSettingsActivity" android:launchMode="singleInstance" android:permission="android.permission.ACCOUNT_MANAGER">
             <intent-filter>
                 <action android:name="com.nuscomputing.ivle.AccountSettingsActivity.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="AccountSettingsActivityLegacy" android:launchMode="singleInstance">
+        <activity android:name="AccountSettingsActivityLegacy" android:launchMode="singleInstance" android:permission="android.permission.ACCOUNT_MANAGER">
             <intent-filter>
                 <action android:name="com.nuscomputing.ivle.AccountSettingsActivityLegacy.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
