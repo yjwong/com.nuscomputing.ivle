@@ -175,6 +175,7 @@ public class MainActivity extends FragmentActivity {
     	
     	// Unregister receiving sync events.
     	unregisterReceiver(mSyncStartedReceiver);
+    	unregisterReceiver(mSyncSuccessReceiver);
     }
     
     @Override
