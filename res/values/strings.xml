@@ -42,5 +42,7 @@
     <string name="workbin_file_download_dialog_fragment_progress">%1$s of %2$s (%3$d%%)</string>
     <string name="workbin_file_download_dialog_fragment_unable_to_download">Unable to download file. \nPlease check your network connection.</string>
 	<string name="workbin_file_download_dialog_fragment_no_app_found">No application can be found to open this file.</string>
+	<string name="account_settings_fragment_sync_interval">Sync Interval</string>
+	<string name="account_settings_activity_account_settings">Account Settings</string>
     
 </resources>

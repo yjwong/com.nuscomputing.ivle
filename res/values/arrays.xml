@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Items to display for "Account Settings" sync interval -->
+    <string-array name="account_settings_sync_interval_list">
+        <item>None</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>12 hours</item>
+        <item>Once a day</item>
+    </string-array>
+    
+    <!-- The actual values backing the sync interval (in hours) -->
+    <string-array name="account_settings_sync_interval_values">
+        <item>0</item>
+        <item>3</item>
+        <item>6</item>
+        <item>12</item>
+        <item>24</item>
+    </string-array>
+</resources>

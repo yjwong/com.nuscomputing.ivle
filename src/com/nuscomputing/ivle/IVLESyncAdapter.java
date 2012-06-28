@@ -40,12 +40,12 @@ import com.nuscomputing.ivlelapi.Gradebook;
 import com.nuscomputing.ivlelapi.IVLE;
 import com.nuscomputing.ivlelapi.JSONParserException;
 import com.nuscomputing.ivlelapi.Module;
+import com.nuscomputing.ivlelapi.Module.Weblink;
 import com.nuscomputing.ivlelapi.NetworkErrorException;
 import com.nuscomputing.ivlelapi.Timetable;
 import com.nuscomputing.ivlelapi.User;
 import com.nuscomputing.ivlelapi.Webcast;
 import com.nuscomputing.ivlelapi.Workbin;
-import com.nuscomputing.ivlelapi.Module.Weblink;
 
 /**
  * The actual sync adapter implementation for announcements.
@@ -245,12 +245,14 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 			
 		} finally {
 			this.setSyncInProgress(account, false);
+			IVLESyncService.broadcastSyncComplete(mContext, account);
 		}
 	}
 	
 	@Override
 	public void onSyncCanceled(Thread thread) {
-		IVLESyncService.broadcastSyncCanceled(mContext);
+		this.setSyncInProgress(mAccount, false);
+		IVLESyncService.broadcastSyncCanceled(mContext, mAccount);
 	}
 	
 	/**
@@ -285,7 +287,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		IllegalStateException {
 		if (e instanceof OperationCanceledException) {
 			Log.d(TAG, "Sync canceled");
-			IVLESyncService.broadcastSyncCanceled(mContext);
+			IVLESyncService.broadcastSyncCanceled(mContext, mAccount);
 		} else if (e instanceof AuthenticatorException || e instanceof FailedLoginException) {
 			Log.d(TAG, "AuthenticatorException or FailedLoginException, refreshing authToken");
 			mSyncResult.stats.numAuthExceptions++;
@@ -315,7 +317,8 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 		
 		// The sync failed, so broadcast our failure.
-		IVLESyncService.broadcastSyncFailed(mContext);
+		this.setSyncInProgress(mAccount, false);
+		IVLESyncService.broadcastSyncFailed(mContext, mAccount);
 	}
 	
 	/**

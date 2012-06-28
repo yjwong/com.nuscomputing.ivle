@@ -114,8 +114,9 @@ public class IVLESyncService extends Service {
 	 * This is made because there is not many ways of knowing the status of a
 	 * sync operation in Android's current sync framework.
 	 */
-	public static void broadcastSyncCanceled(Context context) {
+	public static void broadcastSyncCanceled(Context context, Account account) {
 		Intent intent = new Intent(IVLESyncService.ACTION_SYNC_CANCELED);
+		intent.putExtra("com.nuscomputing.ivle.Account", account);
 		context.sendBroadcast(intent);
 	}
 	
@@ -133,14 +134,28 @@ public class IVLESyncService extends Service {
 	}
 	
 	/**
+	 * Method: broadcastSyncComplete
+	 * <p>
+	 * Sends a system broadcast that our sync has completed.
+	 * This is made because there is not many ways of knowing the status of a
+	 * sync operation in Android's current sync framework.
+	 */
+	public static void broadcastSyncComplete(Context context, Account account) {
+		Intent intent = new Intent(IVLESyncService.ACTION_SYNC_COMPLETE);
+		intent.putExtra("com.nuscomputing.ivle.Account", account);
+		context.sendBroadcast(intent);
+	}
+	
+	/**
 	 * Method: broadcastSyncFailed
 	 * <p>
 	 * Sends a system broadcast that our sync has failed.
 	 * This is made because there is not many ways of knowing the status of a
 	 * sync operation in Android's current sync framework.
 	 */
-	public static void broadcastSyncFailed(Context context) {
+	public static void broadcastSyncFailed(Context context, Account account) {
 		Intent intent = new Intent(IVLESyncService.ACTION_SYNC_FAILED);
+		intent.putExtra("com.nuscomputing.ivle.Account", account);
 		context.sendBroadcast(intent);
 	}
 	

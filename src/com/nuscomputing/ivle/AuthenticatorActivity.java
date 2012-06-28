@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -325,8 +326,10 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     	toast.show();
     	
     	// Activate sync automatically.
+    	Resources res = getResources();
     	ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
     	ContentResolver.setSyncAutomatically(account, Constants.PROVIDER_AUTHORITY, true);
+    	ContentResolver.addPeriodicSync(account, Constants.PROVIDER_AUTHORITY, new Bundle(), res.getInteger(R.integer.default_sync_interval) * 60 * 60);
     	
     	// Say we have a pending sync.
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
