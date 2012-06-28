@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.nuscomputing.ivle.Constants;
 import com.nuscomputing.ivle.DatabaseHelper;
+import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -12,6 +13,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -59,22 +61,24 @@ public class IVLEProvider extends ContentProvider {
 	private static final int GRADEBOOKS_ID = 26;
 	private static final int GRADEBOOK_ITEMS = 27;
 	private static final int GRADEBOOK_ITEMS_ID = 28;
-	private static final int USERS = 29;
-	private static final int USERS_ID = 30;
-	private static final int WEBCASTS = 31;
-	private static final int WEBCASTS_ID = 32;
-	private static final int WEBCAST_FILES = 33;
-	private static final int WEBCAST_FILES_ID = 34;
-	private static final int WEBCAST_ITEM_GROUPS = 35;
-	private static final int WEBCAST_ITEM_GROUPS_ID = 36;
-	private static final int WEBLINKS = 37;
-	private static final int WEBLINKS_ID = 38;
-	private static final int WORKBINS = 39;
-	private static final int WORKBINS_ID = 40;
-	private static final int WORKBIN_FOLDERS = 41;
-	private static final int WORKBIN_FOLDERS_ID = 42;
-	private static final int WORKBIN_FILES = 43;
-	private static final int WORKBIN_FILES_ID = 44;
+	private static final int TIMETABLE_SLOTS = 29;
+	private static final int TIMETABLE_SLOTS_ID = 30;
+	private static final int USERS = 31;
+	private static final int USERS_ID = 32;
+	private static final int WEBCASTS = 33;
+	private static final int WEBCASTS_ID = 34;
+	private static final int WEBCAST_FILES = 35;
+	private static final int WEBCAST_FILES_ID = 36;
+	private static final int WEBCAST_ITEM_GROUPS = 37;
+	private static final int WEBCAST_ITEM_GROUPS_ID = 38;
+	private static final int WEBLINKS = 39;
+	private static final int WEBLINKS_ID = 40;
+	private static final int WORKBINS = 41;
+	private static final int WORKBINS_ID = 42;
+	private static final int WORKBIN_FOLDERS = 43;
+	private static final int WORKBIN_FOLDERS_ID = 44;
+	private static final int WORKBIN_FILES = 45;
+	private static final int WORKBIN_FILES_ID = 46;
 	
 	// }}}
 	// {{{ methods
@@ -108,6 +112,8 @@ public class IVLEProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "gradebooks/#", GRADEBOOKS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "gradebook_items", GRADEBOOK_ITEMS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "gradebook_items/#", GRADEBOOK_ITEMS_ID);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "timetable_slots", TIMETABLE_SLOTS);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "timetable_slots/#", TIMETABLE_SLOTS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "users", USERS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "users/#", USERS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "webcasts", WEBCASTS);
@@ -211,7 +217,7 @@ public class IVLEProvider extends ContentProvider {
 				ret = mDatabase.delete(DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME,
 						whereClause, selectionArgs);
 				break;
-				
+
 			case MODULES_WEBCASTS:
 				moduleId = uri.getPathSegments().get(2);
 				whereClause = WebcastsContract.MODULE_ID + "=" + moduleId +
@@ -402,6 +408,23 @@ public class IVLEProvider extends ContentProvider {
 				ret = mDatabase.delete(DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME,
 						selection, selectionArgs);
 				break;
+				
+			case TIMETABLE_SLOTS_ID:
+				whereClause = TimetableSlotsContract.ID + "=" +
+						uri.getLastPathSegment() +
+						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
+						")" : "");
+				ret = mDatabase.delete(DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME,
+						whereClause, selectionArgs);
+				break;
+			
+			case TIMETABLE_SLOTS:
+				if (selection == null && selectionArgs == null) {
+					Log.d(TAG, "Removing all timetable slots");
+				}
+				ret = mDatabase.delete(DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME,
+						selection, selectionArgs);
+				break;
 			
 			case USERS_ID:
 				whereClause = UsersContract.ID + "=" +
@@ -566,6 +589,7 @@ public class IVLEProvider extends ContentProvider {
 		String gradebookId = null;
 		String gradebookItemId = null;
 		String moduleId = null;
+		String timetableSlotId = null;
 		String userId = null;
 		String webcastId = null;
 		String webcastFileId = null;
@@ -697,6 +721,17 @@ public class IVLEProvider extends ContentProvider {
 				selection = GradebookItemsContract.ID + "=" + gradebookItemId;
 				this.update(uri, values, selection, null);
 				break;
+				
+			case TIMETABLE_SLOTS:
+				rowId = mDatabase.insert(DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME, null, values);
+				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
+				break;
+			
+			case TIMETABLE_SLOTS_ID:
+				timetableSlotId = uri.getLastPathSegment();
+				selection = TimetableSlotsContract.ID + "=" + timetableSlotId;
+				this.update(uri, values, selection, null);
+				break;
 			
 			case USERS:
 				rowId = mDatabase.insert(DatabaseHelper.USERS_TABLE_NAME, null, values);
@@ -805,6 +840,8 @@ public class IVLEProvider extends ContentProvider {
 		return true;
 	}
 
+	@SuppressWarnings("deprecation")
+	@TargetApi(11)
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, 
 			String[] selectionArgs, String sortOrder) {
@@ -977,6 +1014,13 @@ public class IVLEProvider extends ContentProvider {
 				);
 				break;
 			
+			case TIMETABLE_SLOTS_ID:
+				queryBuilder.appendWhere(
+						DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME + "." +
+						TimetableSlotsContract.ID + "=" + uri.getPathSegments().get(1)
+				);
+				break;
+			
 			case USERS_ID:
 				queryBuilder.appendWhere(
 						DatabaseHelper.USERS_TABLE_NAME + "." +
@@ -1037,6 +1081,7 @@ public class IVLEProvider extends ContentProvider {
 			case ANNOUNCEMENTS:
 			case GRADEBOOKS:
 			case GRADEBOOK_ITEMS:
+			case TIMETABLE_SLOTS:
 			case USERS:
 			case WEBCASTS:
 			case WEBCAST_FILES:
@@ -1157,6 +1202,11 @@ public class IVLEProvider extends ContentProvider {
 			case GRADEBOOK_ITEMS:
 				queryBuilder.setTables(DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME);
 				break;
+			
+			case TIMETABLE_SLOTS_ID:
+			case TIMETABLE_SLOTS:
+				queryBuilder.setTables(DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME);
+				break;
 				
 			case USERS_ID:
 			case USERS:
@@ -1217,7 +1267,12 @@ public class IVLEProvider extends ContentProvider {
 		}
 		
 		// Projection map to include user information.
-		Log.v(TAG, "query: " + queryBuilder.buildQuery(projection, selection, null, null, sortOrder, null));
+		if (Build.VERSION.SDK_INT >= 11) {
+			Log.v(TAG, "query: " + queryBuilder.buildQuery(projection, selection, null, null, sortOrder, null));
+		} else {
+			Log.v(TAG, "query: " + queryBuilder.buildQuery(projection, selection, null, null, null, sortOrder, null));
+		}
+		
 		Cursor cursor = queryBuilder.query(mDatabase, projection, selection, selectionArgs, null, null, sortOrder);
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return cursor;
@@ -1254,6 +1309,10 @@ public class IVLEProvider extends ContentProvider {
 			case GRADEBOOK_ITEMS_ID:
 			case GRADEBOOK_ITEMS:
 				tableName = DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME;
+				break;
+			case TIMETABLE_SLOTS_ID:
+			case TIMETABLE_SLOTS:
+				tableName = DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME;
 				break;
 			case USERS_ID:
 			case USERS:
