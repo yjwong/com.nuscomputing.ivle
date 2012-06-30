@@ -2,6 +2,7 @@ package com.nuscomputing.ivle;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,6 +13,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 
+@TargetApi(11)
 public class SettingsFragment extends PreferenceFragment {
 	// {{{ properties
 	
