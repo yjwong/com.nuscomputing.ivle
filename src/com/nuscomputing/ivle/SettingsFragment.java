@@ -12,6 +12,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
+import android.provider.Settings;
 
 @TargetApi(11)
 public class SettingsFragment extends PreferenceFragment {
@@ -34,6 +35,7 @@ public class SettingsFragment extends PreferenceFragment {
         // Set up some options in the preferences tree.
         setUpAccount();
         setUpAddAccount();
+        setUpManageAccounts();
     }
     
     @Override
@@ -135,6 +137,20 @@ public class SettingsFragment extends PreferenceFragment {
         // Obtain the add_account preference.
         Preference addAccountPreference = findPreference("add_account");
         addAccountPreference.setIntent(intent);
+    }
+    
+    /**
+     * Method: setUpManageAccounts
+     * Action for managing accounts.
+     */
+    private void setUpManageAccounts() {
+    	// Set up new intent to launch the "Accounts and Sync Settings" screen.
+    	Intent intent = new Intent(Settings.ACTION_SYNC_SETTINGS);
+    	intent.putExtra(Settings.EXTRA_AUTHORITIES, new String[] { Constants.PROVIDER_AUTHORITY });
+    	
+    	// Obtain the manage_accounts preference.
+    	Preference manageAccountsPreference = findPreference("manage_accounts");
+    	manageAccountsPreference.setIntent(intent);
     }
     
     // }}}

@@ -31,7 +31,7 @@
         </p>
         <p>
         This application is <a href="https://github.com/yjwong/com.nuscomputing.ivle">open source</a>, and
-        uses other open source components such as <a href="https://github.com/yjwong/com.nuscomputing.ivlelapi">
+        uses open source components such as <a href="https://github.com/yjwong/com.nuscomputing.ivlelapi">
         IVLE LAPI for Java</a>, <a href="http://wiki.fasterxml.com/JacksonHome">Jackson JSON Processor</a>,
         and <a href="http://joda-time.sourceforge.net/">Joda-Time</a>.
         </p>

@@ -19,6 +19,12 @@
             android:title="Add account..."
         />
         
+        <Preference
+            android:key="manage_accounts"
+            android:summary="Tap to manage accounts"
+            android:title="Manage accounts..."
+        />
+        
     </PreferenceCategory>
     
     <PreferenceCategory
