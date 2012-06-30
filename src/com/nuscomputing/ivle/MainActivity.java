@@ -3,6 +3,7 @@ package com.nuscomputing.ivle;
 import java.util.ArrayList;
 
 import android.accounts.Account;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
@@ -31,6 +32,7 @@ import android.widget.LinearLayout;
  * Main IVLE application activity.
  * @author yjwong
  */
+@TargetApi(11)
 public class MainActivity extends FragmentActivity {
 	// {{{ properties
 	
@@ -111,13 +113,13 @@ public class MainActivity extends FragmentActivity {
             // Plug the pager tabs.
             mTabsAdapter = new TabsAdapter(this, mViewPager);
             mTabsAdapter.addTab(bar.newTab()
-            		.setText("Modules"), ModulesFragment.class, null);
+            		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
             mTabsAdapter.addTab(bar.newTab()
-            		.setText("My Agenda"), MyAgendaFragment.class, null);
+            		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
             
         	// Set the title appropriately.
         	if (mActiveAccount != null) {
-        		bar.setTitle("NUS IVLE (" + mActiveAccount.name + ")");
+        		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
         	}
         }
     }
@@ -153,9 +155,11 @@ public class MainActivity extends FragmentActivity {
     	super.onRestoreInstanceState(savedInstanceState);
     	
     	// Restore the active tab.
-    	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
-    	getActionBar().setSelectedNavigationItem(currentTabPosition);
-    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
+    	if (Build.VERSION.SDK_INT >= 11) {
+	    	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
+	    	getActionBar().setSelectedNavigationItem(currentTabPosition);
+	    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
+    	}
     }
     
     @Override
@@ -163,10 +167,12 @@ public class MainActivity extends FragmentActivity {
     	super.onSaveInstanceState(outState);
     	
     	// Save the currently being viewed tab.
-    	ActionBar actionBar = getActionBar();
-    	int currentTabPosition = actionBar.getSelectedNavigationIndex();
-    	outState.putInt("currentTab", currentTabPosition);
-    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
+    	if (Build.VERSION.SDK_INT >= 11) {
+	    	ActionBar actionBar = getActionBar();
+	    	int currentTabPosition = actionBar.getSelectedNavigationIndex();
+	    	outState.putInt("currentTab", currentTabPosition);
+	    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
+    	}
     }
     
     @Override
@@ -235,10 +241,12 @@ public class MainActivity extends FragmentActivity {
     
     private void showSyncInProgress() {
 		// Change the refresh button to a ProgressBar action view.
-    	if (mRefreshMenuItem != null) {
-			LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-			final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
-			mRefreshMenuItem.setActionView(progressView);
+    	if (Build.VERSION.SDK_INT >= 11) {
+	    	if (mRefreshMenuItem != null) {
+				LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+				final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
+				mRefreshMenuItem.setActionView(progressView);
+	    	}
     	}
 		
 		// Hide the view pager.
@@ -251,8 +259,10 @@ public class MainActivity extends FragmentActivity {
     
     private void hideSyncInProgress() {
 		// Reset the refresh button.
-    	if (mRefreshMenuItem != null) {
-    		mRefreshMenuItem.setActionView(null);
+    	if (Build.VERSION.SDK_INT >= 11) {
+	    	if (mRefreshMenuItem != null) {
+	    		mRefreshMenuItem.setActionView(null);
+	    	}
     	}
 		
 		// Show the view pager.
@@ -267,8 +277,10 @@ public class MainActivity extends FragmentActivity {
     	mActiveAccount = AccountUtils.getActiveAccount(this);
     	
 		// Update the title.
-		ActionBar bar = getActionBar();
-		bar.setTitle("NUS IVLE (" + mActiveAccount.name + ")");
+    	if (Build.VERSION.SDK_INT >= 11) {
+			ActionBar bar = getActionBar();
+			bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
+    	}
 		
 		// Request a sync.
     	if (!IVLESyncService.isSyncInProgress(getApplicationContext(), mActiveAccount)) {

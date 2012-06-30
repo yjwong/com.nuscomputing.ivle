@@ -41,7 +41,7 @@
 		        android:layout_height="wrap_content"
 		        android:textSize="18dp"
 		        android:textColor="?android:attr/textColorPrimary"
-		        android:text="Waiting for sync..."
+		        android:text="@string/main_activity_waiting_for_sync"
 		        />
 		    
 		    <TextView
@@ -49,7 +49,7 @@
 		        android:layout_height="wrap_content"
 		        android:textSize="12dp"
 		        android:textColor="?android:attr/textColorPrimary"
-		        android:text="Your modules will appear here shortly."
+		        android:text="@string/main_activity_modules_will_appear"
 		        />
 	    
 	    </LinearLayout>

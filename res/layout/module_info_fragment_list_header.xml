@@ -36,6 +36,6 @@
         android:id="@+id/module_info_fragment_more_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="More Info" />
+        android:text="@string/module_info_fragment_more_info" />
 
 </LinearLayout>

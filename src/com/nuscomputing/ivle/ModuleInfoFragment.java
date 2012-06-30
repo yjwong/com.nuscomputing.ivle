@@ -71,7 +71,7 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 		ModuleActivity activity = (ModuleActivity) getActivity();
 		mModuleId = activity.moduleId;
         if (mModuleId == -1) {
-        	throw new IllegalStateException("No module ID was passed to ModuleFragment");
+        	throw new IllegalStateException("No module ID was passed to ModuleInfoFragment");
         }
         
 		// Obtain the listview.
@@ -79,7 +79,7 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 		
 		// Find and insert the linear layout.
 		LinearLayout layout = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.module_info_fragment_list_header, null);
-		ArrayAdapter<String> loadingAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, new String[] { "Loading..." });
+		ArrayAdapter<String> loadingAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, new String[] { getString(R.string.loading) });
 		mListView.addHeaderView(layout);
 		mListView.setAdapter(loadingAdapter);
         
@@ -188,7 +188,7 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 							R.layout.module_info_fragment_list_item,
 							R.id.module_info_fragment_list_description_title
 					);
-					adapter.add("No additional info available. ");
+					adapter.add(getString(R.string.module_info_fragment_no_additional_info));
 					mListView.setAdapter(adapter);
 				}
 				
@@ -198,16 +198,14 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 						R.layout.module_info_fragment_list_item,
 						R.id.module_info_fragment_list_description_title
 				);
-				adapter.add("Failed to load. ");
+				adapter.add(getString(R.string.module_info_fragment_failed_to_load));
 				mListView.setAdapter(adapter);
-				Toast.makeText(getActivity(), "Unable to load additional module information. \nPlease check your network connection. ", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), getString(R.string.module_info_fragment_unable_to_load), Toast.LENGTH_SHORT).show();
 			}
 		}
 
 		@Override
-		public void onLoaderReset(Loader<List<Description>> loader) {
-			Log.v(TAG, "onLoaderReset");
-		}
+		public void onLoaderReset(Loader<List<Description>> loader) { }
 		
 		// }}}
 	}

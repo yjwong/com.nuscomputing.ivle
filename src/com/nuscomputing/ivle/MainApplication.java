@@ -4,6 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.MenuItem;
 
 /**
@@ -48,6 +51,14 @@ public class MainApplication extends Application {
     			intent.addCategory(Intent.CATEGORY_PREFERENCE);
     			context.startActivity(intent);
     			return true;
+    			
+    		case R.id.main_menu_about:
+				FragmentActivity activity = (FragmentActivity) context;
+				FragmentManager manager = activity.getSupportFragmentManager();
+				DialogFragment fragment = new AboutApplicationDialogFragment();
+				fragment.show(manager, null);
+    			return true;
+    			
     		default:
     			return false;
     	}
