@@ -71,7 +71,7 @@ public class SettingsFragment extends PreferenceFragment {
         
     	// There are no accounts, disable this.
     	if (accounts.length == 0) {
-    		accountsPreference.setSummary("No accounts have been configured");
+    		accountsPreference.setSummary(getString(R.string.settings_fragment_no_accounts_configured));
     		accountsPreference.setEnabled(false);
     	}
         
@@ -105,7 +105,7 @@ public class SettingsFragment extends PreferenceFragment {
 				
 				// Build a dialog to inform the user that we need to restart.
 				AlertDialog dialog = new AlertDialog.Builder(context).create();
-				dialog.setMessage("This application will restart to reflect the account change. ");
+				dialog.setMessage(getString(R.string.settings_fragment_app_will_restart));
 				
 	    		// Set button parameters and show the dialog.
 	    		dialog.setButton(AlertDialog.BUTTON_NEUTRAL, getText(R.string.ok), new DialogInterface.OnClickListener() {

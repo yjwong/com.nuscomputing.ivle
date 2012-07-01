@@ -66,8 +66,18 @@
     <!-- Strings for ModuleWorkbinsFragment -->
     <string name="module_workbins_fragment_no_workbins">There are no workbins.</string>
     
+    <!-- Strings for SettingsFragment -->
+    <string name="settings_fragment_no_accounts_configured">No accounts have been configured.</string>
+    <string name="settings_fragment_app_will_restart">This application will restart to reflect the account change.</string>
+    
     <!-- Strings for ViewWebcastFileActivity -->
     <string name="view_webcast_file_activity_loading_video">Loading Video&#8230;</string>
+    <string name="view_webcast_file_activity_webcast_queued_wifi">
+        Webcast has been queued for download. Your download will start as soon you are connected to a WiFi network.
+    </string>
+    <string name="view_webcast_file_activity_webcast_queued">
+        Webcast has been queued for download. Check the notification area for progress.
+    </string>
     
     <!-- Strings for ViewWebcastFragment -->
     <string name="view_webcast_fragment_no_webcast_item_groups">There are no webcast groups.</string>
@@ -83,6 +93,7 @@
     
     <!-- Strings for ViewWorkbinFoldersFragment -->
     <string name="view_workbin_folders_fragment_no_folders">There are no folders.</string>
+    <string name="view_workbin_folders_fragment_file_count">%1$s file(s)</string>
     
     <!-- Strings for ViewWorkbinFragment -->
     <string name="view_workbin_fragment_no_workbin_folders">There are no folders.</string>
@@ -97,6 +108,8 @@
 	
 	<!-- Strings for AccountSettingsActivity -->
 	<string name="account_settings_activity_account_settings">Account Settings</string>
-
+	
+	<!-- Temporary strings -->
+	<string name="temp_help_not_available_yet">Sorry, help is not available yet.</string>
     
 </resources>

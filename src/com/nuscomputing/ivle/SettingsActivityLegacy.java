@@ -65,7 +65,7 @@ public class SettingsActivityLegacy extends PreferenceActivity {
         
     	// There are no accounts, disable this.
     	if (accounts.length == 0) {
-    		accountsPreference.setSummary("No accounts have been configured");
+    		accountsPreference.setSummary(getString(R.string.settings_fragment_no_accounts_configured));
     		accountsPreference.setEnabled(false);
     	}
         

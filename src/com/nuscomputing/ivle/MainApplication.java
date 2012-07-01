@@ -3,11 +3,13 @@ package com.nuscomputing.ivle;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 /**
  * The entire application.
@@ -57,6 +59,14 @@ public class MainApplication extends Application {
 				FragmentManager manager = activity.getSupportFragmentManager();
 				DialogFragment fragment = new AboutApplicationDialogFragment();
 				fragment.show(manager, null);
+    			return true;
+    			
+    		case R.id.main_menu_help:
+    			// TODO: Implement a real help system here.
+    			Uri uri = Uri.parse("https://ivle.nus.edu.sg/");
+    			intent = new Intent(Intent.ACTION_VIEW, uri);
+    			context.startActivity(intent);
+    			Toast.makeText(context, context.getString(R.string.temp_help_not_available_yet), Toast.LENGTH_SHORT).show();
     			return true;
     			
     		default:
