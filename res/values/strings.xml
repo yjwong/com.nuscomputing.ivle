@@ -69,6 +69,17 @@
     <!-- Strings for SettingsFragment -->
     <string name="settings_fragment_no_accounts_configured">No accounts have been configured.</string>
     <string name="settings_fragment_app_will_restart">This application will restart to reflect the account change.</string>
+    <string name="settings_fragment_add_account_summary">Tap to add an account</string>
+    <string name="settings_fragment_add_account_title">Add account&#8230;</string>
+    <string name="settings_fragment_manage_accounts_summary">Tap to manage accounts</string>
+    <string name="settings_fragment_manage_accounts_title">Manage accounts&#8230;</string>
+    <string name="settings_fragment_download_over_mobile_networks_title">Download over mobile networks</string>
+    <string name="settings_fragment_download_over_mobile_networks_summary">Allow use of 3G/4G for downloads</string>
+    <string name="settings_fragment_about_summary">\u00A9 2012 Wong Yong Jie</string>
+    <string name="settings_fragment_about_title">Version %1$s</string>
+    <string name="settings_fragment_send_feedback_title">Send Feedback</string>
+    <string name="settings_fragment_send_feedback_subject">Feedback for %1$s (Version %2$s)</string>
+    <string name="settings_fragment_send_feedback_via">Send Feedback via</string>
     
     <!-- Strings for ViewWebcastFileActivity -->
     <string name="view_webcast_file_activity_loading_video">Loading Video&#8230;</string>

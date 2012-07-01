@@ -3,11 +3,10 @@ package com.nuscomputing.ivle;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -39,6 +38,24 @@ public class MainApplication extends Application {
 		return MainApplication.context;
 	}
 	
+	/**
+	 * Method: getVersionString
+	 * <p>
+	 * Utility method to get the version string of this application.
+	 */
+	public static String getVersionString() {
+		// Get the information about this package.
+		String version = "Unknown";
+		try {
+			PackageInfo packageInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+			version = packageInfo.versionName;
+		} catch (NameNotFoundException e) {
+			// Do nothing... Let the version remain unknown.
+		}
+		
+		return version;
+	}
+	
     public static boolean onOptionsItemSelected(Context context, MenuItem item) {
     	// Handle item selection.
     	switch (item.getItemId()) {
@@ -52,13 +69,6 @@ public class MainApplication extends Application {
     			intent.setAction(Intent.ACTION_MAIN);
     			intent.addCategory(Intent.CATEGORY_PREFERENCE);
     			context.startActivity(intent);
-    			return true;
-    			
-    		case R.id.main_menu_about:
-				FragmentActivity activity = (FragmentActivity) context;
-				FragmentManager manager = activity.getSupportFragmentManager();
-				DialogFragment fragment = new AboutApplicationDialogFragment();
-				fragment.show(manager, null);
     			return true;
     			
     		case R.id.main_menu_help:

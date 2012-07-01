@@ -2,12 +2,10 @@ package com.nuscomputing.ivle;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextThemeWrapper;
@@ -24,14 +22,8 @@ public class AboutApplicationDialogFragment extends DialogFragment {
 	
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		// Get the information about this package.
-		String version = "Unknown";
-		try {
-			PackageInfo packageInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
-			version = packageInfo.versionName;
-		} catch (NameNotFoundException e) {
-			// Do nothing... Let the version remain unknown.
-		}
+		// Get the version.
+		String version = MainApplication.getVersionString();
 		
 		// Inflate the view and set the contents.
 		LayoutInflater inflater = (LayoutInflater) new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo_Light_Dialog).getSystemService(Context.LAYOUT_INFLATER_SERVICE);
