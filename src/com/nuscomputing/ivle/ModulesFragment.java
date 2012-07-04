@@ -2,6 +2,7 @@ package com.nuscomputing.ivle;
 
 import com.nuscomputing.ivle.providers.ModulesContract;
 
+import android.accounts.Account;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,8 +42,11 @@ public class ModulesFragment extends ListFragment {
 	private BroadcastReceiver mRefreshReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.v(TAG, "Received sync completion broadcast, reloading data");
-			mLoaderManager.restartLoader(DataLoader.MODULES_FRAGMENT_LOADER, null, mLoader);
+			Account account = intent.getParcelableExtra("com.nuscomputing.ivle.Account");
+			if (account.name.equals(AccountUtils.getActiveAccount(getActivity(), false).name)) {
+				Log.v(TAG, "Received sync completion broadcast, reloading data");
+				mLoaderManager.restartLoader(DataLoader.MODULES_FRAGMENT_LOADER, null, mLoader);
+			}
 		}
 	};
 	
@@ -93,13 +97,13 @@ public class ModulesFragment extends ListFragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		getActivity().getApplicationContext().unregisterReceiver(mRefreshReceiver);
+		getActivity().unregisterReceiver(mRefreshReceiver);
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
-		getActivity().getApplicationContext().registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
+		getActivity().registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_SUCCESS));
 	}
 	
 	// }}}

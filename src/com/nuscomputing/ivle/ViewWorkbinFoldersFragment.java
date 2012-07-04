@@ -76,7 +76,7 @@ public class ViewWorkbinFoldersFragment extends ListFragment
 				// The description field.
 				if (columnIndex == cursor.getColumnIndex(WorkbinFoldersContract.FILE_COUNT)) {
 					// Filter HTML in description.
-					String fileCount = cursor.getInt(columnIndex) + " file(s)";
+					String fileCount = getString(R.string.view_workbin_folders_fragment_file_count, cursor.getInt(columnIndex));
 					TextView tvFileCount = (TextView) view;
 					tvFileCount.setText(fileCount);
 					return true;

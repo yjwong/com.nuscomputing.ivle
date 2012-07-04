@@ -3,6 +3,7 @@ package com.nuscomputing.ivle;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import android.widget.TextView;
  * Main IVLE application activity.
  * @author yjwong
  */
+@TargetApi(11)
 public class ModuleActivity extends FragmentActivity {
 	// {{{ properties
 	
@@ -53,7 +55,8 @@ public class ModuleActivity extends FragmentActivity {
 	// {{{ methods
 	
     /** Called when the activity is first created. */
-    @Override
+    @TargetApi(11)
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
@@ -72,18 +75,21 @@ public class ModuleActivity extends FragmentActivity {
         // Newer versions of Android: Action Bar
         if (Build.VERSION.SDK_INT >= 11) {
         	// Configure the action bar.
-        	ActionBar actionBar = getActionBar();
-        	actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        	actionBar.setDisplayHomeAsUpEnabled(true);
-        	actionBar.setDisplayShowTitleEnabled(false);
+        	ActionBar bar = getActionBar();
+        	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        	bar.setDisplayHomeAsUpEnabled(true);
+        	bar.setDisplayShowTitleEnabled(false);
         	
         	// Create a new spinner adapter.
         	ArrayList<String> spinnerItems = new ArrayList<String>();
         	spinnerItems.addAll(Arrays.asList(
-        		"Info", "Announcements", "Webcasts", "Workbins"
+        		getString(R.string.module_activity_info),
+        		getString(R.string.module_activity_announcements),
+        		getString(R.string.module_activity_webcasts),
+        		getString(R.string.module_activity_workbins)
         	));
         	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
-        	actionBar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
+        	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
         	
             // Plug the pager tabs.
         	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();

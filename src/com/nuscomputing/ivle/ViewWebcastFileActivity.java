@@ -13,6 +13,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.DownloadManager;
 import android.content.Context;
@@ -32,6 +33,7 @@ import android.preference.PreferenceManager;
  * Activity to view webcast videos.
  * @author yjwong
  */
+@TargetApi(11)
 public class ViewWebcastFileActivity extends FragmentActivity implements 
 		MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
 		DataLoaderListener {
@@ -253,10 +255,10 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 	    			
 	    			// Show a toast.
 	    			if (networkType == ConnectivityManager.TYPE_MOBILE && !downloadOverMobile) {
-	    				Toast.makeText(this, "Webcast has been queued for download. Your download will start as soon you are connected to a WiFi network. ", Toast.LENGTH_SHORT)
+	    				Toast.makeText(this, getString(R.string.view_webcast_file_activity_webcast_queued_wifi), Toast.LENGTH_SHORT)
 	    					.show();
 	    			} else {
-	    				Toast.makeText(this, "Webcast has been queued for download. Check the notification area for progress. ", Toast.LENGTH_SHORT)
+	    				Toast.makeText(this, getString(R.string.view_webcast_file_activity_webcast_queued), Toast.LENGTH_SHORT)
 	    					.show();
 	    			}
 	    			

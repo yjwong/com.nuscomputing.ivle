@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nuscomputing.ivle"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="3"
+    android:versionName="0.3.0" >
 
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="15"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -26,6 +26,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="android.app.default_searchable" android:value=".SearchableActivity" />
         </activity>
         <service
             android:name="AuthenticatorService"
@@ -38,16 +39,20 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
-        <activity android:name="AuthenticatorActivity" android:theme="@android:style/Theme.Holo.NoActionBar" android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+        <activity android:name="AuthenticatorActivity"
+            android:theme="@android:style/Theme.Holo.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
         <activity android:name="SettingsActivity"></activity>
         <activity android:name="SettingsActivityLegacy"></activity>
-        <activity android:name="AccountSettingsActivity" android:launchMode="singleInstance">
+        <activity android:name="AccountSettingsActivity" android:launchMode="singleInstance" android:permission="android.permission.ACCOUNT_MANAGER">
             <intent-filter>
                 <action android:name="com.nuscomputing.ivle.AccountSettingsActivity.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="AccountSettingsActivityLegacy" android:launchMode="singleInstance">
+        <activity android:name="AccountSettingsActivityLegacy" android:launchMode="singleInstance" android:permission="android.permission.ACCOUNT_MANAGER">
             <intent-filter>
                 <action android:name="com.nuscomputing.ivle.AccountSettingsActivityLegacy.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -72,6 +77,12 @@
         <activity android:name="ViewWebcastActivity"></activity>
         <activity android:name="ViewWebcastFileActivity" android:immersive="true" android:screenOrientation="sensorLandscape" android:configChanges="orientation|keyboardHidden"></activity>
         <activity android:name="ViewWorkbinActivity"></activity>
+        <activity android:name=".SearchableActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
+        </activity>
     </application>
 
 </manifest>

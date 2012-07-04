@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="account_settings_root" >
+    
+    <ListPreference
+        android:key="sync_interval"
+        android:title="@string/account_settings_fragment_sync_interval"
+        android:defaultValue="@integer/default_sync_interval"
+        android:entries="@array/account_settings_sync_interval_list"
+        android:entryValues="@array/account_settings_sync_interval_values" />
     
 </PreferenceScreen>

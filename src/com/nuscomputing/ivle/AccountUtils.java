@@ -22,6 +22,18 @@ public class AccountUtils {
 	// {{{ methods
 	
 	/**
+	 * Method: getAllAccounts
+	 * <p>
+	 * Gets all the accounts.
+	 */
+	public static Account[] getAllAccounts(Context context) {
+		// Create an account manager.
+		AccountManager am = AccountManager.get(context.getApplicationContext());
+		Account[] accounts = am.getAccountsByType(Constants.ACCOUNT_TYPE);
+		return accounts;
+	}
+	
+	/**
 	 * Method: setActiveAccount
 	 * <p>
 	 * Sets the active account and stores it into the preferences.
@@ -31,8 +43,7 @@ public class AccountUtils {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		// Create an account manager.
-		AccountManager am = AccountManager.get(context.getApplicationContext());
-		Account[] accounts = am.getAccountsByType(Constants.ACCOUNT_TYPE);
+		Account[] accounts = AccountUtils.getAllAccounts(context);
 		
 		// Check if the specified account exists.
 		if (accountName != null) {
@@ -75,8 +86,7 @@ public class AccountUtils {
 		String accountName = prefs.getString("account", null);
 		
 		// Create an account manager.
-		AccountManager am = AccountManager.get(context.getApplicationContext());
-		Account[] accounts = am.getAccountsByType(Constants.ACCOUNT_TYPE);
+		Account[] accounts = AccountUtils.getAllAccounts(context);
 		
 		// Act based on prior preference.
 		if (accountName != null) {

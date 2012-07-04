@@ -25,6 +25,7 @@ import com.nuscomputing.ivle.providers.AnnouncementsContract;
 import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
+import com.nuscomputing.ivle.providers.TimetableSlotsContract;
 import com.nuscomputing.ivle.providers.UsersContract;
 import com.nuscomputing.ivle.providers.WebcastFilesContract;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
@@ -39,11 +40,12 @@ import com.nuscomputing.ivlelapi.Gradebook;
 import com.nuscomputing.ivlelapi.IVLE;
 import com.nuscomputing.ivlelapi.JSONParserException;
 import com.nuscomputing.ivlelapi.Module;
+import com.nuscomputing.ivlelapi.Module.Weblink;
 import com.nuscomputing.ivlelapi.NetworkErrorException;
+import com.nuscomputing.ivlelapi.Timetable;
 import com.nuscomputing.ivlelapi.User;
 import com.nuscomputing.ivlelapi.Webcast;
 import com.nuscomputing.ivlelapi.Workbin;
-import com.nuscomputing.ivlelapi.Module.Weblink;
 
 /**
  * The actual sync adapter implementation for announcements.
@@ -217,6 +219,23 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				}
 			}
 			
+			// Fetch the user's timetable.
+			Log.v(TAG, "Fetching timetable slots");
+			Timetable timetable = ivle.getTimetableStudent();
+			for (Timetable.Slot timetableSlot : timetable.slots) {
+				Cursor cursor = mProvider.query(
+					ModulesContract.CONTENT_URI,
+					new String[]{ ModulesContract.ID },
+					ModulesContract.IVLE_ID + " = ?",
+					new String[]{ timetableSlot.courseId },
+					null
+				);
+				
+				cursor.moveToFirst();
+				int moduleId = cursor.getInt(cursor.getColumnIndex(ModulesContract.ID));
+				this.insertTimetableSlot(timetableSlot, moduleId);
+			}
+			
 			Log.d(TAG, "Sync complete");
 			IVLESyncService.broadcastSyncSuccess(mContext, account);
 			
@@ -226,12 +245,14 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 			
 		} finally {
 			this.setSyncInProgress(account, false);
+			IVLESyncService.broadcastSyncComplete(mContext, account);
 		}
 	}
 	
 	@Override
 	public void onSyncCanceled(Thread thread) {
-		IVLESyncService.broadcastSyncCanceled(mContext);
+		this.setSyncInProgress(mAccount, false);
+		IVLESyncService.broadcastSyncCanceled(mContext, mAccount);
 	}
 	
 	/**
@@ -266,7 +287,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		IllegalStateException {
 		if (e instanceof OperationCanceledException) {
 			Log.d(TAG, "Sync canceled");
-			IVLESyncService.broadcastSyncCanceled(mContext);
+			IVLESyncService.broadcastSyncCanceled(mContext, mAccount);
 		} else if (e instanceof AuthenticatorException || e instanceof FailedLoginException) {
 			Log.d(TAG, "AuthenticatorException or FailedLoginException, refreshing authToken");
 			mSyncResult.stats.numAuthExceptions++;
@@ -296,7 +317,8 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		}
 		
 		// The sync failed, so broadcast our failure.
-		IVLESyncService.broadcastSyncFailed(mContext);
+		this.setSyncInProgress(mAccount, false);
+		IVLESyncService.broadcastSyncFailed(mContext, mAccount);
 	}
 	
 	/**
@@ -417,6 +439,35 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		
 		// Obtain the ID after insertion.
 		Uri uri = mProvider.insert(ModulesContract.CONTENT_URI, values);
+		return Integer.parseInt(uri.getLastPathSegment());
+	}
+	
+	/**
+	 * Method: insertTimetableSlot
+	 * <p>
+	 * Inserts a timetable slot into the timetable slot table.
+	 */
+	private int insertTimetableSlot(Timetable.Slot slot, int moduleId) throws
+			RemoteException {
+		// Prepare the content values.
+		ContentValues values = new ContentValues();
+		values.put(TimetableSlotsContract.MODULE_ID, moduleId);
+		values.put(TimetableSlotsContract.ACCOUNT, mAccount.name);
+		values.put(TimetableSlotsContract.ACAD_YEAR, slot.acadYear);
+		values.put(TimetableSlotsContract.SEMESTER, slot.semester);
+		values.put(TimetableSlotsContract.START_TIME, slot.startTime);
+		values.put(TimetableSlotsContract.END_TIME, slot.endTime);
+		values.put(TimetableSlotsContract.MODULE_CODE, slot.moduleCode);
+		values.put(TimetableSlotsContract.CLASS_NO, slot.classNo);
+		values.put(TimetableSlotsContract.LESSON_TYPE, slot.lessonType);
+		values.put(TimetableSlotsContract.VENUE, slot.venue);
+		values.put(TimetableSlotsContract.DAY_CODE, slot.dayCode);
+		values.put(TimetableSlotsContract.DAY_TEXT, slot.dayText);
+		values.put(TimetableSlotsContract.WEEK_CODE, slot.weekCode);
+		values.put(TimetableSlotsContract.WEEK_TEXT, slot.weekText);
+		
+		// Insert timetable slot.
+		Uri uri = mProvider.insert(TimetableSlotsContract.CONTENT_URI, values);
 		return Integer.parseInt(uri.getLastPathSegment());
 	}
 	
@@ -696,6 +747,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		mProvider.delete(GradebooksContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(GradebookItemsContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(ModulesContract.CONTENT_URI, selection, selectionArgs);
+		mProvider.delete(TimetableSlotsContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(UsersContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WebcastsContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(WebcastItemGroupsContract.CONTENT_URI, selection, selectionArgs);

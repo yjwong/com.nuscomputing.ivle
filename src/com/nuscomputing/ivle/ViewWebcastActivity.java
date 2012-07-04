@@ -1,5 +1,6 @@
 package com.nuscomputing.ivle;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+@TargetApi(11)
 public class ViewWebcastActivity extends FragmentActivity
 		implements DataLoaderListener {
 	// {{{ properties
@@ -19,7 +21,7 @@ public class ViewWebcastActivity extends FragmentActivity
 	public static final String TAG = "ViewWebcastActivity";
 	
 	/** The webcast ID */
-	public long webcastId;
+	private long mWebcastId;
 	
 	// }}}
 	// {{{ methods
@@ -31,8 +33,8 @@ public class ViewWebcastActivity extends FragmentActivity
         
         // Obtain the requested announcement ID.
         Intent intent = getIntent();
-        webcastId = intent.getLongExtra("webcastId", -1);
-        if (webcastId == -1) {
+        mWebcastId = intent.getLongExtra("webcastId", -1);
+        if (mWebcastId == -1) {
         	throw new IllegalStateException("No webcast ID was passed to ViewWebcastActivity");
         }
         
@@ -44,16 +46,21 @@ public class ViewWebcastActivity extends FragmentActivity
         // Set up our view.
         setContentView(R.layout.view_webcast_activity);
         
-        // Add the fragment.
+        // Set up arguments.
+        Bundle args = new Bundle();
+        args.putLong("webcastId", mWebcastId);
+        
+        // Setup the fragment.
         Fragment fragment = new ViewWebcastFragment();
+        fragment.setArguments(args);
+        
+        // Add the fragment.
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.add(R.id.view_webcast_activity_fragment_container, fragment);
         transaction.commit();
         
         // Load the action bar title.
-        Bundle args = new Bundle();
-        args.putLong("webcastId", webcastId);
         DataLoader loader = new DataLoader(this, this);
         getSupportLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_ACTIVITY_LOADER, args, loader).forceLoad();
     }

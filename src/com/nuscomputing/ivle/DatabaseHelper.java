@@ -4,6 +4,7 @@ import com.nuscomputing.ivle.providers.AnnouncementsContract;
 import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
+import com.nuscomputing.ivle.providers.TimetableSlotsContract;
 import com.nuscomputing.ivle.providers.UsersContract;
 import com.nuscomputing.ivle.providers.WebcastFilesContract;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
@@ -13,8 +14,13 @@ import com.nuscomputing.ivle.providers.WorkbinFilesContract;
 import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
 
+import android.accounts.Account;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.*;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 /**
  * Provides a storage for the IVLE app.
@@ -26,10 +32,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 11;
+	private static final int DATABASE_VERSION = 13;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
+	
+	/** The context */
+	private Context mContext;
 	
 	/** Data for announcements data table */
 	public static final String ANNOUNCEMENTS_TABLE_NAME = "announcements";
@@ -115,6 +124,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			GradebookItemsContract.MAX_MARKS + " INTEGER, " +
 			GradebookItemsContract.PERCENTILE + " TEXT, " +
 			GradebookItemsContract.REMARK + " TEXT" +
+			");";
+	
+	/** Data for timetable slots table */
+	public static final String TIMETABLE_SLOTS_TABLE_NAME = "timetable_slots";
+	private static final String TIMETABLE_SLOTS_TABLE_CREATE =
+			"CREATE TABLE " + TIMETABLE_SLOTS_TABLE_NAME + "(" +
+			TimetableSlotsContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			TimetableSlotsContract.MODULE_ID + " TEXT, " +
+			TimetableSlotsContract.ACCOUNT + " TEXT, " +
+			TimetableSlotsContract.ACAD_YEAR + " TEXT, " +
+			TimetableSlotsContract.SEMESTER + " TEXT, " +
+			TimetableSlotsContract.START_TIME + " TEXT, " +
+			TimetableSlotsContract.END_TIME + " TEXT, " +
+			TimetableSlotsContract.MODULE_CODE + " TEXT, " +
+			TimetableSlotsContract.CLASS_NO + " TEXT, " +
+			TimetableSlotsContract.LESSON_TYPE + " TEXT, " +
+			TimetableSlotsContract.VENUE + " TEXT, " +
+			TimetableSlotsContract.DAY_CODE + " TEXT, " +
+			TimetableSlotsContract.DAY_TEXT + " TEXT, " +
+			TimetableSlotsContract.WEEK_CODE + " TEXT, " +
+			TimetableSlotsContract.WEEK_TEXT + " TEXT" +
 			");";
 	
 	/** Data for users data table */
@@ -261,6 +291,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 */
 	public DatabaseHelper(Context context) {
 		super(context, DatabaseHelper.DATABASE_NAME, null, DatabaseHelper.DATABASE_VERSION);
+		mContext = context;
 	}
 	
 	/**
@@ -284,6 +315,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(ANNOUNCEMENTS_TABLE_CREATE);
 		db.execSQL(GRADEBOOKS_TABLE_CREATE);
 		db.execSQL(GRADEBOOK_ITEMS_TABLE_CREATE);
+		db.execSQL(TIMETABLE_SLOTS_TABLE_CREATE);
 		db.execSQL(MODULES_TABLE_CREATE);
 		db.execSQL(USERS_TABLE_CREATE);
 		db.execSQL(WEBCASTS_TABLE_CREATE);
@@ -307,6 +339,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper.drop(db, ANNOUNCEMENTS_TABLE_NAME);
 		DatabaseHelper.drop(db, GRADEBOOKS_TABLE_NAME);
 		DatabaseHelper.drop(db, GRADEBOOK_ITEMS_TABLE_NAME);
+		DatabaseHelper.drop(db, TIMETABLE_SLOTS_TABLE_NAME);
 		DatabaseHelper.drop(db, MODULES_TABLE_NAME);
 		DatabaseHelper.drop(db, USERS_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBCASTS_TABLE_NAME);
@@ -319,6 +352,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 		// Recreate databases.
 		this.onCreate(db);
+		
+		// Re-sync the databases.
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext.getApplicationContext());
+		SharedPreferences.Editor prefsEditor = prefs.edit();
+		Account[] accounts = AccountUtils.getAllAccounts(mContext);
+		for (Account account : accounts) {
+			prefsEditor.putBoolean(IVLESyncService.KEY_SYNC_IN_PROGRESS + "_" + account.name, true);
+			prefsEditor.commit();
+			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+		}
+		
 		return;
 	}
 	

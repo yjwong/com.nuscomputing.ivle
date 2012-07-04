@@ -46,9 +46,9 @@ public class ViewWebcastFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		// Obtain the announcement ID.
-		ViewWebcastActivity activity = (ViewWebcastActivity) getActivity();
-		mWebcastId = activity.webcastId;
+		// Obtain the webcast ID.
+		Bundle args = getArguments();
+		mWebcastId = args.getLong("webcastId");
         if (mWebcastId == -1) {
         	throw new IllegalStateException("No webcast ID was passed to ViewWebcastFragment");
         }
@@ -66,8 +66,6 @@ public class ViewWebcastFragment extends ListFragment {
 				null, uiBindFrom, uiBindTo,
 				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
 		);
-        Bundle args = new Bundle();
-        args.putLong("webcastId", mWebcastId);
         DataLoader loader = new DataLoader(getActivity(), mAdapter);
 		getLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_FRAGMENT_LOADER, args, loader);
 		

@@ -2,7 +2,10 @@ package com.nuscomputing.ivle;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,8 +13,11 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
+import android.provider.Settings;
 
+@TargetApi(11)
 public class SettingsFragment extends PreferenceFragment {
 	// {{{ properties
 	
@@ -32,6 +38,9 @@ public class SettingsFragment extends PreferenceFragment {
         // Set up some options in the preferences tree.
         setUpAccount();
         setUpAddAccount();
+        setUpManageAccounts();
+        setUpAbout();
+        setUpSendFeedback();
     }
     
     @Override
@@ -67,7 +76,7 @@ public class SettingsFragment extends PreferenceFragment {
         
     	// There are no accounts, disable this.
     	if (accounts.length == 0) {
-    		accountsPreference.setSummary("No accounts have been configured");
+    		accountsPreference.setSummary(getString(R.string.settings_fragment_no_accounts_configured));
     		accountsPreference.setEnabled(false);
     	}
         
@@ -101,7 +110,7 @@ public class SettingsFragment extends PreferenceFragment {
 				
 				// Build a dialog to inform the user that we need to restart.
 				AlertDialog dialog = new AlertDialog.Builder(context).create();
-				dialog.setMessage("This application will restart to reflect the account change. ");
+				dialog.setMessage(getString(R.string.settings_fragment_app_will_restart));
 				
 	    		// Set button parameters and show the dialog.
 	    		dialog.setButton(AlertDialog.BUTTON_NEUTRAL, getText(R.string.ok), new DialogInterface.OnClickListener() {
@@ -133,6 +142,62 @@ public class SettingsFragment extends PreferenceFragment {
         // Obtain the add_account preference.
         Preference addAccountPreference = findPreference("add_account");
         addAccountPreference.setIntent(intent);
+    }
+    
+    /**
+     * Method: setUpManageAccounts
+     * Action for managing accounts.
+     */
+    private void setUpManageAccounts() {
+    	// Set up new intent to launch the "Accounts and Sync Settings" screen.
+    	Intent intent = new Intent(Settings.ACTION_SYNC_SETTINGS);
+    	intent.putExtra(Settings.EXTRA_AUTHORITIES, new String[] { Constants.PROVIDER_AUTHORITY });
+    	
+    	// Obtain the manage_accounts preference.
+    	Preference manageAccountsPreference = findPreference("manage_accounts");
+    	manageAccountsPreference.setIntent(intent);
+    }
+    
+    /**
+     * Method: setUpAbout
+     * Action for the about dialog.
+     */
+    private void setUpAbout() {
+    	Preference aboutPreference = findPreference("about");
+    	aboutPreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+		    	// Get the fragment manager.
+		    	FragmentManager manager = getActivity().getFragmentManager();
+		    	DialogFragment fragment = new AboutApplicationDialogFragment();
+		    	fragment.show(manager, null);
+		    	return true;
+			}
+    	});
+    	
+		// Get the information about this package.
+		String version = MainApplication.getVersionString();
+    	aboutPreference.setTitle(getString(R.string.settings_fragment_about_title, version));
+    	aboutPreference.setSummary(getString(R.string.settings_fragment_about_summary));
+    }
+    
+    /**
+     * Method: setUpSendFeedback
+     * Action for sending feedback.
+     */
+    private void setUpSendFeedback() {
+    	// Get the application version.
+    	String version = MainApplication.getVersionString();
+    	
+    	// Set up the email intent.
+    	Intent intent = new Intent(Intent.ACTION_SEND);
+    	intent.setType("message/rfc822");
+    	intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.settings_fragment_send_feedback_subject, getString(R.string.app_name), version));
+    	intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "yjwong92@gmail.com" });
+    	
+    	// Find the preference.
+    	Preference sendFeedbackPreference = findPreference("send_feedback");
+    	sendFeedbackPreference.setIntent(Intent.createChooser(intent, getString(R.string.settings_fragment_send_feedback_via)));
     }
     
     // }}}

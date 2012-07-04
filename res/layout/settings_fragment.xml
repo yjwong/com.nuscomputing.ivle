@@ -2,36 +2,50 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="ps_root" >
     
-    <PreferenceCategory
-        android:key="account_management"
-        android:title="Account Management">
+    <PreferenceCategory android:title="Account Management">
     
         <ListPreference
             android:key="account"
-            android:summary="A0088826"
             android:title="@string/nusnet_id"
-            android:defaultValue="A0088826"
         />
         
         <Preference
             android:key="add_account"
-            android:summary="Tap to add an account"
-            android:title="Add account..."
+            android:summary="@string/settings_fragment_add_account_summary"
+            android:title="@string/settings_fragment_add_account_title"
+        />
+        
+        <Preference
+            android:key="manage_accounts"
+            android:summary="@string/settings_fragment_manage_accounts_summary"
+            android:title="@string/settings_fragment_manage_accounts_title"
         />
         
     </PreferenceCategory>
     
-    <PreferenceCategory
-        android:key="webcast_downloads"
-        android:title="Webcast Downloads">
+    <PreferenceCategory android:title="Webcast Downloads">
         
         <CheckBoxPreference
             android:key="download_over_mobile_networks"
-            android:title="Download over mobile networks"
-            android:summary="Allow use of 3G/4G for downloads"
+            android:title="@string/settings_fragment_download_over_mobile_networks_title"
+            android:summary="@string/settings_fragment_download_over_mobile_networks_summary"
             android:defaultValue="true"
         />
                 
+    </PreferenceCategory>
+   
+    <PreferenceCategory android:title="About">
+        
+        <Preference
+            android:key="about"
+            android:title="@string/settings_fragment_about_title"
+        />
+        
+        <Preference
+            android:key="send_feedback"
+            android:title="@string/settings_fragment_send_feedback_title"
+        />
+        
     </PreferenceCategory>
 
 </PreferenceScreen>
