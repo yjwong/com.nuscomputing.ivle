@@ -93,7 +93,6 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		// Obtain the current account.
 		Account activeAccount = AccountUtils.getActiveAccount(mContext, true);
 		if (activeAccount == null) {
-			// Launch activity to add account.
 			Log.e(TAG, "Error loading accounts");
 			return null;
 		}

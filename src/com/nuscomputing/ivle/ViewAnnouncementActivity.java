@@ -1,5 +1,6 @@
 package com.nuscomputing.ivle;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Build;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+@TargetApi(11)
 public class ViewAnnouncementActivity extends FragmentActivity {
 	// {{{ properties
 	
@@ -68,6 +70,6 @@ public class ViewAnnouncementActivity extends FragmentActivity {
     		return true;
     	}
     }
-	
+
 	// }}}
 }

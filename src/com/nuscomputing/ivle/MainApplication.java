@@ -59,6 +59,9 @@ public class MainApplication extends Application {
     public static boolean onOptionsItemSelected(Context context, MenuItem item) {
     	// Handle item selection.
     	switch (item.getItemId()) {
+    		case R.id.main_menu_search:
+    			return true;
+    			
     		case R.id.main_menu_settings:
     			Intent intent = new Intent();
     			if (Build.VERSION.SDK_INT >= 11) {

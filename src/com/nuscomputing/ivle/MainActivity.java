@@ -7,6 +7,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -27,12 +28,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 
 /**
  * Main IVLE application activity.
  * @author yjwong
  */
-@TargetApi(11)
+@TargetApi(14)
 public class MainActivity extends FragmentActivity {
 	// {{{ properties
 	
@@ -59,6 +61,9 @@ public class MainActivity extends FragmentActivity {
 	
 	/** Is a sync currently in progress? */
 	private boolean mSyncInProgress;
+	
+	/** The search view */
+	private SearchView mSearchView;
 	
 	/** Sync started broadcast receiver */
 	private BroadcastReceiver mSyncStartedReceiver = new BroadcastReceiver() {
@@ -210,6 +215,14 @@ public class MainActivity extends FragmentActivity {
     	inflater.inflate(R.menu.main_menu, menu);
     	inflater.inflate(R.menu.global, menu);
     	
+    	// Get the SearchView and set the searchable configuration
+    	if (Build.VERSION.SDK_INT >= 11) {
+	    	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+	    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
+	    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+	    	mSearchView.setQueryHint(getString(R.string.searchable_hint));
+    	}
+    	
     	// Restore the state of the refresh item.
     	mRefreshMenuItem = menu.findItem(R.id.main_menu_refresh);
     	if (mSyncInProgress) {
@@ -236,6 +249,17 @@ public class MainActivity extends FragmentActivity {
         	
     	} else {
     		return true;
+    	}
+    }
+    
+    @Override
+    public void onBackPressed() {
+    	// Close the search view if one is open.
+    	if (!mSearchView.isIconified() && Build.VERSION.SDK_INT >= 14) {
+    		mSearchView.onActionViewCollapsed();
+    		mSearchView.setQuery("", false);
+    	} else {
+    		super.onBackPressed();
     	}
     }
     

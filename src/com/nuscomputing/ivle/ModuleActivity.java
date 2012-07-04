@@ -29,6 +29,7 @@ import android.widget.TextView;
  * Main IVLE application activity.
  * @author yjwong
  */
+@TargetApi(11)
 public class ModuleActivity extends FragmentActivity {
 	// {{{ properties
 	

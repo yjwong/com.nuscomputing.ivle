@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?android:attr/listSeparatorTextViewStyle"
+    android:id="@+id/searchable_fragment_list_heading_title">
+
+</TextView>
