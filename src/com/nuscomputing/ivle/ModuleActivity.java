@@ -83,7 +83,10 @@ public class ModuleActivity extends FragmentActivity {
         	// Create a new spinner adapter.
         	ArrayList<String> spinnerItems = new ArrayList<String>();
         	spinnerItems.addAll(Arrays.asList(
-        		"Info", "Announcements", "Webcasts", "Workbins"
+        		getString(R.string.module_activity_info),
+        		getString(R.string.module_activity_announcements),
+        		getString(R.string.module_activity_webcasts),
+        		getString(R.string.module_activity_workbins)
         	));
         	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
         	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());

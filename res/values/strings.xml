@@ -55,6 +55,12 @@
     <string name="authenticator_activity_enter_password">Please enter a password.</string>
     <string name="authenticator_activity_account_successfully_added">Account has been successfully added.</string>
     
+    <!-- Strings for ModuleActivity -->
+    <string name="module_activity_info">Info</string>
+    <string name="module_activity_announcements">Announcements</string>
+    <string name="module_activity_webcasts">Webcasts</string>
+    <string name="module_activity_workbins">Workbins</string>
+    
     <!-- Strings for ModuleAnnouncementsFragment -->
     <string name="module_announcements_fragment_no_announcements">There are no announcements.</string>
     
