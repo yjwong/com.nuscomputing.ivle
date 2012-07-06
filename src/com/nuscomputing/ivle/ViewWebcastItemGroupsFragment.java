@@ -92,7 +92,7 @@ public class ViewWebcastItemGroupsFragment extends ListFragment {
         Bundle args = new Bundle();
         args.putLong("webcastItemGroupId", mWebcastItemGroupId);
         DataLoader loader = new DataLoader(getActivity(), mAdapter);
-		getLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_ITEM_GROUP_FRAGMENT_LOADER, args, loader);
+		getLoaderManager().initLoader(DataLoader.LOADER_VIEW_WEBCAST_ITEM_GROUP_FRAGMENT, args, loader);
 		
         // Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.view_webcast_item_group_fragment_linear_layout);

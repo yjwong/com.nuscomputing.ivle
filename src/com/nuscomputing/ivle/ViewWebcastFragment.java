@@ -67,7 +67,7 @@ public class ViewWebcastFragment extends ListFragment {
 				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
 		);
         DataLoader loader = new DataLoader(getActivity(), mAdapter);
-		getLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_FRAGMENT_LOADER, args, loader);
+		getLoaderManager().initLoader(DataLoader.LOADER_VIEW_WEBCAST_FRAGMENT, args, loader);
 		
         // Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.view_webcast_fragment_linear_layout);

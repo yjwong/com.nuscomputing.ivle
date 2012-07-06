@@ -1,11 +1,19 @@
 package com.nuscomputing.ivle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.nuscomputing.ivle.providers.ModulesContract;
+import com.nuscomputing.ivlelapi.FailedLoginException;
+import com.nuscomputing.ivlelapi.IVLE;
+import com.nuscomputing.ivlelapi.JSONParserException;
+import com.nuscomputing.ivlelapi.Module;
+import com.nuscomputing.ivlelapi.NetworkErrorException;
 
 import android.accounts.Account;
+import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -13,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ListFragment;
@@ -41,8 +50,17 @@ public class SearchableFragment extends ListFragment {
 	/** A reference to the layout inflater */
 	private LayoutInflater mLayoutInflater;
 	
+	/** The search results adapter */
+	private ArrayAdapter<SearchResult> mAdapter;
+	
 	// }}}
 	// {{{ methods
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.searchable_fragment, null);
+	}
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -54,9 +72,11 @@ public class SearchableFragment extends ListFragment {
 		// Get the layout inflater.
 		mLayoutInflater = getActivity().getLayoutInflater();
 		
-		// Set the loading adapter.
-		ArrayAdapter<String> loadingAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, new String[] { getString(R.string.loading) });
-		getListView().setAdapter(loadingAdapter);
+		// Create the adapter with no results first, we will populate it as
+		// we search.
+		List<SearchResult> results = new ArrayList<SearchResult>();
+		mAdapter = new SearchResultAdapter(getActivity(), results);
+		setListAdapter(mAdapter);
 		
 		// Perform the search query.
 		getLoaderManager().initLoader(0, args, new SearchResultLoaderCallbacks());
@@ -90,6 +110,19 @@ public class SearchableFragment extends ListFragment {
 						startActivity(intent);
 						return;
 					
+					case SearchResult.RESULT_TYPE_MODULE_ONLINE:
+						// Get the IVLE ID.
+						String moduleIvleId = resultDetails.getString(SearchResult.KEY_MODULE_IVLE_ID);
+						moduleCourseName = resultDetails.getString(SearchResult.KEY_MODULE_NAME);
+						
+						// Start the online module activity.
+						intent = new Intent();
+						intent.putExtra("moduleIvleId", moduleIvleId);
+						intent.putExtra("moduleCourseName", moduleCourseName);
+						intent.setClass(getActivity(), com.nuscomputing.ivle.online.ModuleActivity.class);
+						startActivity(intent);
+						return;
+					
 					default:
 						// Ignore.
 				}
@@ -110,21 +143,32 @@ public class SearchableFragment extends ListFragment {
 		
 		@Override
 		public Loader<List<SearchResult>> onCreateLoader(int id, Bundle args) {
-			return new SearchResultLoader(getActivity(), args);
+			// Create a new loader.
+			SearchResultLoader loader = new SearchResultLoader(getActivity(), args);
+			loader.setAdapter(mAdapter);
+			return loader;
 		}
 
 		@Override
 		public void onLoadFinished(Loader<List<SearchResult>> loader,
 				List<SearchResult> results) {
-			// Create an adapter.
-			SearchResultAdapter adapter = new SearchResultAdapter(getActivity(), android.R.id.text1, results);
-			setListAdapter(adapter);
+			// Check if there are no results.
+			if (results.size() == 0) {
+				TextView tvNoSearchResults = (TextView) getActivity().findViewById(R.id.searchable_fragment_no_search_results);
+				tvNoSearchResults.setVisibility(View.VISIBLE);
+			} else {
+				// We finished searching, notify that our data set is changed.
+				mAdapter.notifyDataSetChanged();
+			}
+			
+			// Hide the loading progress.
+			TextView tvLoading = (TextView) getActivity().findViewById(R.id.searchable_fragment_loading);
+			tvLoading.setVisibility(View.GONE);
 		}
 
 		@Override
 		public void onLoaderReset(Loader<List<SearchResult>> loader) {
-			// TODO Auto-generated method stub
-			
+			// Do nothing.
 		}
 		
 		// }}}
@@ -146,6 +190,23 @@ public class SearchableFragment extends ListFragment {
 		/** The search results */
 		private List<SearchResult> mSearchResults;
 		
+		/** The adapter */
+		private ArrayAdapter<SearchResult> mAdapter;
+		
+		/** Handler to run stuff on UI thread */
+		private Handler mHandler = new Handler();
+		
+		/** Runnable to update results */
+		private Runnable mResultUpdater = new Runnable() {
+			@TargetApi(11)
+			@Override
+			public void run() {
+				mAdapter.clear();
+				mAdapter.addAll(mSearchResults);
+				mAdapter.notifyDataSetChanged();
+			}
+		};
+		
 		// }}}
 		// {{{ methods
 		
@@ -153,6 +214,10 @@ public class SearchableFragment extends ListFragment {
 			super(context);
 			mContext = context;
 			mArgs = args;
+		}
+		
+		void setAdapter(ArrayAdapter<SearchResult> adapter) {
+			mAdapter = adapter;
 		}
 		
 		@Override
@@ -168,24 +233,24 @@ public class SearchableFragment extends ListFragment {
 		@Override
 		public List<SearchResult> loadInBackground() {
 			// Get the search query.
+			Bundle resultDetails;
+			SearchResult result;
 			String query = mArgs.getString(SearchManager.QUERY);
 			
 			// List of results.
-			List<SearchResult> resultList = new ArrayList<SearchResult>();
+			mSearchResults = new ArrayList<SearchResult>();
 			
 			// Get the active account.
 			Account account = AccountUtils.getActiveAccount(mContext, false);
+			
+			// Get an IVLE instance.
+			IVLE ivle = IVLEUtils.getIVLEInstance(mContext);
 			
 			// Get the content provider.
 			ContentResolver resolver = mContext.getContentResolver();
 			ContentProviderClient provider = resolver.acquireContentProviderClient(Constants.PROVIDER_AUTHORITY);
 			
 			// Acquire modules first.
-			Bundle resultDetails = new Bundle();
-			resultDetails.putString(SearchResult.KEY_HEADING_TITLE, "Modules");
-			SearchResult result = new SearchResult(SearchResult.RESULT_TYPE_HEADING, resultDetails);
-			resultList.add(result);
-			
 			try {
 				Cursor cursor = provider.query(ModulesContract.CONTENT_URI, 
 						new String[] {
@@ -205,20 +270,67 @@ public class SearchableFragment extends ListFragment {
 				
 				// Have we found any results in modules?
 				if (cursor.getCount() > 0) {
+					// Add the heading.
+					resultDetails = new Bundle();
+					resultDetails.putString(SearchResult.KEY_HEADING_TITLE, "Modules");
+					result = new SearchResult(SearchResult.RESULT_TYPE_HEADING, resultDetails);
+					mSearchResults.add(result);
+					
+					// Add the results.
 					while (cursor.moveToNext()) {
 						resultDetails = new Bundle();
 						resultDetails.putLong(SearchResult.KEY_MODULE_ID, cursor.getLong(cursor.getColumnIndex(ModulesContract.ID)));
 						resultDetails.putString(SearchResult.KEY_MODULE_NAME, cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
 						result = new SearchResult(SearchResult.RESULT_TYPE_MODULE, resultDetails);
-						resultList.add(result);
+						mSearchResults.add(result);
 					}
 				}
 				
+				// Update results.
+				mHandler.post(mResultUpdater);
+				
 			} catch (RemoteException e) {
-				Log.e(TAG, "Exception encountered while searching");
+				Log.e(TAG, "RemoteException encountered while searching");
 			}
 			
-			return resultList;
+			// Acquire online modules.
+			try {
+				// Obtain the modules via the API.
+				Map<String, String> criterion = new HashMap<String, String>();
+				//criterion.put("ModuleCode", query);
+				criterion.put("ModuleTitle", query);
+				Module[] modules = ivle.searchModules(criterion);
+				
+				// Have we found any results?
+				if (modules.length > 0) {
+					// Add the heading.
+					resultDetails = new Bundle();
+					resultDetails.putString(SearchResult.KEY_HEADING_TITLE, "Modules (Online)");
+					result = new SearchResult(SearchResult.RESULT_TYPE_HEADING, resultDetails);
+					mSearchResults.add(result);
+					
+					// Add the results.
+					for (Module module : modules) {
+						resultDetails = new Bundle();
+						resultDetails.putString(SearchResult.KEY_MODULE_IVLE_ID, module.ID);
+						resultDetails.putString(SearchResult.KEY_MODULE_NAME, module.courseName);
+						result = new SearchResult(SearchResult.RESULT_TYPE_MODULE_ONLINE, resultDetails);
+						mSearchResults.add(result);
+					}
+				}
+				
+				// Update results.
+				mHandler.post(mResultUpdater);
+				
+			} catch (NetworkErrorException e) {
+				Log.e(TAG, "NetworkErrorException encountered in searchModules");
+			} catch (FailedLoginException e) {
+				Log.e(TAG, "FailedLoginException encountered in searchModules");
+			} catch (JSONParserException e) {
+				Log.e(TAG, "JSONParserException encountered in searchModules");
+			}
+			
+			return mSearchResults;
 		}
 		
 		// }}}
@@ -234,17 +346,13 @@ public class SearchableFragment extends ListFragment {
 		/** The view types */
 		public static final int VIEW_TYPE_HEADING = 1;
 		public static final int VIEW_TYPE_MODULE = 2;
+		public static final int VIEW_TYPE_MODULE_ONLINE = 3;
 		
 		// }}}
 		// {{{ methods
 		
-		public SearchResultAdapter(Context context, int textViewResourceId) {
-			super(context, textViewResourceId);
-		}
-		
-		public SearchResultAdapter(Context context, int textViewResourceId,
-				List<SearchResult> results) {
-			super(context, textViewResourceId, results);
+		public SearchResultAdapter(Context context, List<SearchResult> results) {
+			super(context, android.R.id.text1, results);
 		}
 
 		@Override
@@ -277,6 +385,7 @@ public class SearchableFragment extends ListFragment {
 					return convertView;
 					
 				case VIEW_TYPE_MODULE:
+				case VIEW_TYPE_MODULE_ONLINE:
 					convertView = mLayoutInflater.inflate(R.layout.searchable_fragment_list_item_module, null);
 					convertView.setTag(item);
 					TextView tvModuleTitle = (TextView) convertView.findViewById(R.id.searchable_fragment_list_module_name);
@@ -301,11 +410,13 @@ public class SearchableFragment extends ListFragment {
 		/** The types of search result */
 		public static final int RESULT_TYPE_HEADING = 1;
 		public static final int RESULT_TYPE_MODULE = 2;
-		public static final int RESULT_TYPE_MAX = 3;
+		public static final int RESULT_TYPE_MODULE_ONLINE = 3;
+		public static final int RESULT_TYPE_MAX = 4;
 		
 		/** Keys for various result items */
 		public static final String KEY_HEADING_TITLE = "heading_title";
 		public static final String KEY_MODULE_ID = "module_id";
+		public static final String KEY_MODULE_IVLE_ID = "module_ivle_id";
 		public static final String KEY_MODULE_NAME = "module_name";
 		
 		/** Bundle containing the result details */

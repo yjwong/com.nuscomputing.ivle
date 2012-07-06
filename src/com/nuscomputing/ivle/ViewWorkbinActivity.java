@@ -106,7 +106,7 @@ public class ViewWorkbinActivity extends FragmentActivity
         Bundle args = new Bundle();
         args.putLong("workbinId", workbinId);
         DataLoader loader = new DataLoader(this, this);
-        getSupportLoaderManager().initLoader(DataLoader.VIEW_WORKBIN_ACTIVITY_LOADER, args, loader);
+        getSupportLoaderManager().initLoader(DataLoader.LOADER_VIEW_WORKBIN_ACTIVITY, args, loader);
     }
     
     @Override

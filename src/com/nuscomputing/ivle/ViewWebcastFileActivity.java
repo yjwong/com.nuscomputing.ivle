@@ -147,7 +147,7 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
         Bundle args = new Bundle();
         args.putLong("webcastFileId", webcastFileId);
         DataLoader loader = new DataLoader(this, this);
-		getSupportLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_FILE_ACTIVITY_LOADER, args, loader);
+		getSupportLoaderManager().initLoader(DataLoader.LOADER_VIEW_WEBCAST_FILE_ACTIVITY, args, loader);
 		
 		// Restore video position.
 		if (savedInstanceState != null) {

@@ -69,7 +69,7 @@ public class ViewWorkbinFragment extends ListFragment {
         args.putLong("workbinId", mWorkbinId);
         mLoader = new DataLoader(getActivity(), mAdapter);
         mLoaderManager = getLoaderManager();
-        mLoaderManager.initLoader(DataLoader.VIEW_WORKBIN_FRAGMENT_LOADER, args, mLoader);
+        mLoaderManager.initLoader(DataLoader.LOADER_VIEW_WORKBIN_FRAGMENT, args, mLoader);
         
         // Set the list adapter.
         setListAdapter(mAdapter);

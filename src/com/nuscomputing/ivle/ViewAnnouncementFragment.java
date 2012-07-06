@@ -58,7 +58,7 @@ public class ViewAnnouncementFragment extends Fragment
         Bundle args = new Bundle();
         args.putLong("announcementId", mAnnouncementId);
         DataLoader loader = new DataLoader(getActivity(), this);
-		getLoaderManager().initLoader(DataLoader.VIEW_ANNOUNCEMENT_FRAGMENT_LOADER, args, loader);
+		getLoaderManager().initLoader(DataLoader.LOADER_VIEW_ANNOUNCEMENT_FRAGMENT, args, loader);
 	}
 	
 	@Override

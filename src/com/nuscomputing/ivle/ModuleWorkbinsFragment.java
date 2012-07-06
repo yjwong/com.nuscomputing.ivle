@@ -49,7 +49,7 @@ public class ModuleWorkbinsFragment extends ListFragment
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Log.v(TAG, "Received sync completion broadcast, reloading data");
-			mLoaderManager.restartLoader(DataLoader.MODULE_WORKBINS_FRAGMENT_LOADER, null, mLoader);
+			mLoaderManager.restartLoader(DataLoader.LOADER_MODULE_WORKBINS_FRAGMENT, null, mLoader);
 		}
 	};
 	
@@ -89,7 +89,7 @@ public class ModuleWorkbinsFragment extends ListFragment
         args.putLong("moduleId", mModuleId);
         mLoader = new DataLoader(getActivity(), mAdapter, this);
         mLoaderManager = getLoaderManager();
-		mLoaderManager.initLoader(DataLoader.MODULE_WORKBINS_FRAGMENT_LOADER, args, mLoader);
+		mLoaderManager.initLoader(DataLoader.LOADER_MODULE_WORKBINS_FRAGMENT, args, mLoader);
 		
 		// Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.module_workbins_fragment_linear_layout);

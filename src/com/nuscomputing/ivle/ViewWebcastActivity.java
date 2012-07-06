@@ -62,7 +62,7 @@ public class ViewWebcastActivity extends FragmentActivity
         
         // Load the action bar title.
         DataLoader loader = new DataLoader(this, this);
-        getSupportLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_ACTIVITY_LOADER, args, loader).forceLoad();
+        getSupportLoaderManager().initLoader(DataLoader.LOADER_VIEW_WEBCAST_ACTIVITY, args, loader).forceLoad();
     }
     
     @Override

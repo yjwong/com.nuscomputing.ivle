@@ -96,7 +96,7 @@ public class ViewWorkbinFilesFragment extends ListFragment
 		});
 		mLoader = new DataLoader(getActivity(), mAdapter, this);
 		mLoaderManager = getLoaderManager();
-		mLoaderManager.initLoader(DataLoader.VIEW_WORKBIN_FILES_FRAGMENT_LOADER, args, mLoader);
+		mLoaderManager.initLoader(DataLoader.LOADER_VIEW_WORKBIN_FILES_FRAGMENT, args, mLoader);
 		
         // Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.view_workbin_files_fragment_linear_layout);

@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -81,10 +80,6 @@ public class SearchableActivity extends FragmentActivity {
 	    	mSearchView.setQueryHint(getString(R.string.searchable_hint));
 	    	mSearchView.setQuery(mSearchQuery, false);
 	    	mSearchView.setIconifiedByDefault(false);
-	    	
-	    	// Disable the icon on the action bar.
-	    	ActionBar bar = getActionBar();
-	    	bar.setDisplayShowHomeEnabled(false);
     	}
     	
     	return true;

@@ -45,7 +45,7 @@ public class ModulesFragment extends ListFragment {
 			Account account = intent.getParcelableExtra("com.nuscomputing.ivle.Account");
 			if (account.name.equals(AccountUtils.getActiveAccount(getActivity(), false).name)) {
 				Log.v(TAG, "Received sync completion broadcast, reloading data");
-				mLoaderManager.restartLoader(DataLoader.MODULES_FRAGMENT_LOADER, null, mLoader);
+				mLoaderManager.restartLoader(DataLoader.LOADER_MODULES_FRAGMENT, null, mLoader);
 			}
 		}
 	};
@@ -70,7 +70,7 @@ public class ModulesFragment extends ListFragment {
 		);
         mLoader = new DataLoader(getActivity(), mAdapter);
         mLoaderManager = getLoaderManager();
-		mLoaderManager.initLoader(DataLoader.MODULES_FRAGMENT_LOADER, null, mLoader);
+		mLoaderManager.initLoader(DataLoader.LOADER_MODULES_FRAGMENT, null, mLoader);
 		
 		// Get the listview.
 		ListView listView = (ListView) getActivity().findViewById(android.R.id.list);
