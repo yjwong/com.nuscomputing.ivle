@@ -308,6 +308,9 @@ public class MainActivity extends FragmentActivity {
 		
 		// Request a sync.
     	if (!IVLESyncService.isSyncInProgress(getApplicationContext(), mActiveAccount)) {
+    		Bundle args = new Bundle();
+    		args.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+    		args.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
 			ContentResolver.requestSync(mActiveAccount, Constants.PROVIDER_AUTHORITY, new Bundle());
     	}
     }
