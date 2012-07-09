@@ -2,38 +2,50 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="ps_root" >
     
-    <PreferenceCategory
-        android:key="account_management"
-        android:title="Account Management">
+    <PreferenceCategory android:title="Account Management">
     
         <ListPreference
             android:key="account"
-            android:summary="A0088826"
             android:title="@string/nusnet_id"
-            android:defaultValue="A0088826"
         />
         
         <Preference
             android:key="add_account"
-            android:summary="Tap to add an account"
-            android:title="Add account..."
+            android:summary="@string/settings_fragment_add_account_summary"
+            android:title="@string/settings_fragment_add_account_title"
+        />
+        
+        <Preference
+            android:key="manage_accounts"
+            android:summary="@string/settings_fragment_manage_accounts_summary"
+            android:title="@string/settings_fragment_manage_accounts_title"
         />
         
     </PreferenceCategory>
     
-    <PreferenceCategory
-        android:key="second_category"
-        android:title="Second Category">
+    <PreferenceCategory android:title="Webcast Downloads">
         
-        <EditTextPreference
-            android:key="welcome_message"
-            android:title="Welcome Message"
-            android:summary="Define the welcome message to be shown"
-            android:dialogTitle="Welcome Message"
-            android:dialogMessage="Provide a message"
-            android:defaultValue="Hello world!"
+        <CheckBoxPreference
+            android:key="download_over_mobile_networks"
+            android:title="@string/settings_fragment_download_over_mobile_networks_title"
+            android:summary="@string/settings_fragment_download_over_mobile_networks_summary"
+            android:defaultValue="true"
         />
         
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="About">
+        
+        <Preference
+            android:key="about"
+            android:title="@string/settings_fragment_about_title"
+        />
+        
+        <Preference
+            android:key="send_feedback"
+            android:title="@string/settings_fragment_send_feedback_title"
+        />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

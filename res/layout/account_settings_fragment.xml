@@ -8,6 +8,7 @@
         android:title="@string/account_settings_fragment_sync_interval"
         android:defaultValue="@integer/default_sync_interval"
         android:entries="@array/account_settings_sync_interval_list"
-        android:entryValues="@array/account_settings_sync_interval_values" />
+        android:entryValues="@array/account_settings_sync_interval_values"
+    />
     
 </PreferenceScreen>

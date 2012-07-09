@@ -56,6 +56,37 @@ public class MainApplication extends Application {
 		return version;
 	}
 	
+	public static boolean onOptionsItemSelected(Context context, com.actionbarsherlock.view.MenuItem item) {
+    	// Handle item selection.
+    	switch (item.getItemId()) {
+    		case R.id.main_menu_search:
+    			return true;
+    			
+    		case R.id.main_menu_settings:
+    			Intent intent = new Intent();
+    			if (Build.VERSION.SDK_INT >= 11) {
+    				intent.setClass(context, SettingsActivity.class);
+    			} else {
+    				intent.setClass(context, SettingsActivityLegacy.class);
+    			}
+    			intent.setAction(Intent.ACTION_MAIN);
+    			intent.addCategory(Intent.CATEGORY_PREFERENCE);
+    			context.startActivity(intent);
+    			return true;
+    			
+    		case R.id.main_menu_help:
+    			// TODO: Implement a real help system here.
+    			Uri uri = Uri.parse("https://ivle.nus.edu.sg/");
+    			intent = new Intent(Intent.ACTION_VIEW, uri);
+    			context.startActivity(intent);
+    			Toast.makeText(context, context.getString(R.string.temp_help_not_available_yet), Toast.LENGTH_SHORT).show();
+    			return true;
+    			
+    		default:
+    			return false;
+    	}
+	}
+	
     public static boolean onOptionsItemSelected(Context context, MenuItem item) {
     	// Handle item selection.
     	switch (item.getItemId()) {

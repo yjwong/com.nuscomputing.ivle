@@ -4,34 +4,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.FragmentTransaction;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
-public class ViewWorkbinActivity extends FragmentActivity 
+public class ViewWorkbinActivity extends SherlockFragmentActivity 
 		implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
 	public static final String TAG = "ViewWorkbinActivity";
-	
-	/** The workbin ID */
-	public long workbinId;
-	
-	/** The workbin folder ID */
-	public long workbinFolderId;
 	
 	/** The tab listener */
 	private ActionBar.TabListener mTabListener;
@@ -52,11 +46,11 @@ public class ViewWorkbinActivity extends FragmentActivity
         
         // Obtain the requested workbin ID.
         Intent intent = getIntent();
-        workbinId = intent.getLongExtra("workbinId", -1);
+        long workbinId = intent.getLongExtra("workbinId", -1);
         if (workbinId == -1) {
         	throw new IllegalStateException("No workbin ID was passed to ViewWorkbinActivity");
         }
-        workbinFolderId = intent.getLongExtra("workbinFolderId", -1);
+        long workbinFolderId = intent.getLongExtra("workbinFolderId", -1);
         
         // Create the pager adapter.
         Bundle fragmentArgs = new Bundle();
@@ -76,28 +70,26 @@ public class ViewWorkbinActivity extends FragmentActivity
         mViewPager.setAdapter(mPagerAdapter);
         
         // Set action bar parameters.
-        if (Build.VERSION.SDK_INT >= 11) {
-        	ActionBar bar = getActionBar();
-        	bar.setDisplayHomeAsUpEnabled(true);
-        	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        	mTabListener = new ViewWorkbinActivityTabListener();
-        	
-        	// Create a new tab for folders.
-        	ActionBar.Tab tabFolders = bar.newTab();
-        	tabFolders
-        		.setText("Folders")
-        		.setTabListener(mTabListener);
-        	
-        	// Create a new tab for files.
-        	ActionBar.Tab tabFiles = bar.newTab();
-        	tabFiles
-        		.setText("Files")
-        		.setTabListener(mTabListener);
-        	
-        	// Plug in the tabs.
-        	bar.addTab(tabFolders, 0, true);
-        	bar.addTab(tabFiles, 1, false);
-        }
+    	ActionBar bar = getSupportActionBar();
+    	bar.setDisplayHomeAsUpEnabled(true);
+    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+    	mTabListener = new ViewWorkbinActivityTabListener();
+    	
+    	// Create a new tab for folders.
+    	ActionBar.Tab tabFolders = bar.newTab();
+    	tabFolders
+    		.setText("Folders")
+    		.setTabListener(mTabListener);
+    	
+    	// Create a new tab for files.
+    	ActionBar.Tab tabFiles = bar.newTab();
+    	tabFiles
+    		.setText("Files")
+    		.setTabListener(mTabListener);
+    	
+    	// Plug in the tabs.
+    	bar.addTab(tabFolders, 0, true);
+    	bar.addTab(tabFiles, 1, false);
         
         // Set up our view.
         setContentView(mViewPager);
@@ -112,7 +104,7 @@ public class ViewWorkbinActivity extends FragmentActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
-    	MenuInflater inflater = getMenuInflater();
+    	MenuInflater inflater = getSupportMenuInflater();
     	inflater.inflate(R.menu.global, menu);
     	return true;
     }
@@ -139,9 +131,7 @@ public class ViewWorkbinActivity extends FragmentActivity
     
     public void onLoaderFinished(Bundle result) {
     	// Set the title.
-		if (Build.VERSION.SDK_INT >= 11) {
-			getActionBar().setTitle(result.getString("title"));
-		}
+		getSupportActionBar().setTitle(result.getString("title"));
     }
 	
 	// }}}
@@ -215,7 +205,7 @@ public class ViewWorkbinActivity extends FragmentActivity
 
 		@Override
 		public void onPageSelected(int position) {
-			ActionBar bar = getActionBar();
+			ActionBar bar = getSupportActionBar();
 			bar.selectTab(bar.getTabAt(position));			
 		}
     	
