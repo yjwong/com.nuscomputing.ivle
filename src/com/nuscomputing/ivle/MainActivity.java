@@ -98,7 +98,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		
         // Create the view pager.
 		setContentView(R.layout.main);
-		Log.v(TAG, "Testing GB");
 		mViewPager = (ViewPager) findViewById(R.id.main_view_pager);
 		
         // Check if there's an active account.
@@ -254,7 +253,7 @@ public class MainActivity extends SherlockFragmentActivity {
     @Override
     public void onBackPressed() {
     	// Close the search view if one is open.
-    	if (!mSearchView.isIconified() && Build.VERSION.SDK_INT >= 14) {
+    	if (Build.VERSION.SDK_INT >= 14 && !mSearchView.isIconified()) {
     		mSearchView.onActionViewCollapsed();
     		mSearchView.setQuery("", false);
     	} else {
