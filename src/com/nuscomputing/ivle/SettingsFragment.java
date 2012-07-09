@@ -168,8 +168,8 @@ public class SettingsFragment extends PreferenceFragment {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 		    	// Get the fragment manager.
-		    	FragmentManager manager = getActivity().getFragmentManager();
 		    	DialogFragment fragment = new AboutApplicationDialogFragment();
+		    	FragmentManager manager = getActivity().getFragmentManager();
 		    	fragment.show(manager, null);
 		    	return true;
 			}

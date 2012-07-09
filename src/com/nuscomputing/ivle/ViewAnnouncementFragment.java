@@ -1,14 +1,14 @@
 package com.nuscomputing.ivle;
 
-import android.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -17,7 +17,7 @@ import android.webkit.WebView;
  * Fragment to view an announcement.
  * @author yjwong
  */
-public class ViewAnnouncementFragment extends Fragment
+public class ViewAnnouncementFragment extends SherlockFragment
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -58,7 +58,7 @@ public class ViewAnnouncementFragment extends Fragment
         Bundle args = new Bundle();
         args.putLong("announcementId", mAnnouncementId);
         DataLoader loader = new DataLoader(getActivity(), this);
-		getLoaderManager().initLoader(DataLoader.VIEW_ANNOUNCEMENT_FRAGMENT_LOADER, args, loader);
+		getLoaderManager().initLoader(DataLoader.LOADER_VIEW_ANNOUNCEMENT_FRAGMENT, args, loader);
 	}
 	
 	@Override
@@ -84,11 +84,9 @@ public class ViewAnnouncementFragment extends Fragment
 	
 	public void onLoaderFinished(Bundle result) {
 		// Set the title and subtitle.
-		if (Build.VERSION.SDK_INT >= 11) {
-			ActionBar bar = getActivity().getActionBar();
-			bar.setTitle(result.getString("title"));
-			bar.setSubtitle(result.getString("userName"));
-		}
+		ActionBar bar = getSherlockActivity().getSupportActionBar();
+		bar.setTitle(result.getString("title"));
+		bar.setSubtitle(result.getString("userName"));
 		
 		// Set the content for the webview.
 		WebView wvDescription = (WebView) getActivity().findViewById(R.id.view_announcement_fragment_webview);

@@ -1,8 +1,8 @@
 package com.nuscomputing.ivle;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -14,7 +14,7 @@ import android.view.ViewGroup;
  * Fragment to view a workbin.
  * @author yjwong
  */
-public class ViewWorkbinContentsFragment extends ListFragment {
+public class ViewWorkbinContentsFragment extends SherlockListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -46,8 +46,8 @@ public class ViewWorkbinContentsFragment extends ListFragment {
 		super.onActivityCreated(savedInstanceState);
 		
 		// Obtain the workbin folder ID.
-		ViewWorkbinActivity activity = (ViewWorkbinActivity) getActivity();
-		mWorkbinFolderId = activity.workbinId;
+		Bundle args = getArguments();
+		mWorkbinFolderId = args.getLong("workbinFolderId");
         if (mWorkbinFolderId == -1) {
         	throw new IllegalStateException("No workbin folder ID was passed to ViewWorkbinContentsFragment");
         }
@@ -65,11 +65,9 @@ public class ViewWorkbinContentsFragment extends ListFragment {
 				null, uiBindFrom, uiBindTo,
 				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
 		);
-        Bundle args = new Bundle();
-        args.putLong("workbinFolderId", mWorkbinFolderId);
         mLoader = new DataLoader(getActivity(), mAdapter);
         mLoaderManager = getLoaderManager();
-        mLoaderManager.initLoader(DataLoader.VIEW_WORKBIN_FRAGMENT_LOADER, args, mLoader);
+        mLoaderManager.initLoader(DataLoader.LOADER_VIEW_WORKBIN_FRAGMENT, args, mLoader);
         
         // Set the list adapter.
         setListAdapter(mAdapter);

@@ -2,22 +2,18 @@ package com.nuscomputing.ivle;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-/**
- * A dialog for "About". 
- * @author yjwong
- */
-public class AboutApplicationDialogFragment extends DialogFragment {
+import com.actionbarsherlock.app.SherlockDialogFragment;
+
+public class AboutApplicationDialogFragmentLegacy extends SherlockDialogFragment {
 	// {{{ methods
 	
 	@Override
@@ -26,7 +22,7 @@ public class AboutApplicationDialogFragment extends DialogFragment {
 		String version = MainApplication.getVersionString();
 		
 		// Determine the context theme.
-		final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_Sherlock_Light_Dialog);
+		final Context context = getActivity();
 		
 		// Inflate the view and set the contents.
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -45,6 +41,7 @@ public class AboutApplicationDialogFragment extends DialogFragment {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.dismiss();
+					getActivity().finish();
 				}
 			})
 			.create();

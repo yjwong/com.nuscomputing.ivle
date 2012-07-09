@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- Global strings -->
-    <string name="app_name">NUS IVLE</string>
-    <string name="app_name_with_active_account">NUS IVLE (%1$s)</string>
+    <string name="app_name">myIVLE</string>
+    <string name="app_name_with_active_account">myIVLE (%1$s)</string>
     <string name="sign_in">Sign In</string>
     <string name="nusnet_id">NUSNET ID</string>
     <string name="password">Password</string>
@@ -58,6 +58,7 @@
     <!-- Strings for ModuleActivity -->
     <string name="module_activity_info">Info</string>
     <string name="module_activity_announcements">Announcements</string>
+    <string name="module_activity_lecturers">Lecturers</string>
     <string name="module_activity_webcasts">Webcasts</string>
     <string name="module_activity_workbins">Workbins</string>
     
@@ -65,16 +66,23 @@
     <string name="module_announcements_fragment_no_announcements">There are no announcements.</string>
     
     <!-- Strings for ModuleInfoFragment -->
-    <string name="module_info_fragment_unable_to_load">Unable to load additional module information. \nPlease check your network connection.</string>
+    <string name="module_info_fragment_unable_to_load">Unable to load module information.\nPlease check your network connection.</string>
+    <string name="module_info_fragment_unable_to_load_additional">Unable to load additional module information.\nPlease check your network connection.</string>
     <string name="module_info_fragment_failed_to_load">Failed to load.</string>
     <string name="module_info_fragment_no_additional_info">No additional info available.</string>
     <string name="module_info_fragment_more_info">More Info</string>
+    
+    <!-- Strings for ModuleLecturersFragment -->
+    <string name="module_lecturers_fragment_unable_to_load">Unable to load lecturer information.\nPlease check your network connection.</string>
     
     <!-- Strings for ModuleWebcastsFragment -->
     <string name="module_webcasts_fragment_no_webcasts">There are no webcasts.</string>
     
     <!-- Strings for ModuleWorkbinsFragment -->
     <string name="module_workbins_fragment_no_workbins">There are no workbins.</string>
+    
+    <!-- Strings for SearchableFragment -->
+    <string name="searchable_fragment_no_search_results">No search results found.</string>
     
     <!-- Strings for SettingsFragment -->
     <string name="settings_fragment_no_accounts_configured">No accounts have been configured.</string>

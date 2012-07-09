@@ -1,11 +1,11 @@
 package com.nuscomputing.ivle;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -23,7 +23,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * Fragment to view a workbin's folders.
  * @author yjwong
  */
-public class ViewWorkbinFoldersFragment extends ListFragment
+public class ViewWorkbinFoldersFragment extends SherlockListFragment
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -87,7 +87,7 @@ public class ViewWorkbinFoldersFragment extends ListFragment
 		});
 		mLoader = new DataLoader(getActivity(), mAdapter, this);
 		mLoaderManager = getLoaderManager();
-		mLoaderManager.initLoader(DataLoader.VIEW_WORKBIN_FOLDERS_FRAGMENT_LOADER, args, mLoader);
+		mLoaderManager.initLoader(DataLoader.LOADER_VIEW_WORKBIN_FOLDERS_FRAGMENT, args, mLoader);
 		
         // Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.view_workbin_folders_fragment_linear_layout);

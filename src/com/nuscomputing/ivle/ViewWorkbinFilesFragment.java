@@ -1,12 +1,12 @@
 package com.nuscomputing.ivle;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.WorkbinFilesContract;
 
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -24,7 +24,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * Fragment to view a workbin's files.
  * @author yjwong
  */
-public class ViewWorkbinFilesFragment extends ListFragment 
+public class ViewWorkbinFilesFragment extends SherlockListFragment 
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -96,7 +96,7 @@ public class ViewWorkbinFilesFragment extends ListFragment
 		});
 		mLoader = new DataLoader(getActivity(), mAdapter, this);
 		mLoaderManager = getLoaderManager();
-		mLoaderManager.initLoader(DataLoader.VIEW_WORKBIN_FILES_FRAGMENT_LOADER, args, mLoader);
+		mLoaderManager.initLoader(DataLoader.LOADER_VIEW_WORKBIN_FILES_FRAGMENT, args, mLoader);
 		
         // Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.view_workbin_files_fragment_linear_layout);

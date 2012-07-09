@@ -327,7 +327,10 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     	
     	// Activate sync automatically.
     	Resources res = getResources();
-    	ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+    	Bundle syncArgs = new Bundle();
+    	syncArgs.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+    	syncArgs.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+    	ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, syncArgs);
     	ContentResolver.setSyncAutomatically(account, Constants.PROVIDER_AUTHORITY, true);
     	ContentResolver.addPeriodicSync(account, Constants.PROVIDER_AUTHORITY, new Bundle(), res.getInteger(R.integer.default_sync_interval) * 60 * 60);
     	

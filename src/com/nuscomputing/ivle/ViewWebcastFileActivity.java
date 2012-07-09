@@ -1,10 +1,12 @@
 package com.nuscomputing.ivle;
 
-import android.support.v4.app.FragmentActivity;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -14,7 +16,6 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +35,7 @@ import android.preference.PreferenceManager;
  * @author yjwong
  */
 @TargetApi(11)
-public class ViewWebcastFileActivity extends FragmentActivity implements 
+public class ViewWebcastFileActivity extends SherlockFragmentActivity implements 
 		MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
 		DataLoaderListener {
 	// {{{ properties
@@ -82,18 +83,20 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 	/** Hides the action bar */
 	Runnable mActionBarHider = new Runnable() {
 		public void run() {
-			ActionBar bar = getActionBar();
+			ActionBar bar = getSupportActionBar();
 			bar.hide();
 			
 			// Set to low profile mode again.
-			getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+			if (Build.VERSION.SDK_INT >= 14) {
+				getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+			}
 		}
 	};
 	
 	/** Shows the action bar */
 	Runnable mActionBarShower = new Runnable() {
 		public void run() {
-			ActionBar bar = getActionBar();
+			ActionBar bar = getSupportActionBar();
 			bar.show();
 		}
 	};
@@ -116,11 +119,11 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 		if (Build.VERSION.SDK_INT >= 11) {
 			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 			getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
-			getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.view_webcast_file_activity_action_bar_background));
-			
-			ActionBar bar = getActionBar();
-			bar.setDisplayHomeAsUpEnabled(true);
 		}
+		
+		ActionBar bar = getSupportActionBar();
+		bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.view_webcast_file_activity_action_bar_background));
+		bar.setDisplayHomeAsUpEnabled(true);
 		
 		// Set to full screen.
 		if (Build.VERSION.SDK_INT >= 14) {
@@ -147,7 +150,7 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
         Bundle args = new Bundle();
         args.putLong("webcastFileId", webcastFileId);
         DataLoader loader = new DataLoader(this, this);
-		getSupportLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_FILE_ACTIVITY_LOADER, args, loader);
+		getSupportLoaderManager().initLoader(DataLoader.LOADER_VIEW_WEBCAST_FILE_ACTIVITY, args, loader);
 		
 		// Restore video position.
 		if (savedInstanceState != null) {
@@ -208,7 +211,7 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
 	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
+    	MenuInflater inflater = getSupportMenuInflater();
     	inflater.inflate(R.menu.view_webcast_file_activity_menu, menu);
     	inflater.inflate(R.menu.global, menu);
     	return true;
@@ -297,9 +300,7 @@ public class ViewWebcastFileActivity extends FragmentActivity implements
     
     public void onLoaderFinished(Bundle result) {
 		// Set the title.
-		if (Build.VERSION.SDK_INT >= 11) {
-			getActionBar().setTitle(result.getString("fileTitle"));
-		}
+		getSupportActionBar().setTitle(result.getString("fileTitle"));
 		
 		// Start the video playback.
 		Log.v(TAG, "video = " + result.getString("MP4"));

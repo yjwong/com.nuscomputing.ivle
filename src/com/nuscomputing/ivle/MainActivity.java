@@ -2,11 +2,15 @@ package com.nuscomputing.ivle;
 
 import java.util.ArrayList;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.accounts.Account;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -18,14 +22,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
@@ -35,7 +36,7 @@ import android.widget.SearchView;
  * @author yjwong
  */
 @TargetApi(14)
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends SherlockFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -97,6 +98,7 @@ public class MainActivity extends FragmentActivity {
 		
         // Create the view pager.
 		setContentView(R.layout.main);
+		Log.v(TAG, "Testing GB");
 		mViewPager = (ViewPager) findViewById(R.id.main_view_pager);
 		
         // Check if there's an active account.
@@ -109,24 +111,21 @@ public class MainActivity extends FragmentActivity {
 			startActivityForResult(intent, REQUEST_AUTH);
 		}
 		
-        // Newer versions of Android: Action Bar
-        if (Build.VERSION.SDK_INT >= 11) {
-        	// Configure the action bar.
-        	ActionBar bar = getActionBar();
-        	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        	
-            // Plug the pager tabs.
-            mTabsAdapter = new TabsAdapter(this, mViewPager);
-            mTabsAdapter.addTab(bar.newTab()
-            		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
-            mTabsAdapter.addTab(bar.newTab()
-            		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
-            
-        	// Set the title appropriately.
-        	if (mActiveAccount != null) {
-        		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
-        	}
-        }
+    	// Configure the action bar.
+    	ActionBar bar = getSupportActionBar();
+    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+    	
+        // Plug the pager tabs.
+        mTabsAdapter = new TabsAdapter(this, mViewPager);
+        mTabsAdapter.addTab(bar.newTab()
+        		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
+        mTabsAdapter.addTab(bar.newTab()
+        		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
+        
+    	// Set the title appropriately.
+    	if (mActiveAccount != null) {
+    		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
+    	}
     }
     
     @Override
@@ -173,7 +172,7 @@ public class MainActivity extends FragmentActivity {
     	
     	// Save the currently being viewed tab.
     	if (Build.VERSION.SDK_INT >= 11) {
-	    	ActionBar actionBar = getActionBar();
+	    	ActionBar actionBar = getSupportActionBar();
 	    	int currentTabPosition = actionBar.getSelectedNavigationIndex();
 	    	outState.putInt("currentTab", currentTabPosition);
 	    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
@@ -211,7 +210,7 @@ public class MainActivity extends FragmentActivity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
+    	MenuInflater inflater = getSupportMenuInflater();
     	inflater.inflate(R.menu.main_menu, menu);
     	inflater.inflate(R.menu.global, menu);
     	
@@ -301,13 +300,14 @@ public class MainActivity extends FragmentActivity {
     	mActiveAccount = AccountUtils.getActiveAccount(this);
     	
 		// Update the title.
-    	if (Build.VERSION.SDK_INT >= 11) {
-			ActionBar bar = getActionBar();
-			bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
-    	}
+		ActionBar bar = getSupportActionBar();
+		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
 		
 		// Request a sync.
     	if (!IVLESyncService.isSyncInProgress(getApplicationContext(), mActiveAccount)) {
+    		Bundle args = new Bundle();
+    		args.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+    		args.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
 			ContentResolver.requestSync(mActiveAccount, Constants.PROVIDER_AUTHORITY, new Bundle());
     	}
     }
@@ -331,10 +331,10 @@ public class MainActivity extends FragmentActivity {
     	// }}}
     	// {{{ methods
     	
-    	public TabsAdapter(Activity activity, ViewPager pager) {
-    		super(((FragmentActivity) activity).getSupportFragmentManager());
+    	public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
+    		super(activity.getSupportFragmentManager());
     		mContext = activity;
-    		mActionBar = activity.getActionBar();
+    		mActionBar = activity.getSupportActionBar();
     		mViewPager = pager;
     		mViewPager.setAdapter(this);
     		mViewPager.setOnPageChangeListener(this);
@@ -376,7 +376,7 @@ public class MainActivity extends FragmentActivity {
     		
     	}
     	
-    	public void onTabSelected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
+    	public void onTabSelected(Tab tab, FragmentTransaction ft) {
     		Object tag = tab.getTag();
     		for (int i = 0; i < mTabs.size(); i++) {
     			if (mTabs.get(i) == tag) {
@@ -385,11 +385,11 @@ public class MainActivity extends FragmentActivity {
     		}
     	}
     	
-    	public void onTabReselected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
+    	public void onTabReselected(Tab tab, FragmentTransaction ft) {
     		
     	}
     	
-    	public void onTabUnselected(Tab tab, android.app.FragmentTransaction DO_NOT_USE) {
+    	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
     		
     	}
     	
@@ -405,7 +405,7 @@ public class MainActivity extends FragmentActivity {
     			mArgs = args;
     		}
     	}
-    	
+
     	// }}}
     }
     

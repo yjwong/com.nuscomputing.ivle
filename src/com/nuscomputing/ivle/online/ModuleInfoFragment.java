@@ -1,15 +1,14 @@
-package com.nuscomputing.ivle;
+package com.nuscomputing.ivle.online;
 
 import java.util.Arrays;
 import java.util.List;
 
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
+import android.annotation.TargetApi;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,7 +27,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nuscomputing.ivle.providers.ModulesContract;
+import com.nuscomputing.ivle.DataLoader;
+import com.nuscomputing.ivle.IVLEUtils;
+import com.nuscomputing.ivle.R;
 import com.nuscomputing.ivlelapi.FailedLoginException;
 import com.nuscomputing.ivlelapi.IVLE;
 import com.nuscomputing.ivlelapi.JSONParserException;
@@ -41,14 +42,14 @@ import com.nuscomputing.ivlelapi.NoSuchModuleException;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
+public class ModuleInfoFragment extends Fragment {
 	// {{{ properties
 	
 	/** TAG for logging */
 	public static final String TAG = "ModuleInfoFragment";
 	
-	/** The module ID */
-	private long mModuleId = -1;
+	/** The module IVLE ID */
+	private String mModuleIvleId;
 	
 	/** The main listview */
 	private ListView mListView;
@@ -68,10 +69,10 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 		super.onActivityCreated(savedInstanceState);
 		
 		// Obtain the module ID.
-		ModuleActivity activity = (ModuleActivity) getActivity();
-		mModuleId = activity.moduleId;
-        if (mModuleId == -1) {
-        	throw new IllegalStateException("No module ID was passed to ModuleInfoFragment");
+		Bundle args = getArguments();
+		mModuleIvleId = args.getString("moduleIvleId");
+        if (mModuleIvleId == null) {
+        	throw new IllegalStateException("No module IVLE ID was passed to ModuleInfoFragment");
         }
         
 		// Obtain the listview.
@@ -82,29 +83,158 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 		ArrayAdapter<String> loadingAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, new String[] { getString(R.string.loading) });
 		mListView.addHeaderView(layout);
 		mListView.setAdapter(loadingAdapter);
-        
-		// Load the module data.
-        Bundle args = new Bundle();
-        args.putLong("moduleId", mModuleId);
-        DataLoader loader = new DataLoader(getActivity(), this);
-		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT, args, loader);
 		
+		// Load the module info.
+		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_INFO, args, new InfoLoaderCallbacks());
+        
 		// Load the module descriptions.
-		getLoaderManager().initLoader(0, args, new DescriptionsLoaderCallbacks());
-	}
-	
-	public void onLoaderFinished(Bundle result) {
-		// Set the view data.
-		TextView tvCourseName = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_name);
-		tvCourseName.setText(result.getString("courseName"));
-		TextView tvCourseCode = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_code);
-		tvCourseCode.setText(result.getString("courseCode"));
-		TextView tvCourseAcadYear = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_acad_year);
-		tvCourseAcadYear.setText(result.getString("courseAcadYear"));
+		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS, args, new DescriptionsLoaderCallbacks());
 	}
 	
 	// }}}
 	// {{{ classes
+	
+	/**
+	 * The loader callbacks for module information.
+	 * @author yjwong
+	 */
+	class InfoLoaderCallbacks implements
+		LoaderManager.LoaderCallbacks<Module> {
+		// {{{ methods
+		
+		@Override
+		public Loader<Module> onCreateLoader(int id, Bundle args) {
+			return new InfoLoader(getActivity(), args);
+		}
+		
+		@TargetApi(11)
+		@Override
+		public void onLoadFinished(Loader<Module> loader, Module result) {
+			// Set the view data.
+			if (result != null) {
+				TextView tvCourseName = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_name);
+				tvCourseName.setText(result.courseName);
+				TextView tvCourseCode = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_code);
+				tvCourseCode.setText(result.courseCode);
+				TextView tvCourseAcadYear = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_acad_year);
+				tvCourseAcadYear.setText(result.courseAcadYear);
+				
+			}  else {
+				Toast.makeText(getActivity(), R.string.module_info_fragment_unable_to_load, Toast.LENGTH_SHORT).show();
+				
+				// Stop all other tasks.
+				if (Build.VERSION.SDK_INT >= 11) {
+					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_INFO);
+					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS);
+					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_LECTURERS_FRAGMENT);
+				}
+				
+				getActivity().finish();
+			}
+		}
+		
+		@Override
+		public void onLoaderReset(Loader<Module> loader) {
+			// Do nothing.
+		}
+		
+		// }}}
+	}
+	
+	/**
+	 * The module information loader.
+	 * @author yjwong
+	 */
+	static class InfoLoader extends AsyncTaskLoader<Module> {
+		// {{{ properties
+		
+		/** Arguments to this loader */
+		private Bundle mArgs;
+		
+		/** The context */
+		private Context mContext;
+		
+		/** The module information */
+		private Module mModule;
+		
+		// }}}
+		// {{{ methods
+		
+		InfoLoader(Context context, Bundle args) {
+			super(context);
+			mContext = context;
+			mArgs = args;
+		}
+		
+		@Override
+		public void onStartLoading() {
+			if (mModule != null	) {
+				deliverResult(mModule);
+			}
+			if (takeContentChanged() || mModule == null) {
+				forceLoad();
+			}
+		}
+		
+		@Override
+		public Module loadInBackground() {
+			// Obtain the IVLE ID.
+			String moduleIvleId = mArgs.getString("moduleIvleId");
+			
+			// Acquire a new IVLE object.
+			IVLE ivle = IVLEUtils.getIVLEInstance(mContext);
+			try {
+				Module module = ivle.getModule(moduleIvleId);
+				return module;
+				
+			} catch (NetworkErrorException e) {
+				Log.e(TAG, "NetworkErrorException encountered while loading module");
+			} catch (FailedLoginException e) {
+				Log.e(TAG, "FailedLoginException encountered while loading module");
+			} catch (JSONParserException e) {
+				Log.e(TAG, "JSONParserException encountered while loading module");
+			} catch (NoSuchModuleException e) {
+				Log.e(TAG, "NoSuchModuleException encountered while loading module");
+			}
+			
+			return null;
+		}
+		
+		// }}}
+	}
+	
+	/**
+	 * The array adapter for module descriptions.
+	 * @author yjwong
+	 */
+	class DescriptionArrayAdapter extends ArrayAdapter<Description> {
+		// {{{ properties
+		
+		/** The descriptions */
+		private List<Description> mObjects;
+		
+		// }}}
+		// {{{ methods
+		
+		public DescriptionArrayAdapter(Context context,
+				int textViewResourceId, List<Description> objects) {
+			super(context, textViewResourceId, objects);
+			mObjects = objects;
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			LayoutInflater inflater = getActivity().getLayoutInflater();
+			View view = inflater.inflate(R.layout.module_info_fragment_list_item, null);
+			
+			// Set the text.
+			convertView = view.findViewById(R.id.module_info_fragment_list_description_title);
+			((TextView) convertView).setText(mObjects.get(position).title);
+			return view;
+		}
+		
+		// }}}
+	}
 	
 	/**
 	 * The loader callbacks for module descriptions.
@@ -122,36 +252,6 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 		@Override
 		public void onLoadFinished(Loader<List<Description>> loader,
 				List<Description> descriptions) {
-			// Set up an array adapter for our descriptions.
-			class DescriptionArrayAdapter extends ArrayAdapter<Description> {
-				// {{{ properties
-				
-				/** The descriptions */
-				private List<Description> mObjects;
-				
-				// }}}
-				// {{{ methods
-				
-				public DescriptionArrayAdapter(Context context,
-						int textViewResourceId, List<Description> objects) {
-					super(context, textViewResourceId, objects);
-					mObjects = objects;
-				}
-				
-				@Override
-				public View getView(int position, View convertView, ViewGroup parent) {
-					LayoutInflater inflater = getActivity().getLayoutInflater();
-					View view = inflater.inflate(R.layout.module_info_fragment_list_item, null);
-					
-					// Set the text.
-					convertView = view.findViewById(R.id.module_info_fragment_list_description_title);
-					((TextView) convertView).setText(mObjects.get(position).title);
-					return view;
-				}
-				
-				// }}}
-			}
-			
 			// Check for errors.
 			if (descriptions != null) {
 				if (descriptions.size() > 0) {
@@ -200,7 +300,11 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 				);
 				adapter.add(getString(R.string.module_info_fragment_failed_to_load));
 				mListView.setAdapter(adapter);
-				Toast.makeText(getActivity(), getString(R.string.module_info_fragment_unable_to_load), Toast.LENGTH_SHORT).show();
+				Toast.makeText(
+						getActivity(),
+						getString(R.string.module_info_fragment_unable_to_load_additional),
+						Toast.LENGTH_SHORT)
+				.show();
 			}
 		}
 
@@ -252,46 +356,29 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 				return mDescriptions;
 			}
 			
-			// Get the module ID.
-			long moduleId = mArgs.getLong("moduleId");
-			
 			// Get the module IVLE ID.
-			ContentResolver resolver = mContext.getContentResolver();
-			ContentProviderClient provider = resolver.acquireContentProviderClient(ModulesContract.CONTENT_URI);
+			String moduleIvleId = mArgs.getString("moduleIvleId");
 			try {
-				Cursor cursor = provider.query(
-						Uri.parse(ModulesContract.CONTENT_URI + "/" + moduleId),
-						new String[] { ModulesContract.IVLE_ID },
-						null, null, null);
-				cursor.moveToFirst();
-				String courseID = cursor.getString(cursor.getColumnIndex(ModulesContract.IVLE_ID));
-				
 				// Acquire a new IVLE object.
 				IVLE ivle = IVLEUtils.getIVLEInstance(mContext);
-				Module module = ivle.getModule(courseID);
+				Module module = ivle.getModule(moduleIvleId);
 				
 				// Get the description.
 				Description[] descriptions = module.getDescriptions();
 				mDescriptions = Arrays.asList(descriptions);
 				return mDescriptions;
 				
-			} catch (RemoteException e) {
-				Log.e(TAG, "Unable to load module descriptions: RemoteException encountered");
-				return null;
 			} catch (NetworkErrorException e) {
 				Log.w(TAG, "Unable to load module descriptions: network error");
-				return null;
 			} catch (FailedLoginException e) {
 				Log.e(TAG, "Unable to load module descriptions: API raised FailedLoginException");
-				return null;
 			} catch (JSONParserException e) {
 				Log.e(TAG, "Unable to load module descriptions: API raised JSONParserException");
-				return null;
 			} catch (NoSuchModuleException e) {
 				Log.e(TAG, "Unable to load module descriptions: API raised NoSuchModuleException");
-				return null;
 			}
 			
+			return null;
 		}
 		
 		// }}}

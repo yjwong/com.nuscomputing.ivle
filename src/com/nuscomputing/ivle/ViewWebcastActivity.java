@@ -1,19 +1,17 @@
 package com.nuscomputing.ivle;
 
-import android.annotation.TargetApi;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
-@TargetApi(11)
-public class ViewWebcastActivity extends FragmentActivity
+public class ViewWebcastActivity extends SherlockFragmentActivity
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -39,9 +37,7 @@ public class ViewWebcastActivity extends FragmentActivity
         }
         
         // Set action bar parameters.
-        if (Build.VERSION.SDK_INT >= 11) {
-        	getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         // Set up our view.
         setContentView(R.layout.view_webcast_activity);
@@ -62,13 +58,13 @@ public class ViewWebcastActivity extends FragmentActivity
         
         // Load the action bar title.
         DataLoader loader = new DataLoader(this, this);
-        getSupportLoaderManager().initLoader(DataLoader.VIEW_WEBCAST_ACTIVITY_LOADER, args, loader).forceLoad();
+        getSupportLoaderManager().initLoader(DataLoader.LOADER_VIEW_WEBCAST_ACTIVITY, args, loader).forceLoad();
     }
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
-    	MenuInflater inflater = getMenuInflater();
+    	MenuInflater inflater = getSupportMenuInflater();
     	inflater.inflate(R.menu.global, menu);
     	return true;
     }
@@ -95,9 +91,7 @@ public class ViewWebcastActivity extends FragmentActivity
     
     public void onLoaderFinished(Bundle result) {
     	// Set the title.
-		if (Build.VERSION.SDK_INT >= 11) {
-			getActionBar().setTitle(result.getString("title"));
-		}
+		getSupportActionBar().setTitle(result.getString("title"));
     }
 	
 	// }}}

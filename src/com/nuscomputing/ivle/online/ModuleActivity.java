@@ -1,23 +1,27 @@
-package com.nuscomputing.ivle;
+package com.nuscomputing.ivle.online;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import com.nuscomputing.ivle.MainApplication;
+import com.nuscomputing.ivle.R;
 
+import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -28,14 +32,15 @@ import android.widget.TextView;
  * Main IVLE application activity.
  * @author yjwong
  */
-public class ModuleActivity extends SherlockFragmentActivity {
+@TargetApi(11)
+public class ModuleActivity extends FragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
 	public static final String TAG = "ModuleActivity";
 	
-	/** The module ID */
-	public long moduleId;
+	/** The module IVLE ID */
+	public String moduleIvleId;
 	
 	/** The module name */
 	public String moduleCourseName;
@@ -53,6 +58,7 @@ public class ModuleActivity extends SherlockFragmentActivity {
 	// {{{ methods
 	
     /** Called when the activity is first created. */
+    @TargetApi(11)
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,52 +66,79 @@ public class ModuleActivity extends SherlockFragmentActivity {
         // Obtain the requested module ID.
         Intent intent = getIntent();
         moduleCourseName = intent.getStringExtra("moduleCourseName");
-        moduleId = intent.getLongExtra("moduleId", -1);
-        if (moduleId == -1) {
-        	throw new IllegalStateException("No module ID was passed to ModuleActivity");
+        moduleIvleId = intent.getStringExtra("moduleIvleId");
+        if (moduleIvleId == null) {
+        	throw new IllegalStateException("No module IVLE ID was passed to ModuleActivity");
         }
         
         // Create the view pager.
         mViewPager = new ViewPager(this);
         mViewPager.setId(R.id.module_activity_view_pager);
         
-    	// Configure the action bar.
-    	ActionBar bar = getSupportActionBar();
-    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-    	bar.setDisplayHomeAsUpEnabled(true);
-    	bar.setDisplayShowTitleEnabled(false);
-    	
-    	// Create a new spinner adapter.
-    	ArrayList<String> spinnerItems = new ArrayList<String>();
-    	spinnerItems.addAll(Arrays.asList(
-    		getString(R.string.module_activity_info),
-    		getString(R.string.module_activity_announcements),
-    		getString(R.string.module_activity_webcasts),
-    		getString(R.string.module_activity_workbins)
-    	));
-    	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
-    	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
-    	
-        // Plug the pager tabs.
-    	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
-    	fragmentList.add(new ModuleInfoFragment());
-    	fragmentList.add(new ModuleAnnouncementsFragment());
-    	fragmentList.add(new ModuleWebcastsFragment());
-    	fragmentList.add(new ModuleWorkbinsFragment());
-    	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
-    	mViewPager.setAdapter(mPagerAdapter);
-    	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-			@Override
-			public void onPageSelected(int position) {
-				getSupportActionBar().setSelectedNavigationItem(position);
-			}
-			
-			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
-			
-			@Override
-			public void onPageScrollStateChanged(int state) { }
-    	});
+        // Newer versions of Android: Action Bar
+        if (Build.VERSION.SDK_INT >= 11) {
+        	// Configure the action bar.
+        	ActionBar bar = getActionBar();
+        	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        	bar.setDisplayHomeAsUpEnabled(true);
+        	bar.setDisplayShowTitleEnabled(false);
+        	
+        	// Create a new spinner adapter.
+        	ArrayList<String> spinnerItems = new ArrayList<String>();
+        	spinnerItems.addAll(Arrays.asList(
+        		getString(R.string.module_activity_info),
+        		getString(R.string.module_activity_lecturers)//,
+        		//getString(R.string.module_activity_announcements),
+        		//getString(R.string.module_activity_webcasts),
+        		//getString(R.string.module_activity_workbins)
+        	));
+        	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
+        	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
+        	
+        	// Define the fragment arguments.
+        	Bundle args = new Bundle();
+        	args.putString("moduleIvleId", moduleIvleId);
+        	
+            // Plug the pager tabs.
+        	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
+        	
+        	Fragment fragment = new ModuleInfoFragment();
+        	fragment.setArguments(args);
+        	fragmentList.add(fragment);
+        	
+        	fragment = new ModuleLecturersFragment();
+        	fragment.setArguments(args);
+        	fragmentList.add(fragment);
+        	
+        	/*
+        	fragment = new ModuleAnnouncementsFragment();
+        	fragment.setArguments(args);
+        	fragmentList.add(fragment);
+        	
+        	fragment = new ModuleWebcastsFragment();
+        	fragment.setArguments(args);
+        	fragmentList.add(fragment);
+        	
+        	fragment = new ModuleWorkbinsFragment();
+        	fragment.setArguments(args);
+        	fragmentList.add(fragment);
+        	*/
+        	
+        	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
+        	mViewPager.setAdapter(mPagerAdapter);
+        	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+				@Override
+				public void onPageSelected(int position) {
+					getActionBar().setSelectedNavigationItem(position);
+				}
+				
+				@Override
+				public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+				
+				@Override
+				public void onPageScrollStateChanged(int state) { }
+        	});
+        }
         
         // Set the content view.
         setContentView(mViewPager);
@@ -113,7 +146,7 @@ public class ModuleActivity extends SherlockFragmentActivity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getSupportMenuInflater();
+    	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.global, menu);
     	return true;
     }
@@ -125,10 +158,8 @@ public class ModuleActivity extends SherlockFragmentActivity {
 	    	// Handle item selection.
 	    	switch (item.getItemId()) {
 	    		case android.R.id.home:
-	    			// App icon tapped, go home.
-	    			Intent intent = new Intent(this, MainActivity.class);
-	    			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	    			startActivity(intent);
+	    			// App icon tapped, go back.
+	    			finish();
 	    			return true;
 	    			
 	    		default:

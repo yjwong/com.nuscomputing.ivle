@@ -79,7 +79,7 @@ public class ModuleWebcastsFragment extends ListFragment
         args.putLong("moduleId", mModuleId);
         mLoader = new DataLoader(getActivity(), mAdapter, this);
         mLoaderManager = getLoaderManager();
-        mLoaderManager.initLoader(DataLoader.MODULE_WEBCASTS_FRAGMENT_LOADER, args, mLoader);
+        mLoaderManager.initLoader(DataLoader.LOADER_MODULE_WEBCASTS_FRAGMENT, args, mLoader);
         
         // Get the listview.
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.module_webcasts_fragment_linear_layout);
