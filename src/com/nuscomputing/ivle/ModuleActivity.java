@@ -66,8 +66,8 @@ public class ModuleActivity extends SherlockFragmentActivity {
         }
         
         // Create the view pager.
-        mViewPager = new ViewPager(this);
-        mViewPager.setId(R.id.module_activity_view_pager);
+        setContentView(R.layout.module_activity);
+        mViewPager = (ViewPager) findViewById(R.id.module_activity_view_pager);
         
     	// Configure the action bar.
     	ActionBar bar = getSupportActionBar();
@@ -87,11 +87,13 @@ public class ModuleActivity extends SherlockFragmentActivity {
     	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
     	
         // Plug the pager tabs.
+    	Bundle args = new Bundle();
+    	args.putLong("moduleId", moduleId);
     	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
-    	fragmentList.add(new ModuleInfoFragment());
-    	fragmentList.add(new ModuleAnnouncementsFragment());
-    	fragmentList.add(new ModuleWebcastsFragment());
-    	fragmentList.add(new ModuleWorkbinsFragment());
+    	fragmentList.add(Fragment.instantiate(this, ModuleInfoFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleAnnouncementsFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleWebcastsFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleWorkbinsFragment.class.getName(), args));
     	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
     	mViewPager.setAdapter(mPagerAdapter);
     	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -106,9 +108,6 @@ public class ModuleActivity extends SherlockFragmentActivity {
 			@Override
 			public void onPageScrollStateChanged(int state) { }
     	});
-        
-        // Set the content view.
-        setContentView(mViewPager);
     }
     
     @Override
