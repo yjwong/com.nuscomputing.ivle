@@ -169,7 +169,7 @@ public class MainActivity extends SherlockFragmentActivity {
     	
     	// Restore the active tab.
     	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
-    	getActionBar().setSelectedNavigationItem(currentTabPosition);
+    	getSupportActionBar().setSelectedNavigationItem(currentTabPosition);
     	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
     }
     
