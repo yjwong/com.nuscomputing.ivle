@@ -168,9 +168,11 @@ public class MainActivity extends SherlockFragmentActivity {
     	super.onRestoreInstanceState(savedInstanceState);
     	
     	// Restore the active tab.
-    	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
-    	getSupportActionBar().setSelectedNavigationItem(currentTabPosition);
-    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
+    	if (mViewPager != null) {
+	    	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
+	    	getSupportActionBar().setSelectedNavigationItem(currentTabPosition);
+	    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
+    	}
     }
     
     @Override
@@ -178,10 +180,11 @@ public class MainActivity extends SherlockFragmentActivity {
     	super.onSaveInstanceState(outState);
     	
     	// Save the currently being viewed tab.
-    	ActionBar actionBar = getSupportActionBar();
-    	int currentTabPosition = actionBar.getSelectedNavigationIndex();
-    	outState.putInt("currentTab", currentTabPosition);
-    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
+    	if (mViewPager != null) {
+	    	int currentTabPosition = getSupportActionBar().getSelectedNavigationIndex();
+	    	outState.putInt("currentTab", currentTabPosition);
+	    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
+    	}
     }
     
     @Override
