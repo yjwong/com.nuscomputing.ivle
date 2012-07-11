@@ -55,6 +55,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	/** The view pager */
 	private ViewPager mViewPager;
 	
+	/** The modules fragment */
+	private LinearLayout mModulesFragmentContainer;
+	
 	/** Tabs adapter for view pager */
 	private TabsAdapter mTabsAdapter;
 	
@@ -100,6 +103,7 @@ public class MainActivity extends SherlockFragmentActivity {
         // Create the view pager.
 		setContentView(R.layout.main);
 		mViewPager = (ViewPager) findViewById(R.id.main_view_pager);
+		mModulesFragmentContainer = (LinearLayout) findViewById(R.id.main_modules_fragment_container);
 		
         // Check if there's an active account.
 		mActiveAccount = AccountUtils.getActiveAccount(this, true);
@@ -111,17 +115,22 @@ public class MainActivity extends SherlockFragmentActivity {
 			startActivityForResult(intent, REQUEST_AUTH);
 		}
 		
-    	// Configure the action bar.
-    	ActionBar bar = getSupportActionBar();
-    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-    	
-        // Plug the pager tabs.
-        mTabsAdapter = new TabsAdapter(this, mViewPager);
-        mTabsAdapter.addTab(bar.newTab()
-        		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
-        mTabsAdapter.addTab(bar.newTab()
-        		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
-        
+		// Get the action bar.
+		ActionBar bar = getSupportActionBar();
+		
+		// Phone specific configuration.
+		if (mViewPager != null) {
+	    	// Configure the action bar.
+	    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+	    	
+	        // Plug the pager tabs.
+	        mTabsAdapter = new TabsAdapter(this, mViewPager);
+	        mTabsAdapter.addTab(bar.newTab()
+	        		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
+	        mTabsAdapter.addTab(bar.newTab()
+	        		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
+		}
+	        
     	// Set the title appropriately.
     	if (mActiveAccount != null) {
     		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
@@ -284,7 +293,11 @@ public class MainActivity extends SherlockFragmentActivity {
     	}
   		
 		// Hide the view pager.
-		mViewPager.setVisibility(View.GONE);
+    	if (mViewPager != null) {
+    		mViewPager.setVisibility(View.GONE);
+    	} else {
+    		mModulesFragmentContainer.setVisibility(View.GONE);
+    	}
 		
 		// Show the sync in progress notice.
 		LinearLayout viewWaitingForSync = (LinearLayout) findViewById(R.id.main_waiting_for_sync_linear_layout);
@@ -298,7 +311,11 @@ public class MainActivity extends SherlockFragmentActivity {
     	}
 		
 		// Show the view pager.
-		mViewPager.setVisibility(View.VISIBLE);
+    	if (mViewPager != null) {
+    		mViewPager.setVisibility(View.VISIBLE);
+    	} else {
+    		mModulesFragmentContainer.setVisibility(View.VISIBLE);
+    	}
 		
 		// Hide the sync in progress notice.
 		LinearLayout viewWaitingForSync = (LinearLayout) findViewById(R.id.main_waiting_for_sync_linear_layout);

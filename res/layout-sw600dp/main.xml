@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:id="@+id/main_multipane">
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="600dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/main_modules_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            
+	        <fragment
+	            android:id="@+id/main_modules_fragment"
+	            android:name="com.nuscomputing.ivle.ModulesFragment"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" />
+        
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/main_waiting_for_sync_linear_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="#ffff6600"
+            android:orientation="horizontal"
+            android:padding="8dp" >
+
+            <ProgressBar
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/main_activity_waiting_for_sync"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="18dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/main_activity_modules_will_appear"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="12dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/main_right_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="fill" >
+        
+    </LinearLayout>
+
+</LinearLayout>

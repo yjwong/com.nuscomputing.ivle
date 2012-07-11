@@ -8,6 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
@@ -82,12 +85,28 @@ public class ModulesFragment extends ListFragment {
 				TextView tvCourseName = (TextView) view.findViewById(R.id.modules_fragment_list_course_name);
 				String courseName = tvCourseName.getText().toString();
 				
-				// Start the module info activity.
-				Intent intent = new Intent();
-				intent.setClass(getActivity(), ModuleActivity.class);
-				intent.putExtra("moduleId", id);
-				intent.putExtra("moduleCourseName", courseName);
-				startActivity(intent);
+				// Start the module info activity, or replace with fragment.
+				View multipane = getActivity().findViewById(R.id.main_multipane);
+				if (multipane == null) {
+					Intent intent = new Intent();
+					intent.setClass(getActivity(), ModuleActivity.class);
+					intent.putExtra("moduleId", id);
+					intent.putExtra("moduleCourseName", courseName);
+					startActivity(intent);
+				} else {
+					// Prepare the fragment.
+					Bundle args = new Bundle();
+					args.putLong("moduleId", id);
+					args.putString("moduleCourseName", courseName);
+					Fragment fragment = new ModuleInfoFragment();
+					fragment.setArguments(args);
+					
+					// Add the fragment.
+					FragmentManager manager = getActivity().getSupportFragmentManager();
+					FragmentTransaction transaction = manager.beginTransaction();
+					transaction.replace(R.id.main_right_fragment_container, fragment);
+					transaction.commit();
+				}
 			}
 		});
 		
