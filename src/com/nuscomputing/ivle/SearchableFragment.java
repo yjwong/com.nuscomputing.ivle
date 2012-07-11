@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -298,7 +300,7 @@ public class SearchableFragment extends ListFragment {
 				// Obtain the modules via the API.
 				Map<String, String> criterion = new HashMap<String, String>();
 				//criterion.put("ModuleCode", query);
-				criterion.put("ModuleTitle", query);
+				criterion.put("ModuleTitle", URLEncoder.encode(query, "UTF-8"));
 				Module[] modules = ivle.searchModules(criterion);
 				
 				// Have we found any results?
@@ -328,6 +330,8 @@ public class SearchableFragment extends ListFragment {
 				Log.e(TAG, "FailedLoginException encountered in searchModules");
 			} catch (JSONParserException e) {
 				Log.e(TAG, "JSONParserException encountered in searchModules");
+			} catch (UnsupportedEncodingException e) {
+				Log.e(TAG, "UnsupportedEncodingException encountered in searchModules");
 			}
 			
 			return mSearchResults;
