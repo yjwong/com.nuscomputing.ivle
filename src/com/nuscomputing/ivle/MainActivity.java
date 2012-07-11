@@ -28,6 +28,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 
@@ -158,11 +159,9 @@ public class MainActivity extends SherlockFragmentActivity {
     	super.onRestoreInstanceState(savedInstanceState);
     	
     	// Restore the active tab.
-    	if (Build.VERSION.SDK_INT >= 11) {
-	    	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
-	    	getActionBar().setSelectedNavigationItem(currentTabPosition);
-	    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
-    	}
+    	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
+    	getActionBar().setSelectedNavigationItem(currentTabPosition);
+    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
     }
     
     @Override
@@ -170,12 +169,10 @@ public class MainActivity extends SherlockFragmentActivity {
     	super.onSaveInstanceState(outState);
     	
     	// Save the currently being viewed tab.
-    	if (Build.VERSION.SDK_INT >= 11) {
-	    	ActionBar actionBar = getSupportActionBar();
-	    	int currentTabPosition = actionBar.getSelectedNavigationIndex();
-	    	outState.putInt("currentTab", currentTabPosition);
-	    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
-    	}
+    	ActionBar actionBar = getSupportActionBar();
+    	int currentTabPosition = actionBar.getSelectedNavigationIndex();
+    	outState.putInt("currentTab", currentTabPosition);
+    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
     }
     
     @Override
@@ -219,6 +216,14 @@ public class MainActivity extends SherlockFragmentActivity {
 	    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
 	    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 	    	mSearchView.setQueryHint(getString(R.string.searchable_hint));
+	    	mSearchView.setOnSearchClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					// Change the back button.
+					ActionBar bar = getSupportActionBar();
+					bar.setDisplayHomeAsUpEnabled(true);
+				}
+	    	});
     	}
     	
     	// Restore the state of the refresh item.
@@ -241,6 +246,15 @@ public class MainActivity extends SherlockFragmentActivity {
 	    			this.performRefresh();
 	    			return true;
 	    			
+	    		case android.R.id.home:
+	    			// Remove the search box.
+	    			if (Build.VERSION.SDK_INT >= 14 && !mSearchView.isIconified()) {
+	    				onBackPressed();
+		    			return true;
+	    			} else {
+	    				return super.onOptionsItemSelected(item);
+	    			}
+	    			
 	    		default:
 	    			return super.onOptionsItemSelected(item);
 	    	}
@@ -256,6 +270,8 @@ public class MainActivity extends SherlockFragmentActivity {
     	if (Build.VERSION.SDK_INT >= 14 && !mSearchView.isIconified()) {
     		mSearchView.onActionViewCollapsed();
     		mSearchView.setQuery("", false);
+    		ActionBar bar = getSupportActionBar();
+    		bar.setDisplayHomeAsUpEnabled(false);
     	} else {
     		super.onBackPressed();
     	}
@@ -263,14 +279,12 @@ public class MainActivity extends SherlockFragmentActivity {
     
     private void showSyncInProgress() {
 		// Change the refresh button to a ProgressBar action view.
-    	if (Build.VERSION.SDK_INT >= 11) {
-	    	if (mRefreshMenuItem != null) {
-				LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-				final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
-				mRefreshMenuItem.setActionView(progressView);
-	    	}
+    	if (mRefreshMenuItem != null) {
+			LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+			final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
+			mRefreshMenuItem.setActionView(progressView);
     	}
-		
+  		
 		// Hide the view pager.
 		mViewPager.setVisibility(View.GONE);
 		
@@ -281,10 +295,8 @@ public class MainActivity extends SherlockFragmentActivity {
     
     private void hideSyncInProgress() {
 		// Reset the refresh button.
-    	if (Build.VERSION.SDK_INT >= 11) {
-	    	if (mRefreshMenuItem != null) {
-	    		mRefreshMenuItem.setActionView(null);
-	    	}
+    	if (mRefreshMenuItem != null) {
+    		mRefreshMenuItem.setActionView(null);
     	}
 		
 		// Show the view pager.
