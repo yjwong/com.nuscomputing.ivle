@@ -8,6 +8,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,9 @@ public class ViewAnnouncementFragment extends SherlockFragment
 	/** Results from the loader */
 	private Bundle mLoaderResult;
 	
+	/** The sharing description */
+	private String mShareDescription;
+	
 	// }}}
 	// {{{ methods
 	
@@ -48,15 +52,13 @@ public class ViewAnnouncementFragment extends SherlockFragment
 		this.setHasOptionsMenu(true);
 		
 		// Obtain the announcement ID.
-		ViewAnnouncementActivity activity = (ViewAnnouncementActivity) getActivity();
-		mAnnouncementId = activity.announcementId;
+		Bundle args = getArguments();
+		mAnnouncementId = args.getLong("announcementId");
         if (mAnnouncementId == -1) {
         	throw new IllegalStateException("No announcement ID was passed to ViewAnnouncementFragment");
         }
         
 		// Load the module data.
-        Bundle args = new Bundle();
-        args.putLong("announcementId", mAnnouncementId);
         DataLoader loader = new DataLoader(getActivity(), this);
 		getLoaderManager().initLoader(DataLoader.LOADER_VIEW_ANNOUNCEMENT_FRAGMENT, args, loader);
 	}
@@ -73,7 +75,7 @@ public class ViewAnnouncementFragment extends SherlockFragment
 				Intent intent = new Intent(Intent.ACTION_SEND);
 				intent.setType("text/plain");
 				intent.putExtra(Intent.EXTRA_SUBJECT, mLoaderResult.getString("title"));
-				intent.putExtra(Intent.EXTRA_TEXT, mLoaderResult.getString("description"));
+				intent.putExtra(Intent.EXTRA_TEXT, mShareDescription);
 				startActivity(Intent.createChooser(intent, "Share via"));
 				return true;
 				
@@ -94,6 +96,9 @@ public class ViewAnnouncementFragment extends SherlockFragment
 		
 		// Save the loader result.
 		mLoaderResult = result;
+		
+		// Process the sharing description.
+		mShareDescription = Html.fromHtml(result.getString("description")).toString();
 	}
 	
 	// }}}

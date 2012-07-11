@@ -5,12 +5,4 @@
     android:orientation="vertical"
     android:id="@+id/view_announcement_activity_fragment_container">
 
-    <fragment
-        android:id="@+id/view_announcement_fragment"
-        android:name="com.nuscomputing.ivle.ViewAnnouncementFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-        <!-- Preview: layout=@layout/view_announcement_fragment -->
-    </fragment>
-
 </LinearLayout>

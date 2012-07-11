@@ -8,6 +8,9 @@ import com.actionbarsherlock.view.MenuItem;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 
 public class ViewAnnouncementActivity extends SherlockFragmentActivity {
 	// {{{ properties
@@ -38,7 +41,19 @@ public class ViewAnnouncementActivity extends SherlockFragmentActivity {
     	bar.setDisplayHomeAsUpEnabled(true);
         
         // Set up our view.
-        setContentView(R.layout.view_announcement_activity);
+    	setContentView(R.layout.view_announcement_activity);
+    	if (savedInstanceState == null) {
+    		// Prepare the fragment.
+    		Bundle args = new Bundle(intent.getExtras());
+    		Fragment fragment = new ViewAnnouncementFragment();
+    		fragment.setArguments(args);
+    		
+    		// Add the fragment.
+    		FragmentManager manager = getSupportFragmentManager();
+    		FragmentTransaction transaction = manager.beginTransaction();
+    		transaction.add(R.id.view_announcement_activity_fragment_container, fragment);
+    		transaction.commit();
+    	}
     }
     
     @Override
