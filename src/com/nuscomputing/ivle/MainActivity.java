@@ -221,6 +221,7 @@ public class MainActivity extends SherlockFragmentActivity {
 				public void onClick(View v) {
 					// Change the back button.
 					ActionBar bar = getSupportActionBar();
+					bar.setHomeButtonEnabled(true);
 					bar.setDisplayHomeAsUpEnabled(true);
 				}
 	    	});
@@ -248,13 +249,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	    			
 	    		case android.R.id.home:
 	    			// Remove the search box.
-	    			if (Build.VERSION.SDK_INT >= 14 && !mSearchView.isIconified()) {
-	    				onBackPressed();
-		    			return true;
-	    			} else {
-	    				return super.onOptionsItemSelected(item);
-	    			}
-	    			
+    				onBackPressed();
+	    			return true;
+
 	    		default:
 	    			return super.onOptionsItemSelected(item);
 	    	}
@@ -271,6 +268,7 @@ public class MainActivity extends SherlockFragmentActivity {
     		mSearchView.onActionViewCollapsed();
     		mSearchView.setQuery("", false);
     		ActionBar bar = getSupportActionBar();
+    		bar.setHomeButtonEnabled(false);
     		bar.setDisplayHomeAsUpEnabled(false);
     	} else {
     		super.onBackPressed();
