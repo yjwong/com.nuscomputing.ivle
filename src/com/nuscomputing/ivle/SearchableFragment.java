@@ -81,7 +81,7 @@ public class SearchableFragment extends ListFragment {
 		setListAdapter(mAdapter);
 		
 		// Perform the search query.
-		getLoaderManager().initLoader(0, args, new SearchResultLoaderCallbacks());
+		getLoaderManager().initLoader(DataLoader.LOADER_SEARCHABLE_FRAGMENT, args, new SearchResultLoaderCallbacks());
 		
 		// Get the list view.
 		ListView listview = getListView();
@@ -160,6 +160,8 @@ public class SearchableFragment extends ListFragment {
 				tvNoSearchResults.setVisibility(View.VISIBLE);
 			} else {
 				// We finished searching, notify that our data set is changed.
+				mAdapter.clear();
+				mAdapter.addAll(results);
 				mAdapter.notifyDataSetChanged();
 			}
 			

@@ -56,6 +56,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int LOADER_MODULE_INFO_FRAGMENT_INFO = 15;
 	public static final int LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS = 16;
 	public static final int LOADER_MODULE_LECTURERS_FRAGMENT = 17;
+	public static final int LOADER_SEARCHABLE_FRAGMENT = 18;
 	
 	/** Listener for data loader events */
 	private DataLoaderListener mListener;
