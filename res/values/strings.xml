@@ -31,7 +31,7 @@
         <![CDATA[
         <p>
 	        <big>Version %1$s</big><br />
-	        \u00A9 2012 Wong Yong Jie.
+	        \u00A9 2012 Team CM.
         </p>
         <p>
         This application is <a href="https://github.com/yjwong/com.nuscomputing.ivle">open source</a>, and
@@ -80,6 +80,9 @@
     
     <!-- Strings for ModuleWorkbinsFragment -->
     <string name="module_workbins_fragment_no_workbins">There are no workbins.</string>
+    
+    <!-- Strings for ModulesFragment -->
+    <string name="modules_fragment_no_modules">There are no modules.</string>
     
     <!-- Strings for SearchableFragment -->
     <string name="searchable_fragment_no_search_results">No search results found.</string>

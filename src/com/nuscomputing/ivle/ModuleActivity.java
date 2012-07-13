@@ -192,12 +192,12 @@ public class ModuleActivity extends SherlockFragmentActivity {
     		// Inflate the layout.
     		if (convertView == null) {
     			LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    			convertView = inflater.inflate(android.R.layout.simple_list_item_1, null);
+    			convertView = inflater.inflate(R.layout.module_activity_spinner_item, null);
     		}
     		
     		String item = mItems.get(position);
     		if (item != null) {
-    			TextView tvItem = (TextView) convertView.findViewById(android.R.id.text1);
+    			TextView tvItem = (TextView) convertView.findViewById(R.id.module_activity_spinner_item_title);
     			if (tvItem != null) {
     				tvItem.setText(item);
     			}

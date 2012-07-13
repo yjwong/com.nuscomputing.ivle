@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
+import android.widget.SearchView.OnCloseListener;
 
 /**
  * Main IVLE application activity.
@@ -235,6 +236,15 @@ public class MainActivity extends SherlockFragmentActivity {
 					ActionBar bar = getSupportActionBar();
 					bar.setHomeButtonEnabled(true);
 					bar.setDisplayHomeAsUpEnabled(true);
+				}
+	    	});
+	    	mSearchView.setOnCloseListener(new OnCloseListener() {
+				@Override
+				public boolean onClose() {
+					ActionBar bar = getSupportActionBar();
+					bar.setHomeButtonEnabled(false);
+					bar.setDisplayHomeAsUpEnabled(false);
+					return false;
 				}
 	    	});
     	}

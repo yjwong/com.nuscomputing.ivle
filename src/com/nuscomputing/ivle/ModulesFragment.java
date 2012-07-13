@@ -16,7 +16,9 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
@@ -55,6 +57,12 @@ public class ModulesFragment extends ListFragment {
 	
 	// }}}
 	// {{{ methods
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup view,
+			Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.modules_fragment, null);
+	}
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
