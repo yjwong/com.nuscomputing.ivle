@@ -216,7 +216,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 					ModulesContract.ID,
 					ModulesContract.COURSE_CODE,
 					ModulesContract.COURSE_NAME,
-					ModulesContract.COURSE_ACAD_YEAR
+					ModulesContract.COURSE_ACAD_YEAR,
+					ModulesContract.COURSE_SEMESTER
 			));
 			selection = DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.ACCOUNT + " = ?";
 			selectionArgsList.add(accountName);
@@ -430,6 +431,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				result.putString("courseName", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
 				result.putString("courseCode", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_CODE)));
 				result.putString("courseAcadYear", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_ACAD_YEAR)));
+				result.putString("courseSemester", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_SEMESTER)));
 				break;
 			
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:

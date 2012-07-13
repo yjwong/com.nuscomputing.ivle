@@ -116,6 +116,8 @@ public class ModuleInfoFragment extends Fragment {
 				tvCourseCode.setText(result.courseCode);
 				TextView tvCourseAcadYear = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_acad_year);
 				tvCourseAcadYear.setText(result.courseAcadYear);
+				TextView tvCourseSemester = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_semester);
+				tvCourseSemester.setText(result.courseSemester);
 				
 			}  else {
 				Toast.makeText(getActivity(), R.string.module_info_fragment_unable_to_load, Toast.LENGTH_SHORT).show();

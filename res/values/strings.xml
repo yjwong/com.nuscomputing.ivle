@@ -37,7 +37,8 @@
         This application is <a href="https://github.com/yjwong/com.nuscomputing.ivle">open source</a>, and
         uses open source components such as <a href="https://github.com/yjwong/com.nuscomputing.ivlelapi">
         IVLE LAPI for Java</a>, <a href="http://wiki.fasterxml.com/JacksonHome">Jackson JSON Processor</a>,
-        and <a href="http://joda-time.sourceforge.net/">Joda-Time</a>.
+        <a href="http://joda-time.sourceforge.net/">Joda-Time</a>, <a href="http://code.google.com/p/acra/">ACRA</a>,
+        and <a href="https://github.com/koush/UrlImageViewHelper">UrlImageViewHelper</a>.
         </p>
         <p>
         Please submit bug reports to <a href="mailto:yjwong92@gmail.com">yjwong92@gmail.com</a>.
@@ -73,6 +74,9 @@
     <string name="module_info_fragment_more_info">More Info</string>
     
     <!-- Strings for ModuleLecturersFragment -->
+    <string name="module_lecturers_fragment_email">Email</string>
+    <string name="module_lecturers_fragment_email_via">Email via</string>
+    <string name="module_lecturers_fragment_lecturer_photo">Lecturer Photo</string>
     <string name="module_lecturers_fragment_unable_to_load">Unable to load lecturer information.\nPlease check your network connection.</string>
     
     <!-- Strings for ModuleWebcastsFragment -->
@@ -96,7 +100,7 @@
     <string name="settings_fragment_manage_accounts_title">Manage accounts&#8230;</string>
     <string name="settings_fragment_download_over_mobile_networks_title">Download over mobile networks</string>
     <string name="settings_fragment_download_over_mobile_networks_summary">Allow use of 3G/4G for downloads</string>
-    <string name="settings_fragment_about_summary">\u00A9 2012 Wong Yong Jie</string>
+    <string name="settings_fragment_about_summary">\u00A9 2012 Team CM</string>
     <string name="settings_fragment_about_title">Version %1$s</string>
     <string name="settings_fragment_send_feedback_title">Send Feedback</string>
     <string name="settings_fragment_send_feedback_subject">Feedback for %1$s (Version %2$s)</string>

@@ -28,7 +28,12 @@
     
     <TextView
         android:id="@+id/module_info_fragment_course_acad_year"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    
+    <TextView
+        android:id="@+id/module_info_fragment_course_semester"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     
     <TextView
@@ -36,6 +41,7 @@
         android:id="@+id/module_info_fragment_more_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="@string/module_info_fragment_more_info" />
 
 </LinearLayout>

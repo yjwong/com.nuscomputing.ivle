@@ -99,6 +99,8 @@ public class ModuleInfoFragment extends SherlockFragment implements DataLoaderLi
 		tvCourseCode.setText(result.getString("courseCode"));
 		TextView tvCourseAcadYear = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_acad_year);
 		tvCourseAcadYear.setText(result.getString("courseAcadYear"));
+		TextView tvCourseSemester = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_semester);
+		tvCourseSemester.setText(result.getString("courseSemester"));
 	}
 	
 	// }}}
