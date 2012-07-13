@@ -53,6 +53,9 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 	/** The module IVLE ID */
 	private String mModuleIvleId;
 	
+	/** The cached list of photo URLs */
+	private URL[] mCachedURLs;
+	
 	// }}}
 	// {{{ methods
 
@@ -123,7 +126,7 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 			// Set the photo.
 			ImageView ivPhoto = (ImageView) convertView.findViewById(R.id.module_lecturers_fragment_list_photo);
 			PhotoURLTask ivPhotoTask = new PhotoURLTask();
-			ivPhotoTask.execute(ivPhoto, lecturer);
+			ivPhotoTask.execute(ivPhoto, lecturer, position);
 			
 			// Set the email button.
 			Button btnEmail = (Button) convertView.findViewById(R.id.module_lecturers_fragment_list_email);
@@ -160,30 +163,42 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 		/** The lecturer */
 		private Lecturer mLecturer;
 		
+		/** The position */
+		private Integer mPosition;
+		
 		// }}}
 		// {{{ methods
 		
 		@Override
 		protected URL doInBackground(Object... params) {
 			// Check arguments.
-			if (params.length != 2 || !(params[0] instanceof ImageView)
-					|| !(params[1] instanceof Lecturer)) {
+			if (params.length != 3 || !(params[0] instanceof ImageView)
+					|| !(params[1] instanceof Lecturer
+					|| !(params[2] instanceof Integer))) {
 				throw new IllegalArgumentException();
 			}
 			
 			// Set arguments.
 			mImageView = (ImageView) params[0];
 			mLecturer = (Lecturer) params[1];
+			mPosition = (Integer) params[2];
 			
 			// Obtain the HTML content.
-			try {
-				URL url = mLecturer.user.getDisplayPhotoURL(mModuleIvleId);
-				return url;
+			if (mCachedURLs[mPosition] == null) { 
+				Log.v(TAG, "URL not found in cache, requesting");
+				try {
+					URL url = mLecturer.user.getDisplayPhotoURL(mModuleIvleId);
+					return url;
+					
+				} catch (MalformedURLException e) {
+					// Ignore.
+				} catch (IOException e) {
+					// Ignore.
+				}
 				
-			} catch (MalformedURLException e) {
-				// Ignore.
-			} catch (IOException e) {
-				// Ignore.
+			} else {
+				Log.v(TAG, "URL found in cache, returning");
+				return mCachedURLs[mPosition];
 			}
 			
 			return null;
@@ -191,7 +206,8 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 		
 		@Override
 		protected void onPostExecute(URL url) {
-			Log.v(TAG, "Got photo: " + url);
+			// Cache the URL.
+			mCachedURLs[mPosition] = url;
 			UrlImageViewHelper.setUrlDrawable(mImageView, url.toString());
 		}
 		
@@ -219,6 +235,9 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 					TextView tvNoLecturers = (TextView) getActivity().findViewById(R.id.module_lecturers_fragment_no_lecturers);
 					tvNoLecturers.setVisibility(View.VISIBLE);
 				} else {
+					// Create list of cached URLs.
+					mCachedURLs = new URL[result.size()];
+					
 					// Create new list adapter.
 					LecturerAdapter adapter = new LecturerAdapter(getActivity(), R.id.module_lecturers_fragment_no_lecturers, result);
 					setListAdapter(adapter);
