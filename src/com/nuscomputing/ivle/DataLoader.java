@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nuscomputing.ivle.ModulesFragment.ModulesCursorAdapter;
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.UsersContract;
@@ -202,6 +203,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					ModulesContract.ID,
+					ModulesContract.IVLE_ID,
 					ModulesContract.COURSE_CODE,
 					ModulesContract.COURSE_NAME
 			));
@@ -423,8 +425,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		Bundle result = new Bundle();
 		switch (loader.getId()) {
 			case LOADER_MODULES_FRAGMENT:
-				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
-				((SimpleCursorAdapter) mAdapter).notifyDataSetChanged();
+				((ModulesCursorAdapter) mAdapter).swapCursor(cursor);
+				((ModulesCursorAdapter) mAdapter).notifyDataSetChanged();
 				break;
 
 			case LOADER_MODULE_INFO_FRAGMENT:
@@ -496,6 +498,9 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		// Select the correct action based on ID.
 		switch (loader.getId()) {
 			case LOADER_MODULES_FRAGMENT:
+				((ModulesCursorAdapter) mAdapter).swapCursor(null);
+				break;
+				
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
 			case LOADER_MODULE_WEBCASTS_FRAGMENT:
 			case LOADER_MODULE_WORKBINS_FRAGMENT:

@@ -78,6 +78,7 @@
     <string name="module_lecturers_fragment_email_via">Email via</string>
     <string name="module_lecturers_fragment_lecturer_photo">Lecturer Photo</string>
     <string name="module_lecturers_fragment_unable_to_load">Unable to load lecturer information.\nPlease check your network connection.</string>
+    <string name="module_lecturers_fragment_no_lecturers">There are no lecturers.</string>
     
     <!-- Strings for ModuleWebcastsFragment -->
     <string name="module_webcasts_fragment_no_webcasts">There are no webcasts.</string>

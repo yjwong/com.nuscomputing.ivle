@@ -151,6 +151,7 @@ public class SearchableFragment extends ListFragment {
 			return loader;
 		}
 
+		@TargetApi(11)
 		@Override
 		public void onLoadFinished(Loader<List<SearchResult>> loader,
 				List<SearchResult> results) {

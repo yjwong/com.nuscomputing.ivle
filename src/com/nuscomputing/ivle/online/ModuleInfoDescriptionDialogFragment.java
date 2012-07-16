@@ -1,5 +1,9 @@
 package com.nuscomputing.ivle.online;
 
+import com.actionbarsherlock.app.SherlockDialogFragment;
+import com.nuscomputing.ivle.R;
+
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -13,13 +17,17 @@ import android.widget.RelativeLayout;
  * Displays module information description.
  * @author yjwong
  */
-public class ModuleInfoDescriptionDialogFragment extends DialogFragment {
+public class ModuleInfoDescriptionDialogFragment extends SherlockDialogFragment {
 	// {{{ methods
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light_Dialog);
+		if (Build.VERSION.SDK_INT >= 11) {
+			setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light_Dialog);
+		} else {
+			setStyle(SherlockDialogFragment.STYLE_NORMAL, R.style.Theme_Sherlock_Light_Dialog);
+		}
 	}
 	
 	@Override
@@ -40,6 +48,7 @@ public class ModuleInfoDescriptionDialogFragment extends DialogFragment {
 		
 		// Create the webview.
 		WebView webview = new WebView(getActivity());
+		webview.getSettings().setBuiltInZoomControls(true);
 		webview.loadData(description, "text/html", null);
 		
 		// Set the layout parameters.

@@ -8,6 +8,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.nuscomputing.ivle.online.ModuleLecturersFragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +38,9 @@ public class ModuleActivity extends SherlockFragmentActivity {
 	/** The module ID */
 	public long moduleId;
 	
+	/** The module IVLE ID */
+	public String moduleIvleId;
+	
 	/** The module name */
 	public String moduleCourseName;
 	
@@ -60,6 +64,7 @@ public class ModuleActivity extends SherlockFragmentActivity {
         // Obtain the requested module ID.
         Intent intent = getIntent();
         moduleCourseName = intent.getStringExtra("moduleCourseName");
+        moduleIvleId = intent.getStringExtra("moduleIvleId");
         moduleId = intent.getLongExtra("moduleId", -1);
         if (moduleId == -1) {
         	throw new IllegalStateException("No module ID was passed to ModuleActivity");
@@ -81,7 +86,8 @@ public class ModuleActivity extends SherlockFragmentActivity {
     		getString(R.string.module_activity_info),
     		getString(R.string.module_activity_announcements),
     		getString(R.string.module_activity_webcasts),
-    		getString(R.string.module_activity_workbins)
+    		getString(R.string.module_activity_workbins),
+    		getString(R.string.module_activity_lecturers)
     	));
     	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
     	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
@@ -89,11 +95,13 @@ public class ModuleActivity extends SherlockFragmentActivity {
         // Plug the pager tabs.
     	Bundle args = new Bundle();
     	args.putLong("moduleId", moduleId);
+    	args.putString("moduleIvleId", moduleIvleId);
     	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
     	fragmentList.add(Fragment.instantiate(this, ModuleInfoFragment.class.getName(), args));
     	fragmentList.add(Fragment.instantiate(this, ModuleAnnouncementsFragment.class.getName(), args));
     	fragmentList.add(Fragment.instantiate(this, ModuleWebcastsFragment.class.getName(), args));
     	fragmentList.add(Fragment.instantiate(this, ModuleWorkbinsFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleLecturersFragment.class.getName(), args));
     	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
     	mViewPager.setAdapter(mPagerAdapter);
     	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {

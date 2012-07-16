@@ -9,9 +9,11 @@
         android:id="@+id/module_lecturers_fragment_no_lecturers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:padding="16dp"
+        android:text="@string/module_lecturers_fragment_no_lecturers"
+        android:textSize="16sp"
+        android:gravity="center"
         android:visibility="gone"
+        android:layout_margin="16dp"
         />
     
 	<ListView 

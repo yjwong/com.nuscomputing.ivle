@@ -1,5 +1,6 @@
 package com.nuscomputing.ivle;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.ModulesContract;
 
 import android.accounts.Account;
@@ -7,14 +8,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +28,7 @@ import android.widget.TextView;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModulesFragment extends ListFragment {
+public class ModulesFragment extends SherlockListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -41,7 +41,7 @@ public class ModulesFragment extends ListFragment {
 	private LoaderManager mLoaderManager;
 	
 	/** The list adapter */
-	public SimpleCursorAdapter mAdapter = null;
+	public ModulesCursorAdapter mAdapter = null;
 	
 	/** The refresh receiver */
 	private BroadcastReceiver mRefreshReceiver = new BroadcastReceiver() {
@@ -67,18 +67,9 @@ public class ModulesFragment extends ListFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		// Define the bindings to the listview.
-		Log.v(TAG, "onActivityCreated");
-		String[] uiBindFrom = { ModulesContract.COURSE_CODE, ModulesContract.COURSE_NAME };
-		int[] uiBindTo = { R.id.modules_fragment_list_course_code, R.id.modules_fragment_list_course_name };
 		
 		// Fetch data for the list adapter.
-		mAdapter = new SimpleCursorAdapter(
-				getActivity(),
-				R.layout.modules_fragment_list_item,
-				null, uiBindFrom, uiBindTo,
-				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
-		);
+		mAdapter = new ModulesCursorAdapter(getActivity(), null, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         mLoader = new DataLoader(getActivity(), mAdapter);
         mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(DataLoader.LOADER_MODULES_FRAGMENT, null, mLoader);
@@ -100,12 +91,14 @@ public class ModulesFragment extends ListFragment {
 					intent.setClass(getActivity(), ModuleActivity.class);
 					intent.putExtra("moduleId", id);
 					intent.putExtra("moduleCourseName", courseName);
+					intent.putExtra("moduleIvleId", view.getTag().toString());
 					startActivity(intent);
 				} else {
 					// Prepare the fragment.
 					Bundle args = new Bundle();
 					args.putLong("moduleId", id);
 					args.putString("moduleCourseName", courseName);
+					args.putString("moduleIvleId", view.getTag().toString());
 					Fragment fragment = new ModuleInfoFragment();
 					fragment.setArguments(args);
 					
@@ -134,4 +127,47 @@ public class ModulesFragment extends ListFragment {
 	}
 	
 	// }}}
+	// {{{ classes
+	
+	/**
+	 * Cursor adapter for modules.
+	 * @author yjwong
+	 */
+	public class ModulesCursorAdapter extends CursorAdapter {
+		// {{{ methods
+		
+		public ModulesCursorAdapter(Context context, Cursor c, int flags) {
+			super(context, c, flags);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			// Bind the course code.
+			TextView tvCourseCode = (TextView) view.findViewById(R.id.modules_fragment_list_course_code);
+			tvCourseCode.setText(cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_CODE)));
+			
+			// Bind the course name.
+			TextView tvCourseName = (TextView) view.findViewById(R.id.modules_fragment_list_course_name);
+			tvCourseName.setText(cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
+			
+			// Set the IVLE ID.
+			view.setTag(cursor.getString(cursor.getColumnIndex(ModulesContract.IVLE_ID)));
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			// Obtain a layout inflater.
+			LayoutInflater inflater = LayoutInflater.from(context);
+			
+			// Return the view.
+			View v = inflater.inflate(R.layout.modules_fragment_list_item, parent, false);
+			bindView(v, context, cursor);
+			return v;
+		}
+		
+		// }}}
+	}
+	
+	// }}}
 }
+
