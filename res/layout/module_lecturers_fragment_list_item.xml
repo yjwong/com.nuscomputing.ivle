@@ -5,19 +5,32 @@
     android:layout_height="match_parent"
     android:gravity="left">
 
-    <ImageView
-        android:id="@+id/module_lecturers_fragment_list_photo"
+    <RelativeLayout
+        android:id="@+id/module_lecturers_fragment_list_photo_container"
         android:layout_width="60dp"
         android:layout_height="80dp"
-        android:contentDescription="@string/module_lecturers_fragment_lecturer_photo" />
+        android:gravity="left">
+	
+	    <ImageView
+	        android:id="@+id/module_lecturers_fragment_list_photo"
+	        android:layout_width="60dp"
+	        android:layout_height="80dp"
+	        android:contentDescription="@string/module_lecturers_fragment_lecturer_photo" />
+	    
+	    <Spinner
+	        android:id="@+id/module_lecturers_fragment_list_photo_spinner"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent" />
+    
+    </RelativeLayout>
     
 	<LinearLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:layout_toRightOf="@id/module_lecturers_fragment_list_photo"
+	    android:layout_toRightOf="@id/module_lecturers_fragment_list_photo_container"
 	    android:orientation="vertical"
 	    android:padding="8dp">
-	    
+
 	    <TextView
 	        android:id="@+id/module_lecturers_fragment_list_name"
 	        android:layout_width="match_parent"
@@ -33,15 +46,5 @@
 	        />
 	    
 	</LinearLayout>
-
-	<Button
-	    style="?android:attr/buttonStyleSmall"
-	    android:id="@+id/module_lecturers_fragment_list_email"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_margin="8dp"
-	    android:layout_alignParentRight="true"
-	    android:layout_alignParentTop="true"
-	    android:text="@string/module_lecturers_fragment_email" />
-
+	
 </RelativeLayout>
