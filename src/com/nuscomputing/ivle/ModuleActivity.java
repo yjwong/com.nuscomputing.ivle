@@ -9,6 +9,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.nuscomputing.ivle.online.ModuleLecturersFragment;
+import com.nuscomputing.ivle.online.ModuleWeblinksFragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -85,9 +86,10 @@ public class ModuleActivity extends SherlockFragmentActivity {
     	spinnerItems.addAll(Arrays.asList(
     		getString(R.string.module_activity_info),
     		getString(R.string.module_activity_announcements),
+    		getString(R.string.module_activity_lecturers),
     		getString(R.string.module_activity_webcasts),
-    		getString(R.string.module_activity_workbins),
-    		getString(R.string.module_activity_lecturers)
+    		getString(R.string.module_activity_weblinks),
+    		getString(R.string.module_activity_workbins)
     	));
     	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
     	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
@@ -99,9 +101,10 @@ public class ModuleActivity extends SherlockFragmentActivity {
     	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
     	fragmentList.add(Fragment.instantiate(this, ModuleInfoFragment.class.getName(), args));
     	fragmentList.add(Fragment.instantiate(this, ModuleAnnouncementsFragment.class.getName(), args));
-    	fragmentList.add(Fragment.instantiate(this, ModuleWebcastsFragment.class.getName(), args));
-    	fragmentList.add(Fragment.instantiate(this, ModuleWorkbinsFragment.class.getName(), args));
     	fragmentList.add(Fragment.instantiate(this, ModuleLecturersFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleWebcastsFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleWeblinksFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleWorkbinsFragment.class.getName(), args));
     	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
     	mViewPager.setAdapter(mPagerAdapter);
     	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {

@@ -4,11 +4,13 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.ModulesContract;
 
 import android.accounts.Account;
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -77,6 +79,7 @@ public class ModulesFragment extends SherlockListFragment {
 		// Get the listview.
 		ListView listView = (ListView) getActivity().findViewById(android.R.id.list);
 		listView.setOnItemClickListener(new OnItemClickListener() {
+			@TargetApi(16)
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
@@ -92,7 +95,16 @@ public class ModulesFragment extends SherlockListFragment {
 					intent.putExtra("moduleId", id);
 					intent.putExtra("moduleCourseName", courseName);
 					intent.putExtra("moduleIvleId", view.getTag().toString());
-					startActivity(intent);
+					
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+						// Someday, somehow...
+						// Bundle options = ActivityOptions.makeScaleUpAnimation(view, 0, 0, view.getWidth(), view.getHeight()).toBundle();
+						// MainApplication.getContext().startActivity(intent, options);
+						startActivity(intent);
+					} else {
+						startActivity(intent);
+					}
+					
 				} else {
 					// Prepare the fragment.
 					Bundle args = new Bundle();

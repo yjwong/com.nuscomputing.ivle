@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle.providers;
 
+import com.nuscomputing.ivle.DatabaseHelper;
+
 import android.net.Uri;
 
 /**
@@ -7,11 +9,14 @@ import android.net.Uri;
  * Contains definitions for supported URIs and data columns.
  * @author yjwong
  */
-public class AnnouncementsContract {
+public class AnnouncementsContract extends IVLEContract {
 	// {{{ properties
 	
 	/** The content:// style URL for the top level authority */
 	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/announcements");
+	
+	/** The database table backing this type */
+	public static final String TABLE = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME;
 	
 	/** The row ID */
 	public static final String ID = "_id";

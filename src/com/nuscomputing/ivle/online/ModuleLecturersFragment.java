@@ -38,8 +38,8 @@ import com.nuscomputing.ivle.R;
 import com.nuscomputing.ivlelapi.FailedLoginException;
 import com.nuscomputing.ivlelapi.IVLE;
 import com.nuscomputing.ivlelapi.JSONParserException;
+import com.nuscomputing.ivlelapi.Lecturer;
 import com.nuscomputing.ivlelapi.Module;
-import com.nuscomputing.ivlelapi.Module.Lecturer;
 import com.nuscomputing.ivlelapi.NetworkErrorException;
 import com.nuscomputing.ivlelapi.NoSuchModuleException;
 
@@ -80,7 +80,7 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 		Bundle args = getArguments();
 		mModuleIvleId = args.getString("moduleIvleId");
         if (mModuleIvleId == null) {
-        	throw new IllegalStateException("No module IVLE ID was passed to ModuleInfoFragment");
+        	throw new IllegalStateException("No module IVLE ID was passed to ModuleLecturersFragment");
         }
         
         // Get the layout inflater.

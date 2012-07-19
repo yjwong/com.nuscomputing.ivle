@@ -260,7 +260,8 @@ public class SearchableFragment extends ListFragment {
 				Cursor cursor = provider.query(ModulesContract.CONTENT_URI, 
 						new String[] {
 							ModulesContract.ID,
-							ModulesContract.COURSE_NAME
+							ModulesContract.COURSE_NAME,
+							ModulesContract.COURSE_CODE
 						},
 						"(" +
 							ModulesContract.COURSE_CODE + " LIKE ? OR " +
@@ -286,6 +287,7 @@ public class SearchableFragment extends ListFragment {
 						resultDetails = new Bundle();
 						resultDetails.putLong(SearchResult.KEY_MODULE_ID, cursor.getLong(cursor.getColumnIndex(ModulesContract.ID)));
 						resultDetails.putString(SearchResult.KEY_MODULE_NAME, cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
+						resultDetails.putString(SearchResult.KEY_MODULE_CODE, cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_CODE)));
 						result = new SearchResult(SearchResult.RESULT_TYPE_MODULE, resultDetails);
 						mSearchResults.add(result);
 					}
@@ -306,8 +308,17 @@ public class SearchableFragment extends ListFragment {
 				criterion.put("ModuleTitle", URLEncoder.encode(query, "UTF-8"));
 				Module[] modules = ivle.searchModules(criterion);
 				
+				// Filter the modules.
+				List<Module> modulesFiltered = new ArrayList<Module>();
+				for (Module module : modules) {
+					// Remove inactive modules.
+					if (!module.isActive.equals("N")) {
+						modulesFiltered.add(module);
+					}
+				}
+				
 				// Have we found any results?
-				if (modules.length > 0) {
+				if (modulesFiltered.size() > 0) {
 					// Add the heading.
 					resultDetails = new Bundle();
 					resultDetails.putString(SearchResult.KEY_HEADING_TITLE, "Modules (Online)");
@@ -315,10 +326,11 @@ public class SearchableFragment extends ListFragment {
 					mSearchResults.add(result);
 					
 					// Add the results.
-					for (Module module : modules) {
+					for (Module module : modulesFiltered) {
 						resultDetails = new Bundle();
 						resultDetails.putString(SearchResult.KEY_MODULE_IVLE_ID, module.ID);
 						resultDetails.putString(SearchResult.KEY_MODULE_NAME, module.courseName);
+						resultDetails.putString(SearchResult.KEY_MODULE_CODE, module.courseCode);
 						result = new SearchResult(SearchResult.RESULT_TYPE_MODULE_ONLINE, resultDetails);
 						mSearchResults.add(result);
 					}
@@ -397,6 +409,8 @@ public class SearchableFragment extends ListFragment {
 					convertView.setTag(item);
 					TextView tvModuleTitle = (TextView) convertView.findViewById(R.id.searchable_fragment_list_module_name);
 					tvModuleTitle.setText(resultDetails.getString(SearchResult.KEY_MODULE_NAME));
+					TextView tvModuleCode = (TextView) convertView.findViewById(R.id.searchable_fragment_list_module_code);
+					tvModuleCode.setText(resultDetails.getString(SearchResult.KEY_MODULE_CODE));
 					return convertView;
 					
 				default:
@@ -425,6 +439,7 @@ public class SearchableFragment extends ListFragment {
 		public static final String KEY_MODULE_ID = "module_id";
 		public static final String KEY_MODULE_IVLE_ID = "module_ivle_id";
 		public static final String KEY_MODULE_NAME = "module_name";
+		public static final String KEY_MODULE_CODE = "module_code";
 		
 		/** Bundle containing the result details */
 		private final Bundle mResultDetails; 
