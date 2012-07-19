@@ -33,7 +33,7 @@
         />
                 
     </PreferenceCategory>
-   
+    
     <PreferenceCategory android:title="About">
         
         <Preference
