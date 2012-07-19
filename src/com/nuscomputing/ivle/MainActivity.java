@@ -224,7 +224,7 @@ public class MainActivity extends SherlockFragmentActivity {
     	inflater.inflate(R.menu.global, menu);
     	
     	// Get the SearchView and set the searchable configuration
-    	if (Build.VERSION.SDK_INT >= 11) {
+    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 	    	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 	    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
 	    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -265,6 +265,10 @@ public class MainActivity extends SherlockFragmentActivity {
     	// Handle item selection.
     	if (!MainApplication.onOptionsItemSelected(this, item)) {
         	switch (item.getItemId()) {
+        		case R.id.main_menu_search:
+        			onSearchRequested();
+        			return true;
+        			
 	    		case R.id.main_menu_refresh:
 	    			this.performRefresh();
 	    			return true;

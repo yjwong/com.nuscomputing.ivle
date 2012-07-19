@@ -93,6 +93,9 @@
     <!-- Strings for ModulesFragment -->
     <string name="modules_fragment_no_modules">There are no modules.</string>
     
+    <!-- Strings for SearchableActivity -->
+    <string name="searchable_activity_results_for">Results for \"%1$s\"</string>
+    
     <!-- Strings for SearchableFragment -->
     <string name="searchable_fragment_no_search_results">No search results found.</string>
     

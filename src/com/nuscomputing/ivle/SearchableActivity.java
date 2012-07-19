@@ -33,6 +33,12 @@ public class SearchableActivity extends SherlockFragmentActivity {
 	/** The search query */
 	private String mSearchQuery;
 	
+	/** The fragment manager */
+	private FragmentManager mFragmentManager;
+	
+	/** The search fragment */
+	private Fragment mFragment;
+	
 	// }}}
 	// {{{ methods
 	
@@ -45,24 +51,57 @@ public class SearchableActivity extends SherlockFragmentActivity {
 		ActionBar bar = getSupportActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
 		
-		// Get the intent, verify the action and get the query.
-		Intent intent = getIntent();
-		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			mSearchQuery = intent.getStringExtra(SearchManager.QUERY);
+		// Handle the search intent.
+		this.handleIntent(getIntent());
+
+		// Display the query for Android < HONEYCOMB.
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			bar.setTitle(getString(R.string.searchable_activity_results_for, mSearchQuery));
 		}
 		
+		// Get the fragment manager.
+		mFragmentManager = getSupportFragmentManager();
 		if (savedInstanceState == null) {
 			// Define fragment arguments.
 			Bundle args = new Bundle();
 			args.putString(SearchManager.QUERY, mSearchQuery);
 			
 			// Add the fragment.
-			FragmentManager manager = getSupportFragmentManager();
-			FragmentTransaction transaction = manager.beginTransaction();
-			Fragment fragment = new SearchableFragment();
-			fragment.setArguments(args);
-			transaction.add(R.id.searchable_activity_fragment_container, fragment);
+			FragmentTransaction transaction = mFragmentManager.beginTransaction();
+			mFragment = new SearchableFragment();
+			mFragment.setArguments(args);
+			transaction.add(R.id.searchable_activity_fragment_container, mFragment, "SEARCH_FRAGMENT");
 			transaction.commit();
+		} else {
+			mFragment = mFragmentManager.findFragmentByTag("SEARCH_FRAGMENT");
+		}
+	}
+	
+	@Override
+	public void onNewIntent(Intent intent) {
+		setIntent(intent);
+		this.handleIntent(intent);
+		
+		// Remove the old fragment.
+		FragmentTransaction transaction = mFragmentManager.beginTransaction();
+		transaction.remove(mFragment);
+		
+		// Add the new fragment.
+		// Define fragment arguments.
+		Bundle args = new Bundle();
+		args.putString(SearchManager.QUERY, mSearchQuery);
+		
+		// Add the fragment.
+		mFragment = new SearchableFragment();
+		mFragment.setArguments(args);
+		transaction.add(R.id.searchable_activity_fragment_container, mFragment, "SEARCH_FRAGMENT");
+		transaction.commit();
+	}
+	
+	private void handleIntent(Intent intent) {
+		// Get the intent, verify the action and get the query.
+		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+			mSearchQuery = intent.getStringExtra(SearchManager.QUERY);
 		}
 	}
 	
@@ -74,7 +113,7 @@ public class SearchableActivity extends SherlockFragmentActivity {
     	inflater.inflate(R.menu.searchable_activity_menu, menu);
     	
     	// Get the SearchView and set the searchable configuration
-    	if (Build.VERSION.SDK_INT >= 11) {
+    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 	    	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 	    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
 	    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -91,6 +130,10 @@ public class SearchableActivity extends SherlockFragmentActivity {
     	// Handle item selection.
     	if (!MainApplication.onOptionsItemSelected(this, item)) {
         	switch (item.getItemId()) {
+	    		case R.id.main_menu_search:
+	    			onSearchRequested();
+	    			return true;
+	    			
         		case android.R.id.home:
         			finish();
         			return true;

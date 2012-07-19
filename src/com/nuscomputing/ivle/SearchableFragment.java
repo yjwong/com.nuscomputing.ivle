@@ -3,6 +3,7 @@ package com.nuscomputing.ivle;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -53,7 +55,7 @@ public class SearchableFragment extends ListFragment {
 	private LayoutInflater mLayoutInflater;
 	
 	/** The search results adapter */
-	private ArrayAdapter<SearchResult> mAdapter;
+	private SearchResultAdapter mAdapter;
 	
 	// }}}
 	// {{{ methods
@@ -196,7 +198,7 @@ public class SearchableFragment extends ListFragment {
 		private List<SearchResult> mSearchResults;
 		
 		/** The adapter */
-		private ArrayAdapter<SearchResult> mAdapter;
+		private SearchResultAdapter mAdapter;
 		
 		/** Handler to run stuff on UI thread */
 		private Handler mHandler = new Handler();
@@ -221,7 +223,7 @@ public class SearchableFragment extends ListFragment {
 			mArgs = args;
 		}
 		
-		void setAdapter(ArrayAdapter<SearchResult> adapter) {
+		void setAdapter(SearchResultAdapter adapter) {
 			mAdapter = adapter;
 		}
 		
@@ -372,6 +374,19 @@ public class SearchableFragment extends ListFragment {
 		
 		public SearchResultAdapter(Context context, List<SearchResult> results) {
 			super(context, android.R.id.text1, results);
+		}
+		
+		@TargetApi(11)
+		@Override
+		public void addAll(Collection<? extends SearchResult> collection) {
+			// Wrapper for addAll in case it's not available on <= HONEYCOMB.
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				super.addAll(collection);
+			} else {
+				for (SearchResult result : collection) {
+					super.add(result);
+				}
+			}
 		}
 
 		@Override

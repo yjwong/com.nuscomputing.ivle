@@ -19,6 +19,11 @@
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" android:hardwareAccelerated="true" android:theme="@style/Theme.Sherlock.Light.DarkActionBar" android:name=".MainApplication">
+        
+        <!-- Application global search -->
+        <meta-data android:name="android.app.default_searchable" android:value=".SearchableActivity" />
+        
+        <!-- Activity declarations -->
         <activity
             android:name="MainActivity"
             android:label="@string/app_name">
@@ -26,26 +31,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data android:name="android.app.default_searchable" android:value=".SearchableActivity" />
         </activity>
-        <service
-            android:name="AuthenticatorService"
-            android:exported="true"
-            android:permission="android.permission.MANAGE_ACCOUNTS">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
-        <activity android:name="AuthenticatorActivity"
-            android:theme="@style/Theme.Sherlock.NoActionBar"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize">
-        </activity>
-        <activity android:name="SettingsActivity"></activity>
-        <activity android:name="SettingsActivityLegacy"></activity>
         <activity android:name="AccountSettingsActivity" android:launchMode="singleInstance" android:permission="android.permission.ACCOUNT_MANAGER">
             <intent-filter>
                 <action android:name="com.nuscomputing.ivle.AccountSettingsActivity.MAIN"/>
@@ -58,26 +44,24 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <provider
-            android:name=".providers.IVLEProvider"
-            android:exported="true"
-            android:authorities="com.nuscomputing.ivle.provider"
-            android:syncable="true"
-            android:enabled="true"
-            android:label="IVLE Data"
-        />
-        <service android:name=".IVLESyncService" android:exported="true">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter" android:resource="@xml/ivle_sync_adapter"/>
-        </service>
+        <activity android:name="AuthenticatorActivity"
+            android:theme="@style/Theme.Sherlock.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+        <activity android:name="SettingsActivity"></activity>
+        <activity android:name="SettingsActivityLegacy"></activity>
         <activity android:name="ModuleActivity"></activity>
         <activity android:name="ViewAnnouncementActivity"></activity>
         <activity android:name="ViewWebcastActivity"></activity>
-        <activity android:name="ViewWebcastFileActivity" android:immersive="true" android:screenOrientation="sensorLandscape" android:configChanges="orientation|keyboardHidden"></activity>
+        <activity android:name="ViewWebcastFileActivity"
+            android:immersive="true"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|keyboardHidden">
+        </activity>
         <activity android:name="ViewWorkbinActivity"></activity>
-        <activity android:name=".SearchableActivity">
+        <activity android:name=".SearchableActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -86,6 +70,35 @@
         <activity android:name=".online.ModuleActivity"></activity>
         <activity android:name=".AboutApplicationActivityLegacy" android:theme="@style/Theme.Sherlock.Light.Dialog"></activity>
         <activity android:name="org.acra.CrashReportDialog" android:theme="@style/Theme.Sherlock.Light.Dialog" android:launchMode="singleInstance" android:finishOnTaskLaunch="true" android:excludeFromRecents="true"></activity>
+        
+        <!-- Service declarations -->
+        <service
+            android:name="AuthenticatorService"
+            android:exported="true"
+            android:permission="android.permission.MANAGE_ACCOUNTS">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+        <service android:name=".IVLESyncService" android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter" android:resource="@xml/ivle_sync_adapter"/>
+        </service>
+
+        <!-- Provider declarations -->
+        <provider
+            android:name=".providers.IVLEProvider"
+            android:exported="true"
+            android:authorities="com.nuscomputing.ivle.provider"
+            android:syncable="true"
+            android:enabled="true"
+            android:label="IVLE Data"
+        />
     </application>
 
 </manifest>

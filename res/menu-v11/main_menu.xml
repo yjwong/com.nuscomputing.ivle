@@ -5,6 +5,7 @@
         android:icon="@drawable/ic_menu_search"
         android:title="@string/search"
         android:showAsAction="ifRoom"
+        android:actionViewClass="android.widget.SearchView"
         android:orderInCategory="0">
     </item>
     
