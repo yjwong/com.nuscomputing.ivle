@@ -98,16 +98,21 @@
     
     <!-- Strings for SearchableFragment -->
     <string name="searchable_fragment_no_search_results">No search results found.</string>
+    <string name="searchable_fragment_heading_title_modules">Modules</string>
+    <string name="searchable_fragment_heading_title_modules_online">Modules (Online)</string>
     
     <!-- Strings for SettingsFragment -->
+    <string name="settings_fragment_account_management">Account Management</string>
     <string name="settings_fragment_no_accounts_configured">No accounts have been configured.</string>
     <string name="settings_fragment_app_will_restart">This application will restart to reflect the account change.</string>
     <string name="settings_fragment_add_account_summary">Tap to add an account</string>
     <string name="settings_fragment_add_account_title">Add account&#8230;</string>
     <string name="settings_fragment_manage_accounts_summary">Tap to manage accounts</string>
     <string name="settings_fragment_manage_accounts_title">Manage accounts&#8230;</string>
+    <string name="settings_fragment_webcast_downloads">Webcast Downloads</string>
     <string name="settings_fragment_download_over_mobile_networks_title">Download over mobile networks</string>
     <string name="settings_fragment_download_over_mobile_networks_summary">Allow use of 3G/4G for downloads</string>
+    <string name="settings_fragment_about">About</string>
     <string name="settings_fragment_about_summary">\u00A9 2012 Team CM</string>
     <string name="settings_fragment_about_title">Version %1$s</string>
     <string name="settings_fragment_send_feedback_title">Send Feedback</string>
@@ -148,10 +153,20 @@
 	<string name="workbin_file_download_dialog_fragment_no_app_found">No application can be found to open this file.</string>
 	
 	<!-- Strings for AccountSettingsFragment -->
+	<string name="account_settings_fragment_sync_settings">Sync Settings</string>
 	<string name="account_settings_fragment_sync_interval">Sync Interval</string>
+	<string name="account_settings_fragment_notifications">Notifications</string>
+	<string name="account_settings_fragment_notifications_on">Notifications are on</string>
+	<string name="account_settings_fragment_notifications_off">Notifications are off</string>
+	<string name="account_settings_fragment_announcements">Announcements</string>
+	<string name="account_settings_fragment_announcements_summary">Notify me about new announcements</string>
 	
 	<!-- Strings for AccountSettingsActivity -->
 	<string name="account_settings_activity_account_settings">Account Settings</string>
+	
+	<!-- Strings for notifications -->
+	<string name="notification_new_announcements">%1$d new announcements</string>
+	<string name="notification_plus_more">+%1$d more</string>
 	
 	<!-- Temporary strings -->
 	<string name="temp_help_not_available_yet">Sorry, help is not available yet.</string>

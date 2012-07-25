@@ -4,7 +4,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.ModulesContract;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,8 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -30,7 +27,7 @@ import android.widget.TextView;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModulesFragment extends SherlockListFragment {
+public class ModulesFragment extends SherlockListFragment implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -75,55 +72,48 @@ public class ModulesFragment extends SherlockListFragment {
         mLoader = new DataLoader(getActivity(), mAdapter);
         mLoaderManager = getLoaderManager();
 		mLoaderManager.initLoader(DataLoader.LOADER_MODULES_FRAGMENT, null, mLoader);
-		
-		// Get the listview.
-		ListView listView = (ListView) getActivity().findViewById(android.R.id.list);
-		listView.setOnItemClickListener(new OnItemClickListener() {
-			@TargetApi(16)
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position,
-					long id) {
-				// Obtain the module name.
-				TextView tvCourseName = (TextView) view.findViewById(R.id.modules_fragment_list_course_name);
-				String courseName = tvCourseName.getText().toString();
-				
-				// Start the module info activity, or replace with fragment.
-				View multipane = getActivity().findViewById(R.id.main_multipane);
-				if (multipane == null) {
-					Intent intent = new Intent();
-					intent.setClass(getActivity(), ModuleActivity.class);
-					intent.putExtra("moduleId", id);
-					intent.putExtra("moduleCourseName", courseName);
-					intent.putExtra("moduleIvleId", view.getTag().toString());
-					
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-						// Someday, somehow...
-						// Bundle options = ActivityOptions.makeScaleUpAnimation(view, 0, 0, view.getWidth(), view.getHeight()).toBundle();
-						// MainApplication.getContext().startActivity(intent, options);
-						startActivity(intent);
-					} else {
-						startActivity(intent);
-					}
-					
-				} else {
-					// Prepare the fragment.
-					Bundle args = new Bundle();
-					args.putLong("moduleId", id);
-					args.putString("moduleCourseName", courseName);
-					args.putString("moduleIvleId", view.getTag().toString());
-					Fragment fragment = new ModuleInfoFragment();
-					fragment.setArguments(args);
-					
-					// Add the fragment.
-					FragmentManager manager = getActivity().getSupportFragmentManager();
-					FragmentTransaction transaction = manager.beginTransaction();
-					transaction.replace(R.id.main_right_fragment_container, fragment);
-					transaction.commit();
-				}
-			}
-		});
-		
 		setListAdapter(mAdapter);
+	}
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		// Obtain the module name.
+		TextView tvCourseName = (TextView) v.findViewById(R.id.modules_fragment_list_course_name);
+		String courseName = tvCourseName.getText().toString();
+		
+		// Start the module info activity, or replace with fragment.
+		View multipane = getActivity().findViewById(R.id.main_multipane);
+		if (multipane == null) {
+			Intent intent = new Intent();
+			intent.setClass(getActivity(), ModuleActivity.class);
+			intent.putExtra("moduleId", id);
+			intent.putExtra("moduleCourseName", courseName);
+			intent.putExtra("moduleIvleId", v.getTag().toString());
+			
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				// Someday, somehow...
+				// Bundle options = ActivityOptions.makeScaleUpAnimation(view, 0, 0, view.getWidth(), view.getHeight()).toBundle();
+				// MainApplication.getContext().startActivity(intent, options);
+				startActivity(intent);
+			} else {
+				startActivity(intent);
+			}
+			
+		} else {
+			// Prepare the fragment.
+			Bundle args = new Bundle();
+			args.putLong("moduleId", id);
+			args.putString("moduleCourseName", courseName);
+			args.putString("moduleIvleId", v.getTag().toString());
+			Fragment fragment = new ModuleInfoFragment();
+			fragment.setArguments(args);
+			
+			// Add the fragment.
+			FragmentManager manager = getActivity().getSupportFragmentManager();
+			FragmentTransaction transaction = manager.beginTransaction();
+			transaction.replace(R.id.main_right_fragment_container, fragment);
+			transaction.commit();
+		}
 	}
 	
 	@Override
@@ -136,6 +126,16 @@ public class ModulesFragment extends SherlockListFragment {
 	public void onResume() {
 		super.onResume();
 		getActivity().registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_SUCCESS));
+	}
+	
+	@Override
+	public void onLoaderFinished(Bundle result) {
+		// Show message if there are no modules.
+		int cursorCount = result.getInt("cursorCount");
+		if (cursorCount == 0) {
+			TextView tvNoModules = (TextView) getActivity().findViewById(R.id.modules_fragment_no_modules);
+			tvNoModules.setVisibility(View.VISIBLE);
+		}
 	}
 	
 	// }}}

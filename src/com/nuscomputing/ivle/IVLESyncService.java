@@ -235,10 +235,11 @@ public class IVLESyncService extends Service {
 							}
 	
 						} else {
-							String notifTitle = Integer.toString(announcementCount).concat(" new announcements");
+							String notifTitle = context.getString(R.string.notification_new_announcements, announcementCount);
 							
 							// Create a pending intent.
 							Intent intent = new Intent(context, MainActivity.class);
+							intent.putExtra("withAccount", account.name);
 							PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 							
 							// Create notification based on platform version.
@@ -263,7 +264,7 @@ public class IVLESyncService extends Service {
 									
 									// Tap to show the rest.
 									if (announcementCount > 5) {
-										builderInboxStyle.setSummaryText("+" + (announcementCount - 5) + " more");
+										builderInboxStyle.setSummaryText(context.getString(R.string.notification_plus_more, (announcementCount - 5)));
 									}
 									
 									notif = builderInboxStyle.build();

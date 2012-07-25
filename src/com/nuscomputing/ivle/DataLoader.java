@@ -426,6 +426,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		Bundle result = new Bundle();
 		switch (loader.getId()) {
 			case LOADER_MODULES_FRAGMENT:
+				result.putInt("cursorCount", cursor.getCount());
 				((ModulesCursorAdapter) mAdapter).swapCursor(cursor);
 				((ModulesCursorAdapter) mAdapter).notifyDataSetChanged();
 				break;

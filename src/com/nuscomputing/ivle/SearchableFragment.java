@@ -280,7 +280,7 @@ public class SearchableFragment extends ListFragment {
 				if (cursor.getCount() > 0) {
 					// Add the heading.
 					resultDetails = new Bundle();
-					resultDetails.putString(SearchResult.KEY_HEADING_TITLE, "Modules");
+					resultDetails.putString(SearchResult.KEY_HEADING_TITLE, mContext.getString(R.string.searchable_fragment_heading_title_modules));
 					result = new SearchResult(SearchResult.RESULT_TYPE_HEADING, resultDetails);
 					mSearchResults.add(result);
 					
@@ -323,7 +323,7 @@ public class SearchableFragment extends ListFragment {
 				if (modulesFiltered.size() > 0) {
 					// Add the heading.
 					resultDetails = new Bundle();
-					resultDetails.putString(SearchResult.KEY_HEADING_TITLE, "Modules (Online)");
+					resultDetails.putString(SearchResult.KEY_HEADING_TITLE, mContext.getString(R.string.searchable_fragment_heading_title_modules_online));
 					result = new SearchResult(SearchResult.RESULT_TYPE_HEADING, resultDetails);
 					mSearchResults.add(result);
 					

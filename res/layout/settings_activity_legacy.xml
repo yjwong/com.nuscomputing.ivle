@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="ps_root" >
     
-    <PreferenceCategory android:title="Account Management">
+    <PreferenceCategory android:title="@string/settings_fragment_account_management">
     
         <ListPreference
             android:key="account"
@@ -23,7 +23,7 @@
         
     </PreferenceCategory>
     
-    <PreferenceCategory android:title="Webcast Downloads">
+    <PreferenceCategory android:title="@string/settings_fragment_webcast_downloads">
         
         <CheckBoxPreference
             android:key="download_over_mobile_networks"
@@ -31,10 +31,10 @@
             android:summary="@string/settings_fragment_download_over_mobile_networks_summary"
             android:defaultValue="true"
         />
-        
+                
     </PreferenceCategory>
     
-    <PreferenceCategory android:title="About">
+    <PreferenceCategory android:title="@string/settings_fragment_about">
         
         <Preference
             android:key="about"
@@ -45,7 +45,7 @@
             android:key="send_feedback"
             android:title="@string/settings_fragment_send_feedback_title"
         />
-
+        
     </PreferenceCategory>
 
 </PreferenceScreen>

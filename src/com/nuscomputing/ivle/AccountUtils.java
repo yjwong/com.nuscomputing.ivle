@@ -38,7 +38,7 @@ public class AccountUtils {
 	 * <p>
 	 * Sets the active account and stores it into the preferences.
 	 */
-	public static void setActiveAccount(Context context, String accountName) {
+	public static Account setActiveAccount(Context context, String accountName) {
 		// Obtain the preference manager.
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -48,20 +48,21 @@ public class AccountUtils {
 		// Check if the specified account exists.
 		if (accountName != null) {
 			// Find the account.
-			boolean accountFound = false;
+			Account accountFound = null;
 			for (Account account : accounts) {
 				if (account.name.equals(accountName)) {
-					accountFound = true;
+					accountFound = account;
 				}
 			}
 			
-			if (!accountFound) {
-				throw new IllegalArgumentException("The specified account cannot be found");
+			if (accountFound == null) {
+				return null;
 			} else {
 				// Set the preference.
 				Editor prefsEditor = prefs.edit();
 				prefsEditor.putString("account", accountName);
 				prefsEditor.commit();
+				return accountFound;
 			}
 			
 		} else {

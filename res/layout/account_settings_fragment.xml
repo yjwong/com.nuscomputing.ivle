@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="account_settings_root" >
     
-    <PreferenceCategory android:title="Sync Settings">
+    <PreferenceCategory android:title="@string/account_settings_fragment_sync_settings">
     
 	    <ListPreference
 	        android:key="sync_interval"
@@ -15,20 +15,20 @@
     
     </PreferenceCategory>
     
-    <PreferenceCategory android:title="Notifications">
+    <PreferenceCategory android:title="@string/account_settings_fragment_notifications">
         
         <CheckBoxPreference
             android:key="notifications"
-            android:title="Notifications"
-            android:summaryOff="Notifications are off"
-            android:summaryOn="Notifications are on"
+            android:title="@string/account_settings_fragment_notifications"
+            android:summaryOff="@string/account_settings_fragment_notifications_off"
+            android:summaryOn="@string/account_settings_fragment_notifications_on"
             android:defaultValue="true"
         />
         
         <CheckBoxPreference
             android:key="notifications_announcements"
-            android:title="Announcements"
-            android:summary="Notify me about new announcements"
+            android:title="@string/account_settings_fragment_announcements"
+            android:summary="@string/account_settings_fragment_announcements_summary"
             android:defaultValue="true"
             android:dependency="notifications"
         />

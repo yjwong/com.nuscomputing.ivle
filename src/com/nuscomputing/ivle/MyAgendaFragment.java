@@ -7,14 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * Fragment for "What's New" screen.
+ * Fragment for "My Agenda" screen.
  * @author yjwong
  */
 public class MyAgendaFragment extends Fragment {
 	// {{{ properties
 	
 	/** TAG for logging */
-	public static final String TAG = "WhatsNewFragment";
+	public static final String TAG = "MyAgendaFragment";
 	
 	// }}}
 	// {{{ methods
