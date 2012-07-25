@@ -246,15 +246,27 @@ public class ViewWebcastFileActivity extends SherlockFragmentActivity implements
 	    			// Construct video file name.
 	    			String fileName = mVideoUri.getLastPathSegment();
 	    			//String filePath = "IVLE Webcasts/" + fileName;
-	    			DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
-	    			
-	    			// Request a save of the video file.
-	    			request.allowScanningByMediaScanner();
-	    			request.setDescription("IVLE Webcast");
-	    			request.setAllowedNetworkTypes(allowedNetworkTypes);
-	    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
-	    			DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-	    			manager.enqueue(request);
+	    			if (Build.VERSION.SDK_INT < 11) {
+	    				com.nuscomputing.support.android.app.DownloadManager.Request request = new com.nuscomputing.support.android.app.DownloadManager.Request(mVideoUri);
+		    			request.setDescription("IVLE Webcast");
+		    			request.setAllowedNetworkTypes(allowedNetworkTypes);
+		    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
+		    			
+		    			// Request a save of the video file.
+		    			com.nuscomputing.support.android.app.DownloadManager manager = new com.nuscomputing.support.android.app.DownloadManager(getContentResolver(), getClass().getPackage().getName());
+		    			manager.enqueue(request);
+		    			
+	    			} else {
+	    				DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
+		    			request.allowScanningByMediaScanner();
+		    			request.setDescription("IVLE Webcast");
+		    			request.setAllowedNetworkTypes(allowedNetworkTypes);
+		    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
+		    			
+		    			// Request a save of the video file.
+		    			DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+		    			manager.enqueue(request);
+	    			}
 	    			
 	    			// Show a toast.
 	    			if (networkType == ConnectivityManager.TYPE_MOBILE && !downloadOverMobile) {

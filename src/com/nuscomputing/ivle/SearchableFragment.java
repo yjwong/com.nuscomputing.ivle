@@ -1,6 +1,9 @@
 package com.nuscomputing.ivle;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -51,7 +55,7 @@ public class SearchableFragment extends ListFragment {
 	private LayoutInflater mLayoutInflater;
 	
 	/** The search results adapter */
-	private ArrayAdapter<SearchResult> mAdapter;
+	private SearchResultAdapter mAdapter;
 	
 	// }}}
 	// {{{ methods
@@ -79,7 +83,7 @@ public class SearchableFragment extends ListFragment {
 		setListAdapter(mAdapter);
 		
 		// Perform the search query.
-		getLoaderManager().initLoader(0, args, new SearchResultLoaderCallbacks());
+		getLoaderManager().initLoader(DataLoader.LOADER_SEARCHABLE_FRAGMENT, args, new SearchResultLoaderCallbacks());
 		
 		// Get the list view.
 		ListView listview = getListView();
@@ -149,6 +153,7 @@ public class SearchableFragment extends ListFragment {
 			return loader;
 		}
 
+		@TargetApi(11)
 		@Override
 		public void onLoadFinished(Loader<List<SearchResult>> loader,
 				List<SearchResult> results) {
@@ -158,6 +163,8 @@ public class SearchableFragment extends ListFragment {
 				tvNoSearchResults.setVisibility(View.VISIBLE);
 			} else {
 				// We finished searching, notify that our data set is changed.
+				mAdapter.clear();
+				mAdapter.addAll(results);
 				mAdapter.notifyDataSetChanged();
 			}
 			
@@ -191,7 +198,7 @@ public class SearchableFragment extends ListFragment {
 		private List<SearchResult> mSearchResults;
 		
 		/** The adapter */
-		private ArrayAdapter<SearchResult> mAdapter;
+		private SearchResultAdapter mAdapter;
 		
 		/** Handler to run stuff on UI thread */
 		private Handler mHandler = new Handler();
@@ -216,7 +223,7 @@ public class SearchableFragment extends ListFragment {
 			mArgs = args;
 		}
 		
-		void setAdapter(ArrayAdapter<SearchResult> adapter) {
+		void setAdapter(SearchResultAdapter adapter) {
 			mAdapter = adapter;
 		}
 		
@@ -255,7 +262,8 @@ public class SearchableFragment extends ListFragment {
 				Cursor cursor = provider.query(ModulesContract.CONTENT_URI, 
 						new String[] {
 							ModulesContract.ID,
-							ModulesContract.COURSE_NAME
+							ModulesContract.COURSE_NAME,
+							ModulesContract.COURSE_CODE
 						},
 						"(" +
 							ModulesContract.COURSE_CODE + " LIKE ? OR " +
@@ -281,6 +289,7 @@ public class SearchableFragment extends ListFragment {
 						resultDetails = new Bundle();
 						resultDetails.putLong(SearchResult.KEY_MODULE_ID, cursor.getLong(cursor.getColumnIndex(ModulesContract.ID)));
 						resultDetails.putString(SearchResult.KEY_MODULE_NAME, cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
+						resultDetails.putString(SearchResult.KEY_MODULE_CODE, cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_CODE)));
 						result = new SearchResult(SearchResult.RESULT_TYPE_MODULE, resultDetails);
 						mSearchResults.add(result);
 					}
@@ -298,11 +307,20 @@ public class SearchableFragment extends ListFragment {
 				// Obtain the modules via the API.
 				Map<String, String> criterion = new HashMap<String, String>();
 				//criterion.put("ModuleCode", query);
-				criterion.put("ModuleTitle", query);
+				criterion.put("ModuleTitle", URLEncoder.encode(query, "UTF-8"));
 				Module[] modules = ivle.searchModules(criterion);
 				
+				// Filter the modules.
+				List<Module> modulesFiltered = new ArrayList<Module>();
+				for (Module module : modules) {
+					// Remove inactive modules.
+					if (!module.isActive.equals("N")) {
+						modulesFiltered.add(module);
+					}
+				}
+				
 				// Have we found any results?
-				if (modules.length > 0) {
+				if (modulesFiltered.size() > 0) {
 					// Add the heading.
 					resultDetails = new Bundle();
 					resultDetails.putString(SearchResult.KEY_HEADING_TITLE, "Modules (Online)");
@@ -310,10 +328,11 @@ public class SearchableFragment extends ListFragment {
 					mSearchResults.add(result);
 					
 					// Add the results.
-					for (Module module : modules) {
+					for (Module module : modulesFiltered) {
 						resultDetails = new Bundle();
 						resultDetails.putString(SearchResult.KEY_MODULE_IVLE_ID, module.ID);
 						resultDetails.putString(SearchResult.KEY_MODULE_NAME, module.courseName);
+						resultDetails.putString(SearchResult.KEY_MODULE_CODE, module.courseCode);
 						result = new SearchResult(SearchResult.RESULT_TYPE_MODULE_ONLINE, resultDetails);
 						mSearchResults.add(result);
 					}
@@ -328,6 +347,8 @@ public class SearchableFragment extends ListFragment {
 				Log.e(TAG, "FailedLoginException encountered in searchModules");
 			} catch (JSONParserException e) {
 				Log.e(TAG, "JSONParserException encountered in searchModules");
+			} catch (UnsupportedEncodingException e) {
+				Log.e(TAG, "UnsupportedEncodingException encountered in searchModules");
 			}
 			
 			return mSearchResults;
@@ -353,6 +374,19 @@ public class SearchableFragment extends ListFragment {
 		
 		public SearchResultAdapter(Context context, List<SearchResult> results) {
 			super(context, android.R.id.text1, results);
+		}
+		
+		@TargetApi(11)
+		@Override
+		public void addAll(Collection<? extends SearchResult> collection) {
+			// Wrapper for addAll in case it's not available on <= HONEYCOMB.
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				super.addAll(collection);
+			} else {
+				for (SearchResult result : collection) {
+					super.add(result);
+				}
+			}
 		}
 
 		@Override
@@ -390,6 +424,8 @@ public class SearchableFragment extends ListFragment {
 					convertView.setTag(item);
 					TextView tvModuleTitle = (TextView) convertView.findViewById(R.id.searchable_fragment_list_module_name);
 					tvModuleTitle.setText(resultDetails.getString(SearchResult.KEY_MODULE_NAME));
+					TextView tvModuleCode = (TextView) convertView.findViewById(R.id.searchable_fragment_list_module_code);
+					tvModuleCode.setText(resultDetails.getString(SearchResult.KEY_MODULE_CODE));
 					return convertView;
 					
 				default:
@@ -418,6 +454,7 @@ public class SearchableFragment extends ListFragment {
 		public static final String KEY_MODULE_ID = "module_id";
 		public static final String KEY_MODULE_IVLE_ID = "module_ivle_id";
 		public static final String KEY_MODULE_NAME = "module_name";
+		public static final String KEY_MODULE_CODE = "module_code";
 		
 		/** Bundle containing the result details */
 		private final Bundle mResultDetails; 

@@ -62,8 +62,8 @@ public class ModuleAnnouncementsFragment extends ListFragment
 		super.onActivityCreated(savedInstanceState);
 		
 		// Obtain the module ID.
-		ModuleActivity activity = (ModuleActivity) getActivity();
-		mModuleId = activity.moduleId;
+		Bundle args = getArguments();
+		mModuleId = args.getLong("moduleId");
         if (mModuleId == -1) {
         	throw new IllegalStateException("No module ID was passed to ModuleAnnouncementsFragment");
         }
@@ -113,8 +113,6 @@ public class ModuleAnnouncementsFragment extends ListFragment
 				return false;
 			}
 		});
-        Bundle args = new Bundle();
-        args.putLong("moduleId", mModuleId);
         mLoader = new DataLoader(getActivity(), mAdapter, this);
         mLoaderManager = getLoaderManager();
         mLoaderManager.initLoader(DataLoader.LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT, args, mLoader);

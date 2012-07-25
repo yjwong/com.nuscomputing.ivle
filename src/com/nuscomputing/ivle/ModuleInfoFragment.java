@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -28,6 +27,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockFragment;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivlelapi.FailedLoginException;
 import com.nuscomputing.ivlelapi.IVLE;
@@ -41,7 +41,7 @@ import com.nuscomputing.ivlelapi.NoSuchModuleException;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
+public class ModuleInfoFragment extends SherlockFragment implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -68,8 +68,8 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 		super.onActivityCreated(savedInstanceState);
 		
 		// Obtain the module ID.
-		ModuleActivity activity = (ModuleActivity) getActivity();
-		mModuleId = activity.moduleId;
+		Bundle args = getArguments();
+		mModuleId = args.getLong("moduleId");
         if (mModuleId == -1) {
         	throw new IllegalStateException("No module ID was passed to ModuleInfoFragment");
         }
@@ -84,8 +84,6 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 		mListView.setAdapter(loadingAdapter);
         
 		// Load the module data.
-        Bundle args = new Bundle();
-        args.putLong("moduleId", mModuleId);
         DataLoader loader = new DataLoader(getActivity(), this);
 		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT, args, loader);
 		
@@ -101,6 +99,8 @@ public class ModuleInfoFragment extends Fragment implements DataLoaderListener {
 		tvCourseCode.setText(result.getString("courseCode"));
 		TextView tvCourseAcadYear = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_acad_year);
 		tvCourseAcadYear.setText(result.getString("courseAcadYear"));
+		TextView tvCourseSemester = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_semester);
+		tvCourseSemester.setText(result.getString("courseSemester"));
 	}
 	
 	// }}}

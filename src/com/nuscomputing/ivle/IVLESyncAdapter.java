@@ -2,6 +2,11 @@ package com.nuscomputing.ivle;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.joda.time.Instant;
+import org.joda.time.Interval;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -9,9 +14,11 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
@@ -24,6 +31,7 @@ import android.util.Log;
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
 import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
+import com.nuscomputing.ivle.providers.IVLEContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.TimetableSlotsContract;
 import com.nuscomputing.ivle.providers.UsersContract;
@@ -38,13 +46,14 @@ import com.nuscomputing.ivlelapi.Announcement;
 import com.nuscomputing.ivlelapi.FailedLoginException;
 import com.nuscomputing.ivlelapi.Gradebook;
 import com.nuscomputing.ivlelapi.IVLE;
+import com.nuscomputing.ivlelapi.IVLEObject;
 import com.nuscomputing.ivlelapi.JSONParserException;
 import com.nuscomputing.ivlelapi.Module;
-import com.nuscomputing.ivlelapi.Module.Weblink;
 import com.nuscomputing.ivlelapi.NetworkErrorException;
 import com.nuscomputing.ivlelapi.Timetable;
 import com.nuscomputing.ivlelapi.User;
 import com.nuscomputing.ivlelapi.Webcast;
+import com.nuscomputing.ivlelapi.Weblink;
 import com.nuscomputing.ivlelapi.Workbin;
 
 /**
@@ -56,6 +65,9 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	
 	/** TAG for logging */
 	public static final String TAG = "IVLESyncAdapter";
+	
+	/** The key for last sync time in SharedPreferences */
+	private static final String KEY_LAST_SYNC_TIME = "last_sync_time";
 	
 	/** The account manager */
 	private static AccountManager mAccountManager = null;
@@ -72,6 +84,9 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	/** Sync result */
 	private SyncResult mSyncResult;
 	
+	/** The last sync time */
+	private Instant mLastSyncTime;
+	
 	// }}}
 	// {{{ methods
 	
@@ -80,6 +95,16 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		Log.v(TAG, "IVLESyncAdapter started");
 		mContext = context;
 		mAccountManager = AccountManager.get(mContext);
+	}
+	
+	/**
+	 * Method: getLastSyncTimeKey
+	 * <p>
+	 * Gets the SharedPreferences key that denotes the last time this account
+	 * was synced.
+	 */
+	private String getLastSyncTimeKey() {
+		return KEY_LAST_SYNC_TIME.concat("_").concat(mAccount.name);
 	}
 	
 	/**
@@ -99,13 +124,27 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		this.mProvider = provider;
 		this.mSyncResult = syncResult;
 		
+		// Get the duration since the last sync.
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		long lastSyncTimeLong = prefs.getLong(getLastSyncTimeKey(), -1);
+		if (lastSyncTimeLong != -1) {
+			mLastSyncTime = new Instant(lastSyncTimeLong);
+		} else {
+			mLastSyncTime = null;
+		}
+		
 		// Tell interested listeners that sync has started.
 		this.setSyncInProgress(account, true);
 		IVLESyncService.broadcastSyncStarted(mContext, account);
 		
 		// Obtain an IVLE object.
-		Log.d(TAG, "Performing sync of IVLE data");
+		Log.d(TAG, "Performing sync of IVLE data, seconds since last sync = " + getSecondsSinceLastSync());
 		String authToken = null;
+		
+		// Set the last sync time.
+		Editor prefsEditor = prefs.edit();
+		prefsEditor.putLong(getLastSyncTimeKey(), new Instant().getMillis());
+		prefsEditor.commit();
 
 		try {
 			// Obtain the authentication, and get the list of modules.
@@ -132,6 +171,9 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				// Fetch announcements.
 				Log.v(TAG, "Fetching announcements");
 				Announcement[] announcements = module.getAnnouncements();
+				
+				// See what has been deleted.
+				// removeDeletedItemsFromLocal(AnnouncementsContract.class, announcements, moduleId);
 				for (Announcement announcement : announcements) {
 					// Insert the creator into the user's table.
 					Integer announcementCreatorId = null;
@@ -236,7 +278,14 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				this.insertTimetableSlot(timetableSlot, moduleId);
 			}
 			
-			Log.d(TAG, "Sync complete");
+			// Verbose: print sync statistics.
+			Log.d(TAG, "Sync is complete");
+			Log.v(TAG, "Sync statistics:");
+			Log.v(TAG, "Deleted " + mSyncResult.stats.numDeletes + " record(s)");
+			Log.v(TAG, "Inserted " + mSyncResult.stats.numInserts + " record(s)");
+			Log.v(TAG, "Updated " + mSyncResult.stats.numUpdates + " record(s)");
+			
+			// Send a broadcast.
 			IVLESyncService.broadcastSyncSuccess(mContext, account);
 			
 		} catch (Exception e) {
@@ -253,6 +302,29 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	public void onSyncCanceled(Thread thread) {
 		this.setSyncInProgress(mAccount, false);
 		IVLESyncService.broadcastSyncCanceled(mContext, mAccount);
+	}
+	
+	/**
+	 * Method: getSecondsSinceLastSync
+	 * <p>
+	 * Returns the number of seconds since the last sync was completed.
+	 * <p>
+	 * This method should be called for every invocation of an IVLE API call
+	 * since a call can possibly take tens of seconds to complete. If not, we
+	 * might miss out some important data that has been changed.
+	 * 
+	 * @return The duration since the last sync.
+	 */
+	private int getSecondsSinceLastSync() {
+		// The default is 0, i.e. fetch all data.
+		long changeDuration = 0;
+		Instant currentTime = new Instant();
+		if (mLastSyncTime != null) {
+			Interval changeInterval = new Interval(mLastSyncTime, currentTime);
+			changeDuration = changeInterval.toDuration().getStandardSeconds();
+		}
+		
+		return Long.valueOf(changeDuration).intValue();
 	}
 	
 	/**
@@ -322,29 +394,135 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 	
 	/**
+	 * Method: findDeletedItemsByType
+	 * <p>
+	 * Generic method to find IVLE items deleted between the current sync
+	 * and the time of the last sync.
+	 */
+	private <T extends IVLEObject> Set<String> findDeletedItemsByType(
+			Class<? extends IVLEContract> contractClass, T[] objects,
+			long moduleId) throws RemoteException {
+		// Get the required fields.
+		try {
+			Uri fieldContentUri = (Uri) contractClass.getField("CONTENT_URI").get(null);
+			String fieldTable = (String) contractClass.getField("TABLE").get(null);
+			String fieldIvleId = (String) contractClass.getField("IVLE_ID").get(null);
+			String fieldModuleId = (String) contractClass.getField("MODULE_ID").get(null);
+			String fieldAccount = (String) contractClass.getField("ACCOUNT").get(null);
+			
+			// Get the set of old items.
+			Cursor c = mProvider.query(
+					fieldContentUri,
+					new String[] { fieldIvleId },
+					fieldTable.concat(".").concat(fieldAccount).concat(" = ?").concat(" AND ")
+						.concat(fieldTable).concat(".").concat(fieldModuleId).concat(" = ?"),
+					new String[] { mAccount.name, Long.toString(moduleId) },
+					null);
+			Set<String> oldSet = new HashSet<String>();
+			c.moveToFirst();
+			while (!c.isAfterLast()) {
+				Log.v(TAG, "oldSet item: " + c.getString(c.getColumnIndex(fieldIvleId)));
+				oldSet.add(c.getString(c.getColumnIndex(fieldIvleId)));
+				c.moveToNext();
+			}
+			
+			// Get the new set of items.
+			Set<String> newSet = new HashSet<String>();
+			for (T object : objects) {
+				Log.v(TAG, "newSet item: " + object.ID);
+				newSet.add(object.ID);
+			}
+			
+			oldSet.removeAll(newSet);
+			return oldSet;
+			
+		} catch (IllegalAccessException e) {
+			return null;
+		} catch (NoSuchFieldException e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * Method: removeDeletedItemsFromLocal
+	 * <p>
+	 * Removes deleted items from the local cache.
+	 */
+	@SuppressWarnings("unused")
+	private <T extends IVLEObject> void removeDeletedItemsFromLocal(
+			Class<? extends IVLEContract> contractClass, T[] objects,
+			long moduleId) throws RemoteException {
+		// Find out what has been deleted.
+		Set<String> removeSet = this.findDeletedItemsByType(contractClass, objects, moduleId);
+		try {
+			Uri fieldContentUri = (Uri) contractClass.getField("CONTENT_URI").get(null);
+			String fieldIvleId = (String) contractClass.getField("IVLE_ID").get(null);
+			String fieldModuleId = (String) contractClass.getField("MODULE_ID").get(null);
+			String fieldAccount = (String) contractClass.getField("ACCOUNT").get(null);
+			for (String toRemove : removeSet) {
+				mSyncResult.stats.numDeletes++;
+				mProvider.delete(
+						fieldContentUri,
+						fieldIvleId.concat(" = ?").concat(" AND ")
+							.concat(fieldAccount).concat(" = ?").concat(" AND ")
+							.concat(fieldModuleId).concat(" = ?"),
+						new String[] { toRemove, mAccount.name, Long.toString(moduleId) }
+				);
+			}
+			
+		} catch (IllegalArgumentException e) {
+			// Do nothing.
+		} catch (IllegalAccessException e) {
+			// Do nothing.
+		} catch (NoSuchFieldException e) {
+			// Do nothing.
+		}
+	}
+	
+	/**
 	 * Method: insertAnnouncement
 	 * <p>
 	 * Inserts an announcement into the announcement table.
 	 */
-	private int insertAnnouncement(Announcement announcement, int moduleId,
+	private long insertAnnouncement(Announcement announcement, int moduleId,
 			int creatorId) throws RemoteException {
-		// Prepare the content values.
-		Log.v(TAG, "insertAnnouncement: " + announcement.title);
-		ContentValues values = new ContentValues();
-		values.put(AnnouncementsContract.IVLE_ID, announcement.ID);
-		values.put(AnnouncementsContract.MODULE_ID, moduleId);
-		values.put(AnnouncementsContract.ACCOUNT, mAccount.name);
-		values.put(AnnouncementsContract.TITLE, announcement.title);
-		values.put(AnnouncementsContract.CREATOR, creatorId);
-		values.put(AnnouncementsContract.DESCRIPTION, announcement.description);
-		values.put(AnnouncementsContract.CREATED_DATE, announcement.createdDate.toString());
-		values.put(AnnouncementsContract.EXPIRY_DATE, announcement.expiryDate.toString());
-		values.put(AnnouncementsContract.URL, announcement.url);
-		values.put(AnnouncementsContract.IS_READ, announcement.isRead ? 1 : 0);
+		// Check if the announcement exists.
+		Cursor c = mProvider.query(
+				AnnouncementsContract.CONTENT_URI,
+				new String[] { AnnouncementsContract.ID },
+				DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME.concat(".").concat(AnnouncementsContract.IVLE_ID).concat(" = ?"),
+				new String[] { announcement.ID }, null);
 		
-		// Insert announcements.
-		Uri uri = mProvider.insert(AnnouncementsContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Prepare the content values.
+		ContentValues v = new ContentValues();
+		v.put(AnnouncementsContract.IVLE_ID, announcement.ID);
+		v.put(AnnouncementsContract.MODULE_ID, moduleId);
+		v.put(AnnouncementsContract.ACCOUNT, mAccount.name);
+		v.put(AnnouncementsContract.TITLE, announcement.title);
+		v.put(AnnouncementsContract.CREATOR, creatorId);
+		v.put(AnnouncementsContract.DESCRIPTION, announcement.description);
+		v.put(AnnouncementsContract.CREATED_DATE, announcement.createdDate.toString());
+		v.put(AnnouncementsContract.EXPIRY_DATE, announcement.expiryDate.toString());
+		v.put(AnnouncementsContract.URL, announcement.url);
+		v.put(AnnouncementsContract.IS_READ, announcement.isRead ? 1 : 0);
+		
+		// Insert or update announcements.
+		if (c.getCount() > 0) {
+			Log.v(TAG, "insertAnnouncement: " + announcement.title + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					AnnouncementsContract.CONTENT_URI, v,
+					AnnouncementsContract.IVLE_ID.concat(" = ?"),
+					new String[] { announcement.ID }
+			);
+			c.moveToFirst();
+			return c.getLong(c.getColumnIndex(AnnouncementsContract.ID));
+		} else {
+			Log.v(TAG, "insertAnnouncement: " + announcement.title);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(AnnouncementsContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**

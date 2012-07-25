@@ -31,13 +31,14 @@
         <![CDATA[
         <p>
 	        <big>Version %1$s</big><br />
-	        \u00A9 2012 Wong Yong Jie.
+	        \u00A9 2012 Team CM.
         </p>
         <p>
         This application is <a href="https://github.com/yjwong/com.nuscomputing.ivle">open source</a>, and
         uses open source components such as <a href="https://github.com/yjwong/com.nuscomputing.ivlelapi">
         IVLE LAPI for Java</a>, <a href="http://wiki.fasterxml.com/JacksonHome">Jackson JSON Processor</a>,
-        and <a href="http://joda-time.sourceforge.net/">Joda-Time</a>.
+        <a href="http://joda-time.sourceforge.net/">Joda-Time</a>, <a href="http://code.google.com/p/acra/">ACRA</a>,
+        and <a href="https://github.com/koush/UrlImageViewHelper">UrlImageViewHelper</a>.
         </p>
         <p>
         Please submit bug reports to <a href="mailto:yjwong92@gmail.com">yjwong92@gmail.com</a>.
@@ -61,6 +62,7 @@
     <string name="module_activity_lecturers">Lecturers</string>
     <string name="module_activity_webcasts">Webcasts</string>
     <string name="module_activity_workbins">Workbins</string>
+    <string name="module_activity_weblinks">Weblinks</string>
     
     <!-- Strings for ModuleAnnouncementsFragment -->
     <string name="module_announcements_fragment_no_announcements">There are no announcements.</string>
@@ -73,13 +75,26 @@
     <string name="module_info_fragment_more_info">More Info</string>
     
     <!-- Strings for ModuleLecturersFragment -->
+    <string name="module_lecturers_fragment_email">Email</string>
+    <string name="module_lecturers_fragment_email_via">Email via</string>
+    <string name="module_lecturers_fragment_lecturer_photo">Lecturer Photo</string>
     <string name="module_lecturers_fragment_unable_to_load">Unable to load lecturer information.\nPlease check your network connection.</string>
+    <string name="module_lecturers_fragment_no_lecturers">There are no lecturers.</string>
     
     <!-- Strings for ModuleWebcastsFragment -->
     <string name="module_webcasts_fragment_no_webcasts">There are no webcasts.</string>
     
+    <!-- Strings for ModuleWeblinksFragment -->
+    <string name="module_weblinks_fragment_no_weblinks">There are no weblinks.</string>
+    
     <!-- Strings for ModuleWorkbinsFragment -->
     <string name="module_workbins_fragment_no_workbins">There are no workbins.</string>
+    
+    <!-- Strings for ModulesFragment -->
+    <string name="modules_fragment_no_modules">There are no modules.</string>
+    
+    <!-- Strings for SearchableActivity -->
+    <string name="searchable_activity_results_for">Results for \"%1$s\"</string>
     
     <!-- Strings for SearchableFragment -->
     <string name="searchable_fragment_no_search_results">No search results found.</string>
@@ -93,7 +108,7 @@
     <string name="settings_fragment_manage_accounts_title">Manage accounts&#8230;</string>
     <string name="settings_fragment_download_over_mobile_networks_title">Download over mobile networks</string>
     <string name="settings_fragment_download_over_mobile_networks_summary">Allow use of 3G/4G for downloads</string>
-    <string name="settings_fragment_about_summary">\u00A9 2012 Wong Yong Jie</string>
+    <string name="settings_fragment_about_summary">\u00A9 2012 Team CM</string>
     <string name="settings_fragment_about_title">Version %1$s</string>
     <string name="settings_fragment_send_feedback_title">Send Feedback</string>
     <string name="settings_fragment_send_feedback_subject">Feedback for %1$s (Version %2$s)</string>
@@ -140,5 +155,18 @@
 	
 	<!-- Temporary strings -->
 	<string name="temp_help_not_available_yet">Sorry, help is not available yet.</string>
+	
+	<!-- Strings for crash dialog -->
+	<string name="crash_toast_text">Unfortunately, myIVLE has stopped.</string>
+	<string name="crash_notif_ticker_text">Unfortunately, myIVLE has stopped.</string>
+	<string name="crash_notif_title">myIVLE has crashed&#8230;</string>
+	<string name="crash_notif_text">Please tap here to send a report.</string>
+	    
+	<string name="crash_dialog_title">myIVLE has crashed</string>
+	<string name="crash_dialog_text">An unexpected error occurred forcing the
+	    application to stop. Please help us fix this by sending us error data,
+	    all you have to do is tap \'OK\'.</string>
+	<string name="crash_dialog_comment_prompt">You can add your comments about the problem below:</string>
+	<string name="crash_dialog_ok_toast">Thank you!</string>
     
 </resources>

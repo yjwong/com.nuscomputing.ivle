@@ -56,8 +56,8 @@ public class ModuleWebcastsFragment extends ListFragment
 		super.onActivityCreated(savedInstanceState);
 		
 		// Obtain the module ID.
-		ModuleActivity activity = (ModuleActivity) getActivity();
-		mModuleId = activity.moduleId;
+		Bundle args = getArguments();
+		mModuleId = args.getLong("moduleId");
         if (mModuleId == -1) {
         	throw new IllegalStateException("No module ID was passed to ModuleWebcastsFragment");
         }
@@ -75,8 +75,6 @@ public class ModuleWebcastsFragment extends ListFragment
 				null, uiBindFrom, uiBindTo,
 				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
 		);
-        Bundle args = new Bundle();
-        args.putLong("moduleId", mModuleId);
         mLoader = new DataLoader(getActivity(), mAdapter, this);
         mLoaderManager = getLoaderManager();
         mLoaderManager.initLoader(DataLoader.LOADER_MODULE_WEBCASTS_FRAGMENT, args, mLoader);

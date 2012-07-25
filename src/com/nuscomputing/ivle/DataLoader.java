@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nuscomputing.ivle.ModulesFragment.ModulesCursorAdapter;
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.UsersContract;
@@ -56,6 +57,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int LOADER_MODULE_INFO_FRAGMENT_INFO = 15;
 	public static final int LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS = 16;
 	public static final int LOADER_MODULE_LECTURERS_FRAGMENT = 17;
+	public static final int LOADER_MODULE_WEBLINKS_FRAGMENT = 18;
+	public static final int LOADER_SEARCHABLE_FRAGMENT = 19;
 	
 	/** Listener for data loader events */
 	private DataLoaderListener mListener;
@@ -201,6 +204,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					ModulesContract.ID,
+					ModulesContract.IVLE_ID,
 					ModulesContract.COURSE_CODE,
 					ModulesContract.COURSE_NAME
 			));
@@ -216,7 +220,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 					ModulesContract.ID,
 					ModulesContract.COURSE_CODE,
 					ModulesContract.COURSE_NAME,
-					ModulesContract.COURSE_ACAD_YEAR
+					ModulesContract.COURSE_ACAD_YEAR,
+					ModulesContract.COURSE_SEMESTER
 			));
 			selection = DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.ACCOUNT + " = ?";
 			selectionArgsList.add(accountName);
@@ -421,8 +426,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		Bundle result = new Bundle();
 		switch (loader.getId()) {
 			case LOADER_MODULES_FRAGMENT:
-				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
-				((SimpleCursorAdapter) mAdapter).notifyDataSetChanged();
+				((ModulesCursorAdapter) mAdapter).swapCursor(cursor);
+				((ModulesCursorAdapter) mAdapter).notifyDataSetChanged();
 				break;
 
 			case LOADER_MODULE_INFO_FRAGMENT:
@@ -430,6 +435,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				result.putString("courseName", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_NAME)));
 				result.putString("courseCode", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_CODE)));
 				result.putString("courseAcadYear", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_ACAD_YEAR)));
+				result.putString("courseSemester", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_SEMESTER)));
 				break;
 			
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
@@ -493,6 +499,9 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		// Select the correct action based on ID.
 		switch (loader.getId()) {
 			case LOADER_MODULES_FRAGMENT:
+				((ModulesCursorAdapter) mAdapter).swapCursor(null);
+				break;
+				
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
 			case LOADER_MODULE_WEBCASTS_FRAGMENT:
 			case LOADER_MODULE_WORKBINS_FRAGMENT:

@@ -8,6 +8,8 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.nuscomputing.ivle.online.ModuleLecturersFragment;
+import com.nuscomputing.ivle.online.ModuleWeblinksFragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +39,9 @@ public class ModuleActivity extends SherlockFragmentActivity {
 	/** The module ID */
 	public long moduleId;
 	
+	/** The module IVLE ID */
+	public String moduleIvleId;
+	
 	/** The module name */
 	public String moduleCourseName;
 	
@@ -60,14 +65,15 @@ public class ModuleActivity extends SherlockFragmentActivity {
         // Obtain the requested module ID.
         Intent intent = getIntent();
         moduleCourseName = intent.getStringExtra("moduleCourseName");
+        moduleIvleId = intent.getStringExtra("moduleIvleId");
         moduleId = intent.getLongExtra("moduleId", -1);
         if (moduleId == -1) {
         	throw new IllegalStateException("No module ID was passed to ModuleActivity");
         }
         
         // Create the view pager.
-        mViewPager = new ViewPager(this);
-        mViewPager.setId(R.id.module_activity_view_pager);
+        setContentView(R.layout.module_activity);
+        mViewPager = (ViewPager) findViewById(R.id.module_activity_view_pager);
         
     	// Configure the action bar.
     	ActionBar bar = getSupportActionBar();
@@ -80,18 +86,25 @@ public class ModuleActivity extends SherlockFragmentActivity {
     	spinnerItems.addAll(Arrays.asList(
     		getString(R.string.module_activity_info),
     		getString(R.string.module_activity_announcements),
+    		getString(R.string.module_activity_lecturers),
     		getString(R.string.module_activity_webcasts),
+    		getString(R.string.module_activity_weblinks),
     		getString(R.string.module_activity_workbins)
     	));
     	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
     	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
     	
         // Plug the pager tabs.
+    	Bundle args = new Bundle();
+    	args.putLong("moduleId", moduleId);
+    	args.putString("moduleIvleId", moduleIvleId);
     	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
-    	fragmentList.add(new ModuleInfoFragment());
-    	fragmentList.add(new ModuleAnnouncementsFragment());
-    	fragmentList.add(new ModuleWebcastsFragment());
-    	fragmentList.add(new ModuleWorkbinsFragment());
+    	fragmentList.add(Fragment.instantiate(this, ModuleInfoFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleAnnouncementsFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleLecturersFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleWebcastsFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleWeblinksFragment.class.getName(), args));
+    	fragmentList.add(Fragment.instantiate(this, ModuleWorkbinsFragment.class.getName(), args));
     	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
     	mViewPager.setAdapter(mPagerAdapter);
     	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -106,9 +119,6 @@ public class ModuleActivity extends SherlockFragmentActivity {
 			@Override
 			public void onPageScrollStateChanged(int state) { }
     	});
-        
-        // Set the content view.
-        setContentView(mViewPager);
     }
     
     @Override
@@ -126,9 +136,7 @@ public class ModuleActivity extends SherlockFragmentActivity {
 	    	switch (item.getItemId()) {
 	    		case android.R.id.home:
 	    			// App icon tapped, go home.
-	    			Intent intent = new Intent(this, MainActivity.class);
-	    			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	    			startActivity(intent);
+	    			finish();
 	    			return true;
 	    			
 	    		default:
@@ -193,12 +201,12 @@ public class ModuleActivity extends SherlockFragmentActivity {
     		// Inflate the layout.
     		if (convertView == null) {
     			LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    			convertView = inflater.inflate(android.R.layout.simple_list_item_1, null);
+    			convertView = inflater.inflate(R.layout.module_activity_spinner_item, null);
     		}
     		
     		String item = mItems.get(position);
     		if (item != null) {
-    			TextView tvItem = (TextView) convertView.findViewById(android.R.id.text1);
+    			TextView tvItem = (TextView) convertView.findViewById(R.id.module_activity_spinner_item_title);
     			if (tvItem != null) {
     				tvItem.setText(item);
     			}

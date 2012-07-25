@@ -1267,7 +1267,7 @@ public class IVLEProvider extends ContentProvider {
 		}
 		
 		// Projection map to include user information.
-		if (Build.VERSION.SDK_INT >= 11) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			Log.v(TAG, "query: " + queryBuilder.buildQuery(projection, selection, null, null, sortOrder, null));
 		} else {
 			Log.v(TAG, "query: " + queryBuilder.buildQuery(projection, selection, null, null, null, sortOrder, null));

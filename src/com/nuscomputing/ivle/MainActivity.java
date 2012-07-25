@@ -28,8 +28,10 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
+import android.widget.SearchView.OnCloseListener;
 
 /**
  * Main IVLE application activity.
@@ -53,6 +55,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	/** The view pager */
 	private ViewPager mViewPager;
+	
+	/** The modules fragment */
+	private LinearLayout mModulesFragmentContainer;
 	
 	/** Tabs adapter for view pager */
 	private TabsAdapter mTabsAdapter;
@@ -98,8 +103,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		
         // Create the view pager.
 		setContentView(R.layout.main);
-		Log.v(TAG, "Testing GB");
 		mViewPager = (ViewPager) findViewById(R.id.main_view_pager);
+		mModulesFragmentContainer = (LinearLayout) findViewById(R.id.main_modules_fragment_container);
 		
         // Check if there's an active account.
 		mActiveAccount = AccountUtils.getActiveAccount(this, true);
@@ -111,17 +116,22 @@ public class MainActivity extends SherlockFragmentActivity {
 			startActivityForResult(intent, REQUEST_AUTH);
 		}
 		
-    	// Configure the action bar.
-    	ActionBar bar = getSupportActionBar();
-    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-    	
-        // Plug the pager tabs.
-        mTabsAdapter = new TabsAdapter(this, mViewPager);
-        mTabsAdapter.addTab(bar.newTab()
-        		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
-        mTabsAdapter.addTab(bar.newTab()
-        		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
-        
+		// Get the action bar.
+		ActionBar bar = getSupportActionBar();
+		
+		// Phone specific configuration.
+		if (mViewPager != null) {
+	    	// Configure the action bar.
+	    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+	    	
+	        // Plug the pager tabs.
+	        mTabsAdapter = new TabsAdapter(this, mViewPager);
+	        mTabsAdapter.addTab(bar.newTab()
+	        		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
+	        mTabsAdapter.addTab(bar.newTab()
+	        		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
+		}
+	        
     	// Set the title appropriately.
     	if (mActiveAccount != null) {
     		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
@@ -159,9 +169,9 @@ public class MainActivity extends SherlockFragmentActivity {
     	super.onRestoreInstanceState(savedInstanceState);
     	
     	// Restore the active tab.
-    	if (Build.VERSION.SDK_INT >= 11) {
+    	if (mViewPager != null) {
 	    	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
-	    	getActionBar().setSelectedNavigationItem(currentTabPosition);
+	    	getSupportActionBar().setSelectedNavigationItem(currentTabPosition);
 	    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
     	}
     }
@@ -171,9 +181,8 @@ public class MainActivity extends SherlockFragmentActivity {
     	super.onSaveInstanceState(outState);
     	
     	// Save the currently being viewed tab.
-    	if (Build.VERSION.SDK_INT >= 11) {
-	    	ActionBar actionBar = getSupportActionBar();
-	    	int currentTabPosition = actionBar.getSelectedNavigationIndex();
+    	if (mViewPager != null) {
+	    	int currentTabPosition = getSupportActionBar().getSelectedNavigationIndex();
 	    	outState.putInt("currentTab", currentTabPosition);
 	    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
     	}
@@ -215,11 +224,29 @@ public class MainActivity extends SherlockFragmentActivity {
     	inflater.inflate(R.menu.global, menu);
     	
     	// Get the SearchView and set the searchable configuration
-    	if (Build.VERSION.SDK_INT >= 11) {
+    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 	    	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 	    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
 	    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 	    	mSearchView.setQueryHint(getString(R.string.searchable_hint));
+	    	mSearchView.setOnSearchClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					// Change the back button.
+					ActionBar bar = getSupportActionBar();
+					bar.setHomeButtonEnabled(true);
+					bar.setDisplayHomeAsUpEnabled(true);
+				}
+	    	});
+	    	mSearchView.setOnCloseListener(new OnCloseListener() {
+				@Override
+				public boolean onClose() {
+					ActionBar bar = getSupportActionBar();
+					bar.setHomeButtonEnabled(false);
+					bar.setDisplayHomeAsUpEnabled(false);
+					return false;
+				}
+	    	});
     	}
     	
     	// Restore the state of the refresh item.
@@ -238,10 +265,19 @@ public class MainActivity extends SherlockFragmentActivity {
     	// Handle item selection.
     	if (!MainApplication.onOptionsItemSelected(this, item)) {
         	switch (item.getItemId()) {
+        		case R.id.main_menu_search:
+        			onSearchRequested();
+        			return true;
+        			
 	    		case R.id.main_menu_refresh:
 	    			this.performRefresh();
 	    			return true;
 	    			
+	    		case android.R.id.home:
+	    			// Remove the search box.
+    				onBackPressed();
+	    			return true;
+
 	    		default:
 	    			return super.onOptionsItemSelected(item);
 	    	}
@@ -254,9 +290,12 @@ public class MainActivity extends SherlockFragmentActivity {
     @Override
     public void onBackPressed() {
     	// Close the search view if one is open.
-    	if (!mSearchView.isIconified() && Build.VERSION.SDK_INT >= 14) {
+    	if (Build.VERSION.SDK_INT >= 14 && !mSearchView.isIconified()) {
     		mSearchView.onActionViewCollapsed();
     		mSearchView.setQuery("", false);
+    		ActionBar bar = getSupportActionBar();
+    		bar.setHomeButtonEnabled(false);
+    		bar.setDisplayHomeAsUpEnabled(false);
     	} else {
     		super.onBackPressed();
     	}
@@ -264,16 +303,18 @@ public class MainActivity extends SherlockFragmentActivity {
     
     private void showSyncInProgress() {
 		// Change the refresh button to a ProgressBar action view.
-    	if (Build.VERSION.SDK_INT >= 11) {
-	    	if (mRefreshMenuItem != null) {
-				LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-				final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
-				mRefreshMenuItem.setActionView(progressView);
-	    	}
+    	if (mRefreshMenuItem != null) {
+			LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+			final View progressView = layoutInflater.inflate(R.layout.refresh_view, null);	
+			mRefreshMenuItem.setActionView(progressView);
     	}
-		
+  		
 		// Hide the view pager.
-		mViewPager.setVisibility(View.GONE);
+    	if (mViewPager != null) {
+    		mViewPager.setVisibility(View.GONE);
+    	} else {
+    		mModulesFragmentContainer.setVisibility(View.GONE);
+    	}
 		
 		// Show the sync in progress notice.
 		LinearLayout viewWaitingForSync = (LinearLayout) findViewById(R.id.main_waiting_for_sync_linear_layout);
@@ -282,14 +323,16 @@ public class MainActivity extends SherlockFragmentActivity {
     
     private void hideSyncInProgress() {
 		// Reset the refresh button.
-    	if (Build.VERSION.SDK_INT >= 11) {
-	    	if (mRefreshMenuItem != null) {
-	    		mRefreshMenuItem.setActionView(null);
-	    	}
+    	if (mRefreshMenuItem != null) {
+    		mRefreshMenuItem.setActionView(null);
     	}
 		
 		// Show the view pager.
-		mViewPager.setVisibility(View.VISIBLE);
+    	if (mViewPager != null) {
+    		mViewPager.setVisibility(View.VISIBLE);
+    	} else {
+    		mModulesFragmentContainer.setVisibility(View.VISIBLE);
+    	}
 		
 		// Hide the sync in progress notice.
 		LinearLayout viewWaitingForSync = (LinearLayout) findViewById(R.id.main_waiting_for_sync_linear_layout);

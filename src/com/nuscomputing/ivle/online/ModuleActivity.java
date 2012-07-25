@@ -3,25 +3,24 @@ package com.nuscomputing.ivle.online;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.nuscomputing.ivle.MainApplication;
 import com.nuscomputing.ivle.R;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -32,8 +31,7 @@ import android.widget.TextView;
  * Main IVLE application activity.
  * @author yjwong
  */
-@TargetApi(11)
-public class ModuleActivity extends FragmentActivity {
+public class ModuleActivity extends SherlockFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -75,70 +73,67 @@ public class ModuleActivity extends FragmentActivity {
         mViewPager = new ViewPager(this);
         mViewPager.setId(R.id.module_activity_view_pager);
         
-        // Newer versions of Android: Action Bar
-        if (Build.VERSION.SDK_INT >= 11) {
-        	// Configure the action bar.
-        	ActionBar bar = getActionBar();
-        	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        	bar.setDisplayHomeAsUpEnabled(true);
-        	bar.setDisplayShowTitleEnabled(false);
-        	
-        	// Create a new spinner adapter.
-        	ArrayList<String> spinnerItems = new ArrayList<String>();
-        	spinnerItems.addAll(Arrays.asList(
-        		getString(R.string.module_activity_info),
-        		getString(R.string.module_activity_lecturers)//,
-        		//getString(R.string.module_activity_announcements),
-        		//getString(R.string.module_activity_webcasts),
-        		//getString(R.string.module_activity_workbins)
-        	));
-        	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
-        	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
-        	
-        	// Define the fragment arguments.
-        	Bundle args = new Bundle();
-        	args.putString("moduleIvleId", moduleIvleId);
-        	
-            // Plug the pager tabs.
-        	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
-        	
-        	Fragment fragment = new ModuleInfoFragment();
-        	fragment.setArguments(args);
-        	fragmentList.add(fragment);
-        	
-        	fragment = new ModuleLecturersFragment();
-        	fragment.setArguments(args);
-        	fragmentList.add(fragment);
-        	
-        	/*
-        	fragment = new ModuleAnnouncementsFragment();
-        	fragment.setArguments(args);
-        	fragmentList.add(fragment);
-        	
-        	fragment = new ModuleWebcastsFragment();
-        	fragment.setArguments(args);
-        	fragmentList.add(fragment);
-        	
-        	fragment = new ModuleWorkbinsFragment();
-        	fragment.setArguments(args);
-        	fragmentList.add(fragment);
-        	*/
-        	
-        	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
-        	mViewPager.setAdapter(mPagerAdapter);
-        	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-				@Override
-				public void onPageSelected(int position) {
-					getActionBar().setSelectedNavigationItem(position);
-				}
-				
-				@Override
-				public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
-				
-				@Override
-				public void onPageScrollStateChanged(int state) { }
-        	});
-        }
+    	// Configure the action bar.
+    	ActionBar bar = getSupportActionBar();
+    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+    	bar.setDisplayHomeAsUpEnabled(true);
+    	bar.setDisplayShowTitleEnabled(false);
+    	
+    	// Create a new spinner adapter.
+    	ArrayList<String> spinnerItems = new ArrayList<String>();
+    	spinnerItems.addAll(Arrays.asList(
+    		getString(R.string.module_activity_info),
+    		getString(R.string.module_activity_lecturers)//,
+    		//getString(R.string.module_activity_announcements),
+    		//getString(R.string.module_activity_webcasts),
+    		//getString(R.string.module_activity_workbins)
+    	));
+    	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
+    	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
+    	
+    	// Define the fragment arguments.
+    	Bundle args = new Bundle();
+    	args.putString("moduleIvleId", moduleIvleId);
+    	
+        // Plug the pager tabs.
+    	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
+    	
+    	Fragment fragment = new ModuleInfoFragment();
+    	fragment.setArguments(args);
+    	fragmentList.add(fragment);
+    	
+    	fragment = new ModuleLecturersFragment();
+    	fragment.setArguments(args);
+    	fragmentList.add(fragment);
+    	
+    	/*
+    	fragment = new ModuleAnnouncementsFragment();
+    	fragment.setArguments(args);
+    	fragmentList.add(fragment);
+    	
+    	fragment = new ModuleWebcastsFragment();
+    	fragment.setArguments(args);
+    	fragmentList.add(fragment);
+    	
+    	fragment = new ModuleWorkbinsFragment();
+    	fragment.setArguments(args);
+    	fragmentList.add(fragment);
+    	*/
+    	
+    	mPagerAdapter = new ModuleActivityPagerAdapter(getSupportFragmentManager(), fragmentList);
+    	mViewPager.setAdapter(mPagerAdapter);
+    	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				getActionBar().setSelectedNavigationItem(position);
+			}
+			
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+			
+			@Override
+			public void onPageScrollStateChanged(int state) { }
+    	});
         
         // Set the content view.
         setContentView(mViewPager);
@@ -146,7 +141,7 @@ public class ModuleActivity extends FragmentActivity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
+    	MenuInflater inflater = getSupportMenuInflater();
     	inflater.inflate(R.menu.global, menu);
     	return true;
     }
@@ -224,12 +219,12 @@ public class ModuleActivity extends FragmentActivity {
     		// Inflate the layout.
     		if (convertView == null) {
     			LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    			convertView = inflater.inflate(android.R.layout.simple_list_item_1, null);
+    			convertView = inflater.inflate(R.layout.module_activity_spinner_item, null);
     		}
     		
     		String item = mItems.get(position);
     		if (item != null) {
-    			TextView tvItem = (TextView) convertView.findViewById(android.R.id.text1);
+    			TextView tvItem = (TextView) convertView.findViewById(R.id.module_activity_spinner_item_title);
     			if (tvItem != null) {
     				tvItem.setText(item);
     			}
