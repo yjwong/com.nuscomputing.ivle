@@ -364,7 +364,7 @@ public class MainActivity extends SherlockFragmentActivity {
     		Bundle args = new Bundle();
     		args.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
     		args.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-			ContentResolver.requestSync(mActiveAccount, Constants.PROVIDER_AUTHORITY, new Bundle());
+			ContentResolver.requestSync(mActiveAccount, Constants.PROVIDER_AUTHORITY, args);
     	}
     }
 
