@@ -6,7 +6,9 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.nuscomputing.ivlelapi.IVLE;
@@ -72,6 +74,20 @@ public class IVLEUtils {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Method: requestSyncNow
+	 * <p>
+	 * Requests a sync of all IVLE data now.
+	 */
+	public static void requestSyncNow(Account account) {
+		if (!ContentResolver.isSyncActive(account, Constants.PROVIDER_AUTHORITY)) {
+			Bundle args = new Bundle();
+			args.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+			args.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, args);
+		}
 	}
 	
 	// }}}

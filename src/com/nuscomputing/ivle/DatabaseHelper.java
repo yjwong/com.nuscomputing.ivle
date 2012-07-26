@@ -15,12 +15,9 @@ import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 import com.nuscomputing.ivle.providers.WorkbinsContract;
 
 import android.accounts.Account;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.sqlite.*;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * Provides a storage for the IVLE app.
@@ -354,13 +351,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		this.onCreate(db);
 		
 		// Re-sync the databases.
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext.getApplicationContext());
-		SharedPreferences.Editor prefsEditor = prefs.edit();
 		Account[] accounts = AccountUtils.getAllAccounts(mContext);
 		for (Account account : accounts) {
-			prefsEditor.putBoolean(IVLESyncService.KEY_SYNC_IN_PROGRESS + "_" + account.name, true);
-			prefsEditor.commit();
-			ContentResolver.requestSync(account, Constants.PROVIDER_AUTHORITY, new Bundle());
+			IVLEUtils.requestSyncNow(account);
 		}
 		
 		return;

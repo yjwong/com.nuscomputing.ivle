@@ -13,7 +13,6 @@ import android.accounts.Account;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -361,10 +360,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 		// Request a sync.
     	if (!IVLESyncService.isSyncInProgress(getApplicationContext(), mActiveAccount)) {
-    		Bundle args = new Bundle();
-    		args.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-    		args.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-			ContentResolver.requestSync(mActiveAccount, Constants.PROVIDER_AUTHORITY, args);
+    		IVLEUtils.requestSyncNow(mActiveAccount);
     	}
     }
 
