@@ -118,6 +118,13 @@
     <string name="settings_fragment_send_feedback_title">Send Feedback</string>
     <string name="settings_fragment_send_feedback_subject">Feedback for %1$s (Version %2$s)</string>
     <string name="settings_fragment_send_feedback_via">Send Feedback via</string>
+    <string name="settings_fragment_check_for_updates">Check for Updates</string>
+    <string name="settings_fragment_checking_for_updates">Checking for updates&#8230;</string>
+    <string name="settings_fragment_update_check_failed">Failed to check for updates.</string>
+    <string name="settings_fragment_update_latest_version">Already at latest version.</string>
+    <string name="settings_fragment_update_available">Update available</string>
+    <string name="settings_fragment_update_available_body">An update is available. Do you want to download now?</string>
+    <string name="settings_fragment_update_download_via">Download via</string>
     
     <!-- Strings for ViewWebcastFileActivity -->
     <string name="view_webcast_file_activity_loading_video">Loading Video&#8230;</string>
