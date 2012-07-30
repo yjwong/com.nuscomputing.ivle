@@ -295,6 +295,7 @@ public class ViewWebcastFileActivity extends SherlockFragmentActivity implements
     public boolean onError(MediaPlayer player, int arg1, int arg2) {
     	mHandler.removeCallbacksAndMessages(null);
     	mProgressView.setVisibility(View.GONE);
+    	finish();
     	return false;
     }
     

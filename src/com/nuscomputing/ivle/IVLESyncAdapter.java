@@ -498,8 +498,8 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		v.put(AnnouncementsContract.IVLE_ID, announcement.ID);
 		v.put(AnnouncementsContract.MODULE_ID, moduleId);
 		v.put(AnnouncementsContract.ACCOUNT, mAccount.name);
+		v.put(AnnouncementsContract.CREATOR_ID, creatorId);
 		v.put(AnnouncementsContract.TITLE, announcement.title);
-		v.put(AnnouncementsContract.CREATOR, creatorId);
 		v.put(AnnouncementsContract.DESCRIPTION, announcement.description);
 		v.put(AnnouncementsContract.CREATED_DATE, announcement.createdDate.toString());
 		v.put(AnnouncementsContract.EXPIRY_DATE, announcement.expiryDate.toString());
@@ -597,7 +597,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		values.put(ModulesContract.COURSE_NAME, module.courseName);
 		values.put(ModulesContract.COURSE_OPEN_DATE, module.courseOpenDate.toString());
 		values.put(ModulesContract.COURSE_SEMESTER, module.courseSemester);
-		values.put(ModulesContract.CREATOR, creatorId);
+		values.put(ModulesContract.CREATOR_ID, creatorId);
 		values.put(ModulesContract.HAS_ANNOUNCEMENT_ITEMS, module.hasAnnouncementItems ? 1 : 0);
 		values.put(ModulesContract.HAS_CLASS_GROUPS_FOR_SIGN_UP, module.hasClassGroupsForSignUp ? 1 : 0);
 		values.put(ModulesContract.HAS_CLASS_ROSTER_ITEMS, module.hasClassRosterItems ? 1 : 0);

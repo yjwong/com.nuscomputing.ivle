@@ -29,7 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 13;
+	private static final int DATABASE_VERSION = 14;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -44,9 +44,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			AnnouncementsContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			AnnouncementsContract.IVLE_ID + " TEXT, " +
 			AnnouncementsContract.MODULE_ID + " TEXT, " +
+			AnnouncementsContract.CREATOR_ID + " TEXT, " +
 			AnnouncementsContract.ACCOUNT + " TEXT, " +
 			AnnouncementsContract.TITLE + " TEXT, " +
-			AnnouncementsContract.CREATOR + " TEXT, " +
 			AnnouncementsContract.DESCRIPTION + " TEXT, " +
 			AnnouncementsContract.CREATED_DATE + " DATETIME, " +
 			AnnouncementsContract.EXPIRY_DATE + " DATETIME, " +
@@ -61,6 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			ModulesContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			ModulesContract.IVLE_ID + " TEXT, " +
 			ModulesContract.ACCOUNT + " TEXT, " +
+			ModulesContract.CREATOR_ID + " TEXT, " +
 			ModulesContract.BADGE + " INTEGER, " +
 			ModulesContract.BADGE_ANNOUNCEMENT + " INTEGER, " +
 			ModulesContract.COURSE_ACAD_YEAR + " TEXT, " +
@@ -72,7 +73,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			ModulesContract.COURSE_NAME + " TEXT, " +
 			ModulesContract.COURSE_OPEN_DATE + " DATETIME, " +
 			ModulesContract.COURSE_SEMESTER + " TEXT, " +
-			ModulesContract.CREATOR + " TEXT, " +
 			ModulesContract.HAS_ANNOUNCEMENT_ITEMS + " BOOLEAN, " +
 			ModulesContract.HAS_CLASS_GROUPS_FOR_SIGN_UP + " BOOLEAN, " +
 			ModulesContract.HAS_CLASS_ROSTER_ITEMS + " BOOLEAN, " +

@@ -315,7 +315,10 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			projectionList.addAll(Arrays.asList(
 					WebcastFilesContract.ID,
 					WebcastFilesContract.FILE_TITLE,
-					WebcastFilesContract.FILE_DESCRIPTION
+					WebcastFilesContract.FILE_NAME,
+					WebcastFilesContract.FILE_DESCRIPTION,
+					WebcastFilesContract.CREATE_DATE,
+					WebcastFilesContract.MEDIA_FORMAT
 			));
 			selection = DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ACCOUNT + " = ?";
 			selection += " AND " + DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.WEBCAST_ITEM_GROUP_ID + " = ?";

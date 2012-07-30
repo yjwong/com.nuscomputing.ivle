@@ -22,6 +22,9 @@ public class ModulesContract {
 	/** The account associated with the module */
 	public static final String ACCOUNT = "account";
 	
+	/** The creator ID */
+	public static final String CREATOR_ID = "creator_id";
+	
 	/** Other columns */
 	public static final String BADGE = "badge";
 	public static final String BADGE_ANNOUNCEMENT ="badgeAnnouncement";
@@ -34,7 +37,6 @@ public class ModulesContract {
 	public static final String COURSE_NAME = "courseName";
 	public static final String COURSE_OPEN_DATE = "courseOpenDate";
 	public static final String COURSE_SEMESTER = "courseSemester";
-	public static final String CREATOR = "creator";
 	public static final String HAS_ANNOUNCEMENT_ITEMS = "hasAnnouncementItems";
 	public static final String HAS_CLASS_GROUPS_FOR_SIGN_UP = "hasClassGroupsForSignUp";
 	public static final String HAS_CLASS_ROSTER_ITEMS = "hasClassRosterItems";

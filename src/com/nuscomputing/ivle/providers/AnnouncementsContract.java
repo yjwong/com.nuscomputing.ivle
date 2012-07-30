@@ -30,9 +30,11 @@ public class AnnouncementsContract extends IVLEContract {
 	/** The account associated with the announcement */
 	public static final String ACCOUNT = "account";
 	
+	/** The creator ID */
+	public static final String CREATOR_ID = "creator_id";
+	
 	/** Other columns */
 	public static final String TITLE = "title";
-	public static final String CREATOR = "creator";
 	public static final String DESCRIPTION = "description";
 	public static final String CREATED_DATE = "createdDate";
 	public static final String EXPIRY_DATE = "expiryDate";

@@ -4,11 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:background="?android:attr/activatedBackgroundIndicator">
+    android:padding="8dp">
 
     <TextView
-        android:id="@+id/view_webcast_item_group_fragment_list_file_title"
+        android:id="@android:id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
@@ -17,12 +16,12 @@
         />
     
     <TextView
-        android:id="@+id/view_webcast_item_group_fragment_list_file_description"
+        android:id="@android:id/text2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorSecondary"
-        android:maxLines="2"
+        android:maxLines="5"
         />
    
 </LinearLayout>

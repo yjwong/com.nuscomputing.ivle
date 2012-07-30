@@ -1105,7 +1105,7 @@ public class IVLEProvider extends ContentProvider {
 				queryBuilder.setTables(
 						DatabaseHelper.MODULES_TABLE_NAME + " JOIN " +
 						DatabaseHelper.USERS_TABLE_NAME + " ON " + "(" +
-							DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.CREATOR + "=" +
+							DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.CREATOR_ID + "=" +
 							DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID +
 						")"
 				);
@@ -1161,7 +1161,7 @@ public class IVLEProvider extends ContentProvider {
 				queryBuilder.setTables(
 						DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + " JOIN " + 
 						DatabaseHelper.USERS_TABLE_NAME + " ON " + "(" +
-							DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATOR + " = " +
+							DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATOR_ID + " = " +
 							DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID +
 						")"
 				);
@@ -1171,8 +1171,8 @@ public class IVLEProvider extends ContentProvider {
 				projectionMap.put(AnnouncementsContract.IVLE_ID, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.IVLE_ID);
 				projectionMap.put(AnnouncementsContract.MODULE_ID, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.MODULE_ID);
 				projectionMap.put(AnnouncementsContract.ACCOUNT, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT);
+				projectionMap.put(AnnouncementsContract.CREATOR_ID, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATOR_ID);
 				projectionMap.put(AnnouncementsContract.TITLE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.TITLE);
-				projectionMap.put(AnnouncementsContract.CREATOR, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATOR);
 				projectionMap.put(AnnouncementsContract.DESCRIPTION, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.DESCRIPTION);
 				projectionMap.put(AnnouncementsContract.CREATED_DATE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATED_DATE);
 				projectionMap.put(AnnouncementsContract.EXPIRY_DATE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.EXPIRY_DATE);
@@ -1224,7 +1224,46 @@ public class IVLEProvider extends ContentProvider {
 			case MODULES_WEBCAST_FILES:
 			case WEBCAST_FILES_ID:
 			case WEBCAST_FILES:
+				// IVLE webcast files is broken! They all have no creator IDs.
+				// Set table names and joins.
 				queryBuilder.setTables(DatabaseHelper.WEBCAST_FILES_TABLE_NAME);
+				/*
+				queryBuilder.setTables(
+						DatabaseHelper.WEBCAST_FILES_TABLE_NAME + " JOIN " + 
+						DatabaseHelper.USERS_TABLE_NAME + " ON " + "(" +
+							DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.CREATOR_ID + " = " +
+							DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID +
+						")"
+				);
+				*/
+				
+				// Set projection maps.
+				/*
+				projectionMap.put(WebcastFilesContract.ID, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ID);
+				projectionMap.put(WebcastFilesContract.IVLE_ID, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.IVLE_ID);
+				projectionMap.put(WebcastFilesContract.MODULE_ID, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.MODULE_ID);
+				projectionMap.put(WebcastFilesContract.ACCOUNT, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ACCOUNT);
+				projectionMap.put(WebcastFilesContract.CREATOR_ID, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.CREATOR_ID);
+				projectionMap.put(WebcastFilesContract.WEBCAST_ITEM_GROUP_ID, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.WEBCAST_ITEM_GROUP_ID);
+				projectionMap.put(WebcastFilesContract.BANK_ITEM_ID, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.BANK_ITEM_ID);
+				projectionMap.put(WebcastFilesContract.CREATE_DATE, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.CREATE_DATE);
+				projectionMap.put(WebcastFilesContract.FILE_DESCRIPTION, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.FILE_DESCRIPTION);
+				projectionMap.put(WebcastFilesContract.FILE_NAME, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.FILE_NAME);
+				projectionMap.put(WebcastFilesContract.FILE_TITLE, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.FILE_TITLE);
+				projectionMap.put(WebcastFilesContract.MP3, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.MP3);
+				projectionMap.put(WebcastFilesContract.MP4, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.MP4);
+				projectionMap.put(WebcastFilesContract.MEDIA_FORMAT, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.MEDIA_FORMAT);
+				projectionMap.put(WebcastFilesContract.IS_READ, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.IS_READ);
+				projectionMap.put("creator" + UsersContract.ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID);
+				projectionMap.put("creator_" + UsersContract.IVLE_ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.IVLE_ID);
+				projectionMap.put("creator_" + UsersContract.ACCOUNT, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ACCOUNT);
+				projectionMap.put("creator_" + UsersContract.ACCOUNT_TYPE, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ACCOUNT_TYPE);
+				projectionMap.put("creator_" + UsersContract.EMAIL, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.EMAIL);
+				projectionMap.put("creator_" + UsersContract.NAME, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.NAME);
+				projectionMap.put("creator_" + UsersContract.TITLE, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.TITLE);
+				projectionMap.put("creator_" + UsersContract.USER_ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.USER_ID);
+				queryBuilder.setProjectionMap(projectionMap);
+				*/
 				break;
 				
 			case MODULES_WEBCAST_ITEM_GROUPS_ID:
