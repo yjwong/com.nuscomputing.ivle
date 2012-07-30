@@ -76,7 +76,7 @@ public class ViewAnnouncementFragment extends SherlockFragment
 				intent.setType("text/plain");
 				intent.putExtra(Intent.EXTRA_SUBJECT, mLoaderResult.getString("title"));
 				intent.putExtra(Intent.EXTRA_TEXT, mShareDescription);
-				startActivity(Intent.createChooser(intent, "Share via"));
+				startActivity(Intent.createChooser(intent, getString(R.string.share_via)));
 				return true;
 				
 			default:

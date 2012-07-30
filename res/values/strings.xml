@@ -16,6 +16,7 @@
 	<string name="loading">Loading&#8230;</string>
     <string name="refresh">Refresh</string>
     <string name="search">Search</string>
+    <string name="share_via">Share via</string>
     
     <!-- Strings for searchable.xml -->
     <string name="searchable_hint">Search IVLE&#8230;</string>

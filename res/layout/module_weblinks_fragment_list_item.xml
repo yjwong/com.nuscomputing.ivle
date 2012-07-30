@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="?android:attr/activatedBackgroundIndicator">
     
     <TextView
         android:id="@+id/module_weblinks_fragment_list_description"

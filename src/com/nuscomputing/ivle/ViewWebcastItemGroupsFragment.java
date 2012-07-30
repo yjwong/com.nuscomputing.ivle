@@ -28,7 +28,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * Fragment to view an announcement.
@@ -121,23 +120,6 @@ public class ViewWebcastItemGroupsFragment extends SherlockListFragment {
 		
         // Set up the list view.
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        
-        // Advance to show the webcast on item click.
-		getListView().setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position,
-					long id) {
-				// Prevent item from being checked.
-				getListView().setItemChecked(position, false);
-				
-				// Invoke another item.
-				Log.v(TAG, "webcast file " + id);
-				Intent intent = new Intent();
-				intent.setClass(getActivity(), ViewWebcastFileActivity.class);
-				intent.putExtra("webcastFileId", id);
-				startActivity(intent);
-			}
-		});
 		
 		// Show the CAB when long clicked.
 		getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -153,6 +135,18 @@ public class ViewWebcastItemGroupsFragment extends SherlockListFragment {
 		
 		// Set the list adapter.
 		setListAdapter(mAdapter);
+	}
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		// Prevent item from being checked.
+		getListView().setItemChecked(position, false);
+		
+		// Invoke another item.
+		Intent intent = new Intent();
+		intent.setClass(getActivity(), ViewWebcastFileActivity.class);
+		intent.putExtra("webcastFileId", id);
+		startActivity(intent);
 	}
 	
 	@Override
