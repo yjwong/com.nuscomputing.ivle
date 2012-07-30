@@ -236,7 +236,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 					AnnouncementsContract.ID,
 					AnnouncementsContract.TITLE,
 					AnnouncementsContract.DESCRIPTION,
-					AnnouncementsContract.CREATED_DATE
+					AnnouncementsContract.CREATED_DATE,
+					AnnouncementsContract.IS_READ
 			));
 			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ?";
 			selectionArgsList.add(accountName);

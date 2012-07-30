@@ -4,12 +4,14 @@ import java.util.Locale;
 
 import org.joda.time.DateTime;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -20,15 +22,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 /**
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleAnnouncementsFragment extends ListFragment
+public class ModuleAnnouncementsFragment extends SherlockListFragment
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -79,7 +79,7 @@ public class ModuleAnnouncementsFragment extends ListFragment
 				R.id.module_announcements_fragment_list_description,
 				R.id.module_announcements_fragment_list_created_date
 		};
-		mAdapter = new SimpleCursorAdapter(
+		mAdapter = new AnnouncementsCursorAdapter(
 				getActivity(),
 				R.layout.module_announcements_fragment_list_item,
 				null, uiBindFrom, uiBindTo,
@@ -118,9 +118,7 @@ public class ModuleAnnouncementsFragment extends ListFragment
         mLoaderManager.initLoader(DataLoader.LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT, args, mLoader);
         
         // Get the listview.
-        LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.module_announcements_fragment_linear_layout);
-        ListView listView = (ListView) layout.findViewById(android.R.id.list);
-		listView.setOnItemClickListener(new OnItemClickListener() {
+		getListView().setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
@@ -139,6 +137,44 @@ public class ModuleAnnouncementsFragment extends ListFragment
 	public void onLoaderFinished(Bundle result) {
 		TextView tvNoAnnouncements = (TextView) getActivity().findViewById(R.id.module_announcements_fragment_no_announcements);
 		tvNoAnnouncements.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
+	}
+	
+	// }}}
+	// {{{ classes
+	
+	/**
+	 * Extended SimpleCursorAdapter to also show unread items.
+	 * @author yjwong
+	 */
+	class AnnouncementsCursorAdapter extends SimpleCursorAdapter {
+		// {{{ methods
+		
+		public AnnouncementsCursorAdapter(Context context, int layout,
+				Cursor c, String[] from, int[] to, int flags) {
+			super(context, layout, c, from, to, flags);
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// Inflate the list item.
+			convertView = super.getView(position, convertView, parent);
+			
+			// Check whether the item is read.
+			Cursor cursor = getCursor();
+			cursor.moveToPosition(position);
+			boolean isRead = cursor.getInt(cursor.getColumnIndex(AnnouncementsContract.IS_READ)) == 1 ? true : false;
+			if (!isRead) {
+				convertView.setBackgroundResource(R.drawable.module_announcements_fragment_list_item_unread);
+				
+				// Set the title to be bold.
+				TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
+				tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+			}
+			
+			return convertView;
+		}
+		
+		// }}}
 	}
 	
 	// }}}
