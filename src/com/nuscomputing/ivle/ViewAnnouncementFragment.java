@@ -92,6 +92,7 @@ public class ViewAnnouncementFragment extends SherlockFragment
 		
 		// Set the content for the webview.
 		WebView wvDescription = (WebView) getActivity().findViewById(R.id.view_announcement_fragment_webview);
+		wvDescription.getSettings().setBuiltInZoomControls(true);
 		wvDescription.loadData(result.getString("description"), "text/html", null);
 		
 		// Save the loader result.
