@@ -42,6 +42,11 @@
         />
         
         <Preference
+            android:key="check_updates"
+            android:title="@string/settings_fragment_check_for_updates"
+        />
+        
+        <Preference
             android:key="send_feedback"
             android:title="@string/settings_fragment_send_feedback_title"
         />

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="8dp"
-    android:background="?android:attr/activatedBackgroundIndicator">
+    android:background="?attr/activatedBackgroundIndicator">
 
     <TextView
         android:id="@+id/view_webcast_item_group_fragment_list_file_title"

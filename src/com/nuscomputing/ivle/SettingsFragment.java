@@ -30,7 +30,6 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.provider.Settings;
-import android.util.Log;
 
 @TargetApi(11)
 public class SettingsFragment extends PreferenceFragment {
@@ -279,7 +278,6 @@ public class SettingsFragment extends PreferenceFragment {
     	
 		@Override
 		public Loader<UpdateInfo> onCreateLoader(int id, Bundle args) {
-			Log.v(TAG, "onCreateLoader");
 			return new CheckForUpdatesLoader(getActivity());
 		}
 

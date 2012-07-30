@@ -1,6 +1,12 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 
 import android.accounts.Account;
@@ -9,13 +15,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.provider.Settings;
-import android.support.v4.app.FragmentManager;
 
 /**
  * Main settings activity (for Android < 3.0).
@@ -27,6 +37,15 @@ public class SettingsActivityLegacy extends SherlockPreferenceActivity {
 	
 	/** TAG for logging */
 	public static final String TAG = "SettingsActivityLegacy";
+	
+	/** The context */
+	private Context mContext = this;
+	
+	/** The "Check for Updates" alert dialog */
+	private AlertDialog mCheckForUpdatesDialog;
+	
+	/** The "Check for Updates" preference */
+	private Preference mCheckForUpdatesPreference;
 	
 	// }}}
 	// {{{ methods
@@ -42,7 +61,26 @@ public class SettingsActivityLegacy extends SherlockPreferenceActivity {
         setUpAddAccount();
         setUpManageAccounts();
         setUpAbout();
+        setUpCheckForUpdates();
         setUpSendFeedback();
+        
+        // Create an AlertDialog for "Check for Updates".
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.settings_fragment_update_available_body)
+			.setCancelable(true)
+			.setTitle(R.string.settings_fragment_update_available)
+			.setNegativeButton(R.string.cancel, new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+		mCheckForUpdatesDialog = builder.create();
+		
+		// Was the "Check for Updates" dialog being shown?
+		if (savedInstanceState != null && savedInstanceState.getBoolean("checkForUpdatesDialog", false)) {
+			new CheckForUpdatesTask(this).execute();
+		}
     }
     
     @Override
@@ -185,6 +223,24 @@ public class SettingsActivityLegacy extends SherlockPreferenceActivity {
     }
     
     /**
+     * Method: setUpCheckForUpdates
+     * Action for checking updates.
+     */
+    private void setUpCheckForUpdates() {
+    	mCheckForUpdatesPreference = findPreference("check_updates");
+    	mCheckForUpdatesPreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+    		@Override
+    		public boolean onPreferenceClick(Preference preference) {
+    			preference.setSummary(getString(R.string.settings_fragment_checking_for_updates));
+    			
+    			// Load the update information.
+    			new CheckForUpdatesTask(mContext).execute();
+    			return true;
+    		}
+    	});
+    }
+    
+    /**
      * Method: setUpSendFeedback
      * Action for sending feedback.
      */
@@ -201,6 +257,114 @@ public class SettingsActivityLegacy extends SherlockPreferenceActivity {
     	// Find the preference.
     	Preference sendFeedbackPreference = findPreference("send_feedback");
     	sendFeedbackPreference.setIntent(Intent.createChooser(intent, getString(R.string.settings_fragment_send_feedback_via)));
+    }
+    
+    // }}}
+    // {{{ classes
+    
+    /**
+     * AsyncTask to check for updates.
+     * @author yjwong
+     */
+    class CheckForUpdatesTask extends AsyncTask<Void, Void, UpdateInfo> {
+    	// {{{ properties
+    	
+    	/** The context */
+    	private Context mContext;
+    	
+    	// }}}
+    	// {{{ methods
+    	
+		CheckForUpdatesTask(Context context) {
+			mContext = context;
+		}
+    	
+		@Override
+		protected UpdateInfo doInBackground(Void... params) {
+			try {
+				// Get the current version code.
+				PackageInfo info = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+				int versionCode = info.versionCode;
+				
+				// Get the online source.
+				URL url = new URL("http://ivle.nuscomputing.com/versionCode");
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+				StringBuilder response = new StringBuilder(); 
+				String buf = null;
+				while ((buf = reader.readLine()) != null) {
+					response.append(buf);
+				}
+				reader.close();
+				
+				// Parse the new version code.
+				int updateVersionCode = Integer.parseInt(response.toString());
+				
+				// Create new update info.
+				UpdateInfo updateInfo = new UpdateInfo();
+				updateInfo.currentVersionCode = versionCode;
+				updateInfo.updateVersionCode = updateVersionCode;
+				updateInfo.updateAPK = "http://ivle.nuscomputing.com/com.nuscomputing.ivle-".concat(Integer.toString(updateVersionCode)).concat(".apk");
+				return updateInfo;
+				
+			} catch (NameNotFoundException e) {
+				return null;
+			} catch (MalformedURLException e) {
+				return null;
+			} catch (IOException e) {
+				return null;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(final UpdateInfo updateInfo) {
+			// Hide any progress.
+			mCheckForUpdatesPreference.setSummary("");
+			
+			// We now have the update info.
+			if (updateInfo == null) {
+				mCheckForUpdatesPreference.setSummary(R.string.settings_fragment_update_check_failed);
+			} else if (updateInfo.currentVersionCode >= updateInfo.updateVersionCode) {
+				mCheckForUpdatesPreference.setSummary(R.string.settings_fragment_update_latest_version);
+			} else {
+				// Update the dialog with newest URL.
+				mCheckForUpdatesDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.ok), new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+						
+						// Open a browser to download the update.
+						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.setData(Uri.parse(updateInfo.updateAPK));
+						startActivity(Intent.createChooser(intent, getString(R.string.settings_fragment_update_download_via)));
+					}
+				});
+				
+				// Prompt to download newer version.
+				mCheckForUpdatesDialog.show();
+			}
+		}
+    	
+		// }}}
+    }
+    
+    /**
+     * Class containing update information.
+     * @author yjwong
+     */
+    static class UpdateInfo {
+    	// {{{ properties
+    	
+    	/** The current version code */
+    	public int currentVersionCode;
+    	
+    	/** The update version code */
+    	public int updateVersionCode;
+    	
+    	/** The URL to the update APK */
+    	public String updateAPK;
+    	
+    	// }}}
     }
     
     // }}}

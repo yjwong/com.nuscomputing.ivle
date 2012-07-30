@@ -5,22 +5,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="8dp"
-    android:background="?attr/activatedBackgroundIndicator">
-    
-    <TextView
-        android:id="@+id/module_weblinks_fragment_list_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
-        />
-    
-    <TextView
-        android:id="@+id/module_weblinks_fragment_list_url"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary"
-        />
+    android:background="?android:attr/activatedBackgroundIndicator">
 
+    <TextView
+        android:id="@+id/view_webcast_item_group_fragment_list_file_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="?android:attr/textColorPrimary"
+        android:maxLines="2"
+        />
+    
+    <TextView
+        android:id="@+id/view_webcast_item_group_fragment_list_file_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:maxLines="2"
+        />
+   
 </LinearLayout>
