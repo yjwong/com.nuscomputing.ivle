@@ -227,11 +227,12 @@ public class IVLESyncService extends Service {
 									.setContentText(account.name)
 									.setContentIntent(pendingIntent)
 									.setAutoCancel(true)
-									.setSmallIcon(R.drawable.ic_launcher);
+									.setSmallIcon(R.drawable.ic_notification);
 								
 								notif = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) ? builder.build() : builder.getNotification();
 							} else {
-								notif = new Notification(R.drawable.ic_launcher, notifTitle, System.currentTimeMillis());
+								notif = new Notification(R.drawable.ic_notification, notifTitle, System.currentTimeMillis());
+								notif.flags |= Notification.FLAG_AUTO_CANCEL;
 								notif.setLatestEventInfo(context, notifTitle, account.name, pendingIntent);
 							}
 							
@@ -252,7 +253,7 @@ public class IVLESyncService extends Service {
 									.setContentText(account.name)
 									.setContentIntent(pendingIntent)
 									.setAutoCancel(true)
-									.setSmallIcon(R.drawable.ic_launcher);
+									.setSmallIcon(R.drawable.ic_notification);
 								
 								// Use the inbox style on Jellybean.
 								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -278,7 +279,8 @@ public class IVLESyncService extends Service {
 								}
 								
 							} else {
-								notif = new Notification(R.drawable.ic_launcher, notifTitle, System.currentTimeMillis());
+								notif = new Notification(R.drawable.ic_notification, notifTitle, System.currentTimeMillis());
+								notif.flags |= Notification.FLAG_AUTO_CANCEL;
 								notif.setLatestEventInfo(context, notifTitle, account.name, pendingIntent);
 							}
 							

@@ -163,7 +163,7 @@ public class AccountSettingsActivity extends Activity {
 			
 			// Insert the name.
 			TextView tvAccountName = (TextView) convertView.findViewById(android.R.id.text1);
-			tvAccountName.setTextAppearance(mContext, android.R.style.TextAppearance_Holo_Medium);
+			tvAccountName.setTextAppearance(mContext, android.R.style.TextAppearance_Holo_Medium_Inverse);
 			tvAccountName.setText(mAccounts[position].name);
 			return convertView;
 		}
