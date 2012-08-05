@@ -173,7 +173,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				Announcement[] announcements = module.getAnnouncements();
 				
 				// See what has been deleted.
-				// removeDeletedItemsFromLocal(AnnouncementsContract.class, announcements, moduleId);
+				removeDeletedItemsFromLocal(AnnouncementsContract.class, announcements, moduleId);
 				for (Announcement announcement : announcements) {
 					// Insert the creator into the user's table.
 					Integer announcementCreatorId = null;
@@ -448,7 +448,6 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Removes deleted items from the local cache.
 	 */
-	@SuppressWarnings("unused")
 	private <T extends IVLEObject> void removeDeletedItemsFromLocal(
 			Class<? extends IVLEContract> contractClass, T[] objects,
 			long moduleId) throws RemoteException {
@@ -921,7 +920,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		String selectionArgs[] = { mAccount.name };
 		
 		// Delete all data.
-		mProvider.delete(AnnouncementsContract.CONTENT_URI, selection, selectionArgs);
+		// mProvider.delete(AnnouncementsContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(GradebooksContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(GradebookItemsContract.CONTENT_URI, selection, selectionArgs);
 		mProvider.delete(ModulesContract.CONTENT_URI, selection, selectionArgs);

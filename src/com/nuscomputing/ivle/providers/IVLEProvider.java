@@ -3,8 +3,11 @@ package com.nuscomputing.ivle.providers;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.nuscomputing.ivle.AccountUtils;
 import com.nuscomputing.ivle.Constants;
 import com.nuscomputing.ivle.DatabaseHelper;
+
+import android.accounts.Account;
 import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -831,8 +834,8 @@ public class IVLEProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		// Create a new helper object. This method always returns quickly.
-		Log.v(TAG, "AnnouncementsProvider created");
-		mDatabaseHelper = new DatabaseHelper(getContext());
+		Account account = AccountUtils.getActiveAccount(getContext(), false);
+		mDatabaseHelper = new DatabaseHelper(getContext(), account);
 		if (mDatabaseHelper == null) {
 			return false;
 		}

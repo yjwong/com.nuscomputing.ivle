@@ -126,28 +126,29 @@ public class MainActivity extends SherlockFragmentActivity {
 			Intent intent = new Intent();
 			intent.setClass(this, AuthenticatorActivity.class);
 			startActivityForResult(intent, REQUEST_AUTH);
+			
+		} else {
+			// Get the action bar.
+			ActionBar bar = getSupportActionBar();
+			
+			// Phone specific configuration.
+			if (mViewPager != null) {
+		    	// Configure the action bar.
+		    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		    	
+		        // Plug the pager tabs.
+		        mTabsAdapter = new TabsAdapter(this, mViewPager);
+		        mTabsAdapter.addTab(bar.newTab()
+		        		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
+		        mTabsAdapter.addTab(bar.newTab()
+		        		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
+			}
+		        
+	    	// Set the title appropriately.
+	    	if (mActiveAccount != null) {
+	    		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
+	    	}
 		}
-		
-		// Get the action bar.
-		ActionBar bar = getSupportActionBar();
-		
-		// Phone specific configuration.
-		if (mViewPager != null) {
-	    	// Configure the action bar.
-	    	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-	    	
-	        // Plug the pager tabs.
-	        mTabsAdapter = new TabsAdapter(this, mViewPager);
-	        mTabsAdapter.addTab(bar.newTab()
-	        		.setText(getString(R.string.main_activity_modules)), ModulesFragment.class, null);
-	        mTabsAdapter.addTab(bar.newTab()
-	        		.setText(getString(R.string.main_activity_my_agenda)), MyAgendaFragment.class, null);
-		}
-	        
-    	// Set the title appropriately.
-    	if (mActiveAccount != null) {
-    		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
-    	}
     }
     
     @Override
@@ -302,7 +303,7 @@ public class MainActivity extends SherlockFragmentActivity {
     @Override
     public void onBackPressed() {
     	// Close the search view if one is open.
-    	if (Build.VERSION.SDK_INT >= 14 && !mSearchView.isIconified()) {
+    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && !mSearchView.isIconified()) {
     		mSearchView.onActionViewCollapsed();
     		mSearchView.setQuery("", false);
     		ActionBar bar = getSupportActionBar();

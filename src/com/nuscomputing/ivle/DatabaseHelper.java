@@ -29,10 +29,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 14;
+	private static final int DATABASE_VERSION = 15;
 	
 	/** Name of this database */
-	private static final String DATABASE_NAME = "ivle";
+	private static final String DATABASE_NAME_PREFIX = "ivle_";
+	private static final String DATABASE_NAME_POSTFIX = ".db";
 	
 	/** The context */
 	private Context mContext;
@@ -286,8 +287,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * 
 	 * @param context
 	 */
+	public DatabaseHelper(Context context, Account account) {
+		super(context, getDatabaseFileName(account), null, DatabaseHelper.DATABASE_VERSION);
+		mContext = context;
+	}
+	
+	@Deprecated
 	public DatabaseHelper(Context context) {
-		super(context, DatabaseHelper.DATABASE_NAME, null, DatabaseHelper.DATABASE_VERSION);
+		// Obtain the active account.
+		super(context, getDatabaseFileName(AccountUtils.getActiveAccount(context, false)), null, DatabaseHelper.DATABASE_VERSION);
 		mContext = context;
 	}
 	
@@ -357,6 +365,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		
 		return;
+	}
+	
+	/**
+	 * Method: Gets the database file name given the account.
+	 * 
+	 * @param account
+	 * @return
+	 */
+	private static String getDatabaseFileName(Account account) {
+		// Sanity check.
+		if (account == null) {
+			return null;
+		}
+		
+		// Return the file name.
+		return DATABASE_NAME_PREFIX.concat(account.name).concat(DATABASE_NAME_POSTFIX);
 	}
 	
 	// }}}
