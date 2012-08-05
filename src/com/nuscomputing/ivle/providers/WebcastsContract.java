@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle.providers;
 
+import com.nuscomputing.ivle.DatabaseHelper;
+
 import android.net.Uri;
 
 /**
@@ -7,23 +9,14 @@ import android.net.Uri;
  * Contains definitions for supported URIs and data columns.
  * @author yjwong
  */
-public class WebcastsContract {
+public class WebcastsContract extends IVLEContract {
 	// {{{ properties
 	
 	/** The content:// style URL for the top level authority */
 	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/webcasts");
 	
-	/** The row ID */
-	public static final String ID = "_id";
-	
-	/** The ivle ID */
-	public static final String IVLE_ID = "ivle_id";
-	
-	/** The module ID */
-	public static final String MODULE_ID = "module_id";
-	
-	/** The account associated with the weblink */
-	public static final String ACCOUNT = "account";
+	/** The database table backing this type */
+	public static final String TABLE = DatabaseHelper.WEBCASTS_TABLE_NAME;
 	
 	/** The creator ID */
 	public static final String CREATOR_ID = "creator_id";
@@ -32,6 +25,24 @@ public class WebcastsContract {
 	public static final String BADGE_TOOL = "badgeTool";
 	public static final String PUBLISHED = "published";
 	public static final String TITLE = "title";
+	
+	// }}}
+	// {{{ methods
+	
+	@Override
+	public Uri getContentUri() {
+		return WebcastsContract.CONTENT_URI;
+	}
+
+	@Override
+	public String getTableName() {
+		return WebcastsContract.TABLE;
+	}
+
+	@Override
+	public String getColumnNameModuleId() {
+		return IVLEContract.MODULE_ID;
+	}
 	
 	// }}}
 }

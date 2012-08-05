@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle.providers;
 
+import com.nuscomputing.ivle.DatabaseHelper;
+
 import android.net.Uri;
 
 /**
@@ -7,20 +9,14 @@ import android.net.Uri;
  * Contains definitions for supported URIs and data columns.
  * @author yjwong
  */
-public class ModulesContract {
+public class ModulesContract extends IVLEContract {
 	// {{{ properties
 	
 	/** The content:// style URL for the top level authority */
 	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/modules");
 	
-	/** The row ID */
-	public static final String ID = "_id";
-	
-	/** The ivle ID */
-	public static final String IVLE_ID = "ivle_id";
-	
-	/** The account associated with the module */
-	public static final String ACCOUNT = "account";
+	/** The database table backing this type */
+	public static final String TABLE = DatabaseHelper.MODULES_TABLE_NAME;
 	
 	/** The creator ID */
 	public static final String CREATOR_ID = "creator_id";
@@ -54,6 +50,24 @@ public class ModulesContract {
 	public static final String HAS_WEBLINK_ITEMS = "hasWeblinkItems";
 	public static final String IS_ACTIVE = "isActive";
 	public static final String PERMISSION = "permission";
+	
+	// }}}
+	// {{{ methods
+	
+	@Override
+	public Uri getContentUri() {
+		return ModulesContract.CONTENT_URI;
+	}
+
+	@Override
+	public String getTableName() {
+		return ModulesContract.TABLE;
+	}
+
+	@Override
+	public String getColumnNameModuleId() {
+		return null;
+	}
 	
 	// }}}
 }

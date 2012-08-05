@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle.providers;
 
+import com.nuscomputing.ivle.DatabaseHelper;
+
 import android.net.Uri;
 
 /**
@@ -7,26 +9,35 @@ import android.net.Uri;
  * Contains definitions for supported URIs and data columns.
  * @author yjwong
  */
-public class GradebooksContract {
+public class GradebooksContract extends IVLEContract {
 	// {{{ properties
 	
 	/** The content:// style URL for the top level authority */
 	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/gradebooks");
 	
-	/** The row ID */
-	public static final String ID = "_id";
-	
-	/** The ivle ID */
-	public static final String IVLE_ID = "ivle_id";
-	
-	/** The module ID */
-	public static final String MODULE_ID = "module_id";
-	
-	/** The account associated with the weblink */
-	public static final String ACCOUNT = "account";
+	/** The database table backing this type */
+	public static final String TABLE = DatabaseHelper.GRADEBOOKS_TABLE_NAME;
 	
 	/** Other columns */
 	public static final String CATEGORY_TITLE = "categoryTitle";
+	
+	// }}}
+	// {{{ methods
+	
+	@Override
+	public Uri getContentUri() {
+		return GradebooksContract.CONTENT_URI;
+	}
+
+	@Override
+	public String getTableName() {
+		return GradebooksContract.TABLE;
+	}
+
+	@Override
+	public String getColumnNameModuleId() {
+		return IVLEContract.MODULE_ID;
+	}
 	
 	// }}}
 }

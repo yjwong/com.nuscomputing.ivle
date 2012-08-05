@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle.providers;
 
+import com.nuscomputing.ivle.DatabaseHelper;
+
 import android.net.Uri;
 
 /**
@@ -7,26 +9,17 @@ import android.net.Uri;
  * Contains definitions for supported URIs and data columns.
  * @author yjwong
  */
-public class GradebookItemsContract {
+public class GradebookItemsContract extends IVLEContract {
 	// {{{ properties
 	
 	/** The content:// style URL for the top level authority */
 	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/gradebook_items");
 	
-	/** The row ID */
-	public static final String ID = "_id";
-	
-	/** The ivle ID */
-	public static final String IVLE_ID = "ivle_id";
-	
-	/** The module ID */
-	public static final String MODULE_ID = "module_id";
+	/** The database table backing this type */
+	public static final String TABLE = DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME;
 	
 	/** The gradebook ID for this item */
 	public static final String GRADEBOOK_ID = "gradebook_id";
-	
-	/** The account associated with the weblink */
-	public static final String ACCOUNT = "account";
 	
 	/** Other columns */
 	public static final String AVERAGE_MEDIAN_MARKS = "averageMedianMarks";
@@ -38,6 +31,24 @@ public class GradebookItemsContract {
 	public static final String MAX_MARKS = "maxMarks";
 	public static final String PERCENTILE = "percentile";
 	public static final String REMARK = "remark";
+	
+	// }}}
+	// {{{ methods
+	
+	@Override
+	public Uri getContentUri() {
+		return GradebookItemsContract.CONTENT_URI;
+	}
+
+	@Override
+	public String getTableName() {
+		return GradebookItemsContract.TABLE;
+	}
+
+	@Override
+	public String getColumnNameModuleId() {
+		return IVLEContract.MODULE_ID;
+	}
 	
 	// }}}
 }

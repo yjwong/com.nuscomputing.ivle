@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle.providers;
 
+import com.nuscomputing.ivle.DatabaseHelper;
+
 import android.net.Uri;
 
 /**
@@ -7,23 +9,14 @@ import android.net.Uri;
  * Contains definitions for supported URIs and data columns.
  * @author yjwong
  */
-public class WorkbinFoldersContract {
+public class WorkbinFoldersContract extends IVLEContract {
 	// {{{ properties
 	
 	/** The content:// style URL for the top level authority */
 	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/workbin_folders");
 	
-	/** The row ID */
-	public static final String ID = "_id";
-	
-	/** The ivle ID */
-	public static final String IVLE_ID = "ivle_id";
-	
-	/** The module ID */
-	public static final String MODULE_ID = "module_id";
-	
-	/** The account associated with the weblink */
-	public static final String ACCOUNT = "account";
+	/** The database table backing this type */
+	public static final String TABLE = DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME;
 	
 	/** The workbin ID */
 	public static final String WORKBIN_ID = "workbin_id";
@@ -42,6 +35,24 @@ public class WorkbinFoldersContract {
 	public static final String OPEN_DATE = "openDate";
 	public static final String SORT_FILES_BY = "sortFilesBy";
 	public static final String UPLOAD_DISPLAY_OPTION = "uploadDisplayOption";
+	
+	// }}}
+	// {{{ methods
+	
+	@Override
+	public Uri getContentUri() {
+		return WorkbinFoldersContract.CONTENT_URI;
+	}
+
+	@Override
+	public String getTableName() {
+		return WorkbinFoldersContract.TABLE;
+	}
+
+	@Override
+	public String getColumnNameModuleId() {
+		return IVLEContract.MODULE_ID;
+	}
 	
 	// }}}
 }

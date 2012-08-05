@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle.providers;
 
+import com.nuscomputing.ivle.DatabaseHelper;
+
 import android.net.Uri;
 
 /**
@@ -7,20 +9,14 @@ import android.net.Uri;
  * Contains definitions for supported URIs and data columns.
  * @author yjwong
  */
-public class TimetableSlotsContract {
+public class TimetableSlotsContract extends IVLEContract {
 	// {{{ properties
 	
 	/** The content:// style URL for the top level authority */
 	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/timetable_slots");
 	
-	/** The row ID */
-	public static final String ID = "_id";
-	
-	/** The module ID */
-	public static final String MODULE_ID = "module_id";
-	
-	/** The account associated with the weblink */
-	public static final String ACCOUNT = "account";
+	/** The database table backing this type */
+	public static final String TABLE = DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME;
 	
 	/** Other columns */
 	public static final String ACAD_YEAR = "acadYear";
@@ -35,6 +31,24 @@ public class TimetableSlotsContract {
 	public static final String DAY_TEXT = "dayText";
 	public static final String WEEK_CODE = "weekCode";
 	public static final String WEEK_TEXT = "weekText";
+	
+	// }}}
+	// {{{ methods
+	
+	@Override
+	public Uri getContentUri() {
+		return TimetableSlotsContract.CONTENT_URI;
+	}
+
+	@Override
+	public String getTableName() {
+		return TimetableSlotsContract.TABLE;
+	}
+
+	@Override
+	public String getColumnNameModuleId() {
+		return IVLEContract.MODULE_ID;
+	}
 	
 	// }}}
 }

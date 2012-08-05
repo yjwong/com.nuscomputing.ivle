@@ -18,18 +18,6 @@ public class AnnouncementsContract extends IVLEContract {
 	/** The database table backing this type */
 	public static final String TABLE = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME;
 	
-	/** The row ID */
-	public static final String ID = "_id";
-	
-	/** The ivle ID */
-	public static final String IVLE_ID = "ivle_id";
-	
-	/** The module ID */
-	public static final String MODULE_ID = "module_id";
-	
-	/** The account associated with the announcement */
-	public static final String ACCOUNT = "account";
-	
 	/** The creator ID */
 	public static final String CREATOR_ID = "creator_id";
 	
@@ -40,6 +28,24 @@ public class AnnouncementsContract extends IVLEContract {
 	public static final String EXPIRY_DATE = "expiryDate";
 	public static final String URL = "url";
 	public static final String IS_READ = "isRead";
+	
+	// }}}
+	// {{{ methods
+	
+	@Override
+	public Uri getContentUri() {
+		return AnnouncementsContract.CONTENT_URI;
+	}
+
+	@Override
+	public String getTableName() {
+		return AnnouncementsContract.TABLE;
+	}
+
+	@Override
+	public String getColumnNameModuleId() {
+		return IVLEContract.MODULE_ID;
+	}
 	
 	// }}}
 }

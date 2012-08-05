@@ -153,9 +153,6 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 			Module[] modules = ivle.getModules();
 			Log.v(TAG, modules.length + " modules found: ");
 			
-			// Purge old data associated with this account.
-			this.purgeAccountData();
-			
 			// Put those modules into the provider.
 			for (Module module : modules) {
 				// Insert the creator into the user's table.
@@ -166,14 +163,12 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				}
 				
 				// Insert modules.
-				int moduleId = this.insertModule(module, moduleCreatorId);
+				long moduleId = this.insertModule(module, moduleCreatorId);
 				
 				// Fetch announcements.
 				Log.v(TAG, "Fetching announcements");
 				Announcement[] announcements = module.getAnnouncements();
-				
-				// See what has been deleted.
-				// removeDeletedItemsFromLocal(AnnouncementsContract.class, announcements, moduleId);
+				this.purgeDeletedItemsFromLocal(AnnouncementsContract.class, announcements, moduleId);
 				for (Announcement announcement : announcements) {
 					// Insert the creator into the user's table.
 					Integer announcementCreatorId = null;
@@ -189,8 +184,10 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				// Fetch gradebooks.
 				Log.v(TAG, "Fetching gradebooks");
 				Gradebook[] gradebooks = module.getGradebooks();
+				this.purgeDeletedItemsFromLocal(GradebooksContract.class, gradebooks, moduleId);
 				for (Gradebook gradebook : gradebooks) {
-					int gradebookId = this.insertGradebook(gradebook, moduleId);
+					// Insert gradebooks.
+					long gradebookId = this.insertGradebook(gradebook, moduleId);
 					
 					// Fetch gradebook items.
 					Log.v(TAG, "Fetching gradebook items");
@@ -203,6 +200,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				// Fetch webcasts.
 				Log.v(TAG, "Fetching webcasts");
 				Webcast[] webcasts = module.getWebcasts();
+				this.purgeDeletedItemsFromLocal(WebcastsContract.class, webcasts, moduleId);
 				for (Webcast webcast : webcasts) {
 					// Insert the creator into the user's table.
 					Integer webcastCreatorId = null;
@@ -212,13 +210,13 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 					}
 					
 					// Insert webcasts.
-					int webcastId = this.insertWebcast(webcast, moduleId, webcastCreatorId);
+					long webcastId = this.insertWebcast(webcast, moduleId, webcastCreatorId);
 					
 					// Fetch webcast item groups.
 					Log.v(TAG, "Fetching webcast item groups");
 					Webcast.ItemGroup[] webcastItemGroups = webcast.getItemGroups();
 					for (Webcast.ItemGroup webcastItemGroup : webcastItemGroups) {
-						int webcastItemGroupId = this.insertWebcastItemGroup(webcastItemGroup, moduleId, webcastId);
+						long webcastItemGroupId = this.insertWebcastItemGroup(webcastItemGroup, moduleId, webcastId);
 						
 						// Fetch webcast files.
 						Log.v(TAG, "Fetching webcast files");
@@ -240,6 +238,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				// Fetch weblinks.
 				Log.v(TAG, "Fetching weblinks");
 				Weblink[] weblinks = module.getWeblinks();
+				this.purgeDeletedItemsFromLocal(WeblinksContract.class, weblinks, moduleId);
 				for (Weblink weblink : weblinks) {
 					// Insert weblinks.
 					this.insertWeblink(weblink, moduleId);
@@ -248,8 +247,9 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				// Fetch workbins.
 				Log.v(TAG, "Fetching workbins");
 				Workbin[] workbins = module.getWorkbins();
+				this.purgeDeletedItemsFromLocal(WorkbinsContract.class, workbins, moduleId);
 				for (Workbin workbin : workbins) {
-					int workbinId = this.insertWorkbin(workbin, moduleId);
+					long workbinId = this.insertWorkbin(workbin, moduleId);
 					
 					// Fetch workbin folders.
 					Log.v(TAG, "Fetching workbin folders");
@@ -400,67 +400,61 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * and the time of the last sync.
 	 */
 	private <T extends IVLEObject> Set<String> findDeletedItemsByType(
-			Class<? extends IVLEContract> contractClass, T[] objects,
+			IVLEContract contract, T[] objects,
 			long moduleId) throws RemoteException {
-		// Get the required fields.
-		try {
-			Uri fieldContentUri = (Uri) contractClass.getField("CONTENT_URI").get(null);
-			String fieldTable = (String) contractClass.getField("TABLE").get(null);
-			String fieldIvleId = (String) contractClass.getField("IVLE_ID").get(null);
-			String fieldModuleId = (String) contractClass.getField("MODULE_ID").get(null);
-			String fieldAccount = (String) contractClass.getField("ACCOUNT").get(null);
-			
-			// Get the set of old items.
-			Cursor c = mProvider.query(
-					fieldContentUri,
-					new String[] { fieldIvleId },
-					fieldTable.concat(".").concat(fieldAccount).concat(" = ?").concat(" AND ")
-						.concat(fieldTable).concat(".").concat(fieldModuleId).concat(" = ?"),
-					new String[] { mAccount.name, Long.toString(moduleId) },
-					null);
-			Set<String> oldSet = new HashSet<String>();
-			c.moveToFirst();
-			while (!c.isAfterLast()) {
-				Log.v(TAG, "oldSet item: " + c.getString(c.getColumnIndex(fieldIvleId)));
-				oldSet.add(c.getString(c.getColumnIndex(fieldIvleId)));
-				c.moveToNext();
-			}
-			
-			// Get the new set of items.
-			Set<String> newSet = new HashSet<String>();
-			for (T object : objects) {
-				Log.v(TAG, "newSet item: " + object.ID);
-				newSet.add(object.ID);
-			}
-			
-			oldSet.removeAll(newSet);
-			return oldSet;
-			
-		} catch (IllegalAccessException e) {
-			return null;
-		} catch (NoSuchFieldException e) {
-			return null;
+		// Get the column names.
+		Uri fieldContentUri = contract.getContentUri();
+		String fieldTable = contract.getTableName();
+		String fieldIvleId = contract.getColumnNameIvleId();
+		String fieldModuleId = contract.getColumnNameModuleId();
+		String fieldAccount = contract.getColumnNameAccount();
+		
+		// Get the set of old items.
+		Cursor c = mProvider.query(
+				fieldContentUri,
+				new String[] { fieldIvleId },
+				fieldTable.concat(".").concat(fieldAccount).concat(" = ? AND ") +
+				fieldTable.concat(".").concat(fieldModuleId).concat(" = ?"),
+				new String[] { mAccount.name, Long.toString(moduleId) },
+				null);
+		Set<String> oldSet = new HashSet<String>();
+		c.moveToFirst();
+		while (!c.isAfterLast()) {
+			oldSet.add(c.getString(c.getColumnIndex(fieldIvleId)));
+			c.moveToNext();
 		}
+		
+		// Get the new set of items.
+		Set<String> newSet = new HashSet<String>();
+		for (T object : objects) {
+			newSet.add(object.ID);
+		}
+		
+		oldSet.removeAll(newSet);
+		return oldSet;
 	}
 	
 	/**
-	 * Method: removeDeletedItemsFromLocal
+	 * Method: purgeDeletedItemsFromLocal
 	 * <p>
 	 * Removes deleted items from the local cache.
 	 */
-	@SuppressWarnings("unused")
-	private <T extends IVLEObject> void removeDeletedItemsFromLocal(
+	private <T extends IVLEObject> void purgeDeletedItemsFromLocal(
 			Class<? extends IVLEContract> contractClass, T[] objects,
 			long moduleId) throws RemoteException {
-		// Find out what has been deleted.
-		Set<String> removeSet = this.findDeletedItemsByType(contractClass, objects, moduleId);
+		// Create an instance of the contract.
 		try {
-			Uri fieldContentUri = (Uri) contractClass.getField("CONTENT_URI").get(null);
-			String fieldIvleId = (String) contractClass.getField("IVLE_ID").get(null);
-			String fieldModuleId = (String) contractClass.getField("MODULE_ID").get(null);
-			String fieldAccount = (String) contractClass.getField("ACCOUNT").get(null);
+			IVLEContract contract = contractClass.newInstance();
+			
+			// Find out what has been deleted.
+			Set<String> removeSet = this.findDeletedItemsByType(contract, objects, moduleId);
+			Uri fieldContentUri = contract.getContentUri();
+			String fieldIvleId = contract.getColumnNameIvleId();
+			String fieldModuleId = contract.getColumnNameModuleId();
+			String fieldAccount = contract.getColumnNameAccount();
 			for (String toRemove : removeSet) {
 				mSyncResult.stats.numDeletes++;
+				Log.v(TAG, "purging non-existent item of type " + contract.getClass().getName() + " with ID = " + toRemove);
 				mProvider.delete(
 						fieldContentUri,
 						fieldIvleId.concat(" = ?").concat(" AND ")
@@ -470,12 +464,50 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				);
 			}
 			
+		} catch (InstantiationException e) {
+			Log.e(TAG, "InstantiationException encountered purging deleted items of type " + contractClass.getName());
+		} catch (IllegalAccessException e) {
+			Log.e(TAG, "IllegalAccessException encountered purging deleted items of type " + contractClass.getName());
 		} catch (IllegalArgumentException e) {
 			// Do nothing.
+		}
+
+	}
+	
+	/**
+	 * Method: itemExists
+	 * <p>
+	 * Determines if an IVLE item exists. If it exists, this method returns
+	 * the item ID. Otherwise, it returns -1.
+	 * 
+	 * @return
+	 * @throws RemoteException 
+	 */
+	private long itemExists(Class<? extends IVLEContract> contractClass,
+			String ivleId) throws RemoteException {
+		// Check if the item exists.
+		try {
+			IVLEContract contract = contractClass.newInstance();
+			Cursor c = mProvider.query(
+					contract.getContentUri(),
+					new String[] { contract.getColumnNameId() },
+					contract.getTableName().concat(".").concat(contract.getColumnNameIvleId()).concat(" = ? AND ") +
+					contract.getTableName().concat(".").concat(contract.getColumnNameAccount()).concat(" = ?"),
+					new String[] { ivleId, mAccount.name }, null);
+			
+			if (c.getCount() > 0) {
+				c.moveToFirst();
+				return c.getLong(c.getColumnIndex(contract.getColumnNameId()));
+			} else {
+				return -1;
+			}
+			
+		} catch (InstantiationException e) {
+			Log.e(TAG, "InstantiationException encountered checking if item of type " + contractClass.getName() + " exists");
+			return -1;
 		} catch (IllegalAccessException e) {
-			// Do nothing.
-		} catch (NoSuchFieldException e) {
-			// Do nothing.
+			Log.e(TAG, "IllegalAccessException encountered checking if item of type " + contractClass.getName() + " exists");
+			return -1;
 		}
 	}
 	
@@ -484,15 +516,8 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts an announcement into the announcement table.
 	 */
-	private long insertAnnouncement(Announcement announcement, int moduleId,
+	private long insertAnnouncement(Announcement announcement, long moduleId,
 			int creatorId) throws RemoteException {
-		// Check if the announcement exists.
-		Cursor c = mProvider.query(
-				AnnouncementsContract.CONTENT_URI,
-				new String[] { AnnouncementsContract.ID },
-				DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME.concat(".").concat(AnnouncementsContract.IVLE_ID).concat(" = ?"),
-				new String[] { announcement.ID }, null);
-		
 		// Prepare the content values.
 		ContentValues v = new ContentValues();
 		v.put(AnnouncementsContract.IVLE_ID, announcement.ID);
@@ -507,18 +532,19 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		v.put(AnnouncementsContract.IS_READ, announcement.isRead ? 1 : 0);
 		
 		// Insert or update announcements.
-		if (c.getCount() > 0) {
-			Log.v(TAG, "insertAnnouncement: " + announcement.title + " (update)");
+		long id = this.itemExists(AnnouncementsContract.class, announcement.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertAnnouncement: title = " + announcement.title + ", ID = " + announcement.ID + " (update)");
 			mSyncResult.stats.numUpdates++;
 			mProvider.update(
 					AnnouncementsContract.CONTENT_URI, v,
-					AnnouncementsContract.IVLE_ID.concat(" = ?"),
-					new String[] { announcement.ID }
+					AnnouncementsContract.IVLE_ID.concat(" = ? AND ") +
+					AnnouncementsContract.ACCOUNT.concat(" = ?"),
+					new String[] { announcement.ID, mAccount.name }
 			);
-			c.moveToFirst();
-			return c.getLong(c.getColumnIndex(AnnouncementsContract.ID));
+			return id;
 		} else {
-			Log.v(TAG, "insertAnnouncement: " + announcement.title);
+			Log.v(TAG, "insertAnnouncement: title = " + announcement.title + ", ID = " + announcement.ID);
 			mSyncResult.stats.numInserts++;
 			Uri uri = mProvider.insert(AnnouncementsContract.CONTENT_URI, v);
 			return ContentUris.parseId(uri);
@@ -530,19 +556,33 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a gradebook into the gradebook table.
 	 */
-	private int insertGradebook(Gradebook gradebook, int moduleId) throws
+	private long insertGradebook(Gradebook gradebook, long moduleId) throws
 			RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertGradebook: " + gradebook.categoryTitle);
-		ContentValues values = new ContentValues();
-		values.put(GradebooksContract.IVLE_ID, gradebook.ID);
-		values.put(GradebooksContract.MODULE_ID, moduleId);
-		values.put(GradebooksContract.ACCOUNT, mAccount.name);
-		values.put(GradebooksContract.CATEGORY_TITLE, gradebook.categoryTitle);
+		ContentValues v = new ContentValues();
+		v.put(GradebooksContract.IVLE_ID, gradebook.ID);
+		v.put(GradebooksContract.MODULE_ID, moduleId);
+		v.put(GradebooksContract.ACCOUNT, mAccount.name);
+		v.put(GradebooksContract.CATEGORY_TITLE, gradebook.categoryTitle);
 		
-		// Insert gradebooks.
-		Uri gradebookUri = mProvider.insert(GradebooksContract.CONTENT_URI, values);
-		return Integer.parseInt(gradebookUri.getLastPathSegment());
+		// Insert or update gradebooks.
+		long id = this.itemExists(GradebooksContract.class, gradebook.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertGradebook: categoryTitle = " + gradebook.categoryTitle + ", ID = " + gradebook.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					GradebooksContract.CONTENT_URI, v,
+					GradebooksContract.IVLE_ID.concat(" = ? AND ") +
+					GradebooksContract.ACCOUNT.concat(" = ?"),
+					new String[] { gradebook.ID, mAccount.name }
+			);
+			return id;
+		} else {
+			Log.v(TAG, "insertGradebook: categoryTitle = " + gradebook.categoryTitle + ", ID = " + gradebook.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(GradebooksContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**
@@ -550,28 +590,43 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a gradebook item into the gradebook item table.
 	 */
-	private int insertGradebookItem(Gradebook.Item item, int moduleId, 
-			int gradebookId) throws RemoteException {
+	private long insertGradebookItem(Gradebook.Item item, long moduleId, 
+			long gradebookId) throws RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertGradebookItem: " + item.itemName);
-		ContentValues values = new ContentValues();
-		values.put(GradebookItemsContract.IVLE_ID, item.ID);
-		values.put(GradebookItemsContract.MODULE_ID, moduleId);
-		values.put(GradebookItemsContract.GRADEBOOK_ID, gradebookId);
-		values.put(GradebookItemsContract.ACCOUNT, mAccount.name);
-		values.put(GradebookItemsContract.AVERAGE_MEDIAN_MARKS, item.averageMedianMarks);
-		values.put(GradebookItemsContract.DATE_ENTERED, item.dateEntered);
-		values.put(GradebookItemsContract.HIGHEST_LOWEST_MARKS, item.highestLowestMarks);
-		values.put(GradebookItemsContract.ITEM_DESCRIPTION, item.itemDescription);
-		values.put(GradebookItemsContract.ITEM_NAME, item.itemName);
-		values.put(GradebookItemsContract.MARKS_OBTAINED, item.marksObtained);
-		values.put(GradebookItemsContract.MAX_MARKS, item.maxMarks);
-		values.put(GradebookItemsContract.PERCENTILE, item.percentile);
-		values.put(GradebookItemsContract.REMARK, item.remark);
+		ContentValues v = new ContentValues();
+		v.put(GradebookItemsContract.IVLE_ID, item.ID);
+		v.put(GradebookItemsContract.MODULE_ID, moduleId);
+		v.put(GradebookItemsContract.GRADEBOOK_ID, gradebookId);
+		v.put(GradebookItemsContract.ACCOUNT, mAccount.name);
+		v.put(GradebookItemsContract.AVERAGE_MEDIAN_MARKS, item.averageMedianMarks);
+		v.put(GradebookItemsContract.DATE_ENTERED, item.dateEntered);
+		v.put(GradebookItemsContract.HIGHEST_LOWEST_MARKS, item.highestLowestMarks);
+		v.put(GradebookItemsContract.ITEM_DESCRIPTION, item.itemDescription);
+		v.put(GradebookItemsContract.ITEM_NAME, item.itemName);
+		v.put(GradebookItemsContract.MARKS_OBTAINED, item.marksObtained);
+		v.put(GradebookItemsContract.MAX_MARKS, item.maxMarks);
+		v.put(GradebookItemsContract.PERCENTILE, item.percentile);
+		v.put(GradebookItemsContract.REMARK, item.remark);
 		
-		// Insert gradebook item.
-		Uri uri = mProvider.insert(GradebookItemsContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Insert or update gradebook items.
+		long id = this.itemExists(GradebookItemsContract.class, item.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertGradebookItem: itemName = " + item.itemName + ", ID = " + item.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					GradebookItemsContract.CONTENT_URI, v,
+					GradebookItemsContract.IVLE_ID.concat(" = ? AND ") +
+					GradebookItemsContract.ACCOUNT.concat(" = ? AND ") +
+					GradebookItemsContract.GRADEBOOK_ID.concat(" = ?"),
+					new String[] { item.ID, mAccount.name, Long.toString(gradebookId) }
+			);
+			return id;
+		} else {
+			Log.v(TAG, "insertGradebookItem: itemName = " + item.itemName + ", ID = " + item.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(GradebookItemsContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**
@@ -579,45 +634,59 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a module into the module table.
 	 */
-	private int insertModule(Module module, Integer creatorId) throws
+	private long insertModule(Module module, Integer creatorId) throws
 			RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, module.courseCode);
-		ContentValues values = new ContentValues();
-		values.put(ModulesContract.IVLE_ID, module.ID);
-		values.put(ModulesContract.ACCOUNT, mAccount.name);
-		values.put(ModulesContract.BADGE, module.badge);
-		values.put(ModulesContract.BADGE_ANNOUNCEMENT, module.badgeAnnouncement);
-		values.put(ModulesContract.COURSE_ACAD_YEAR, module.courseAcadYear);
-		values.put(ModulesContract.COURSE_CLOSE_DATE, module.courseCloseDate.toString());
-		values.put(ModulesContract.COURSE_CODE, module.courseCode);
-		values.put(ModulesContract.COURSE_DEPARTMENT, module.courseDepartment);
-		values.put(ModulesContract.COURSE_LEVEL, module.courseLevel);
-		values.put(ModulesContract.COURSE_MC, module.courseMC);
-		values.put(ModulesContract.COURSE_NAME, module.courseName);
-		values.put(ModulesContract.COURSE_OPEN_DATE, module.courseOpenDate.toString());
-		values.put(ModulesContract.COURSE_SEMESTER, module.courseSemester);
-		values.put(ModulesContract.CREATOR_ID, creatorId);
-		values.put(ModulesContract.HAS_ANNOUNCEMENT_ITEMS, module.hasAnnouncementItems ? 1 : 0);
-		values.put(ModulesContract.HAS_CLASS_GROUPS_FOR_SIGN_UP, module.hasClassGroupsForSignUp ? 1 : 0);
-		values.put(ModulesContract.HAS_CLASS_ROSTER_ITEMS, module.hasClassRosterItems ? 1 : 0);
-		values.put(ModulesContract.HAS_CONSULTATION_ITEMS, module.hasConsultationItems ? 1 : 0);
-		values.put(ModulesContract.HAS_CONSULTATION_SLOTS_FOR_SIGN_UP, module.hasConsultationSlotsForSignUp ? 1 : 0);
-		values.put(ModulesContract.HAS_DESCRIPTION_ITEMS, module.hasDescriptionItems ? 1 : 0);
-		values.put(ModulesContract.HAS_GRADEBOOK_ITEMS, module.hasGradebookItems ? 1 : 0);
-		values.put(ModulesContract.HAS_GROUPS_ITEMS, module.hasGroupsItems ? 1 : 0);
-		values.put(ModulesContract.HAS_GUEST_ROSTER_ITEMS, module.hasGuestRosterItems ? 1 : 0);
-		values.put(ModulesContract.HAS_LECTURER_ITEMS, module.hasLecturerItems ? 1 : 0);
-		values.put(ModulesContract.HAS_PROJECT_GROUP_ITEMS, module.hasProjectGroupItems ? 1 : 0);
-		values.put(ModulesContract.HAS_PROJECT_GROUPS_FOR_SIGN_UP, module.hasProjectGroupsForSignUp ? 1 : 0);
-		values.put(ModulesContract.HAS_READING_ITEMS, module.hasReadingItems ? 1 : 0);
-		values.put(ModulesContract.HAS_TIMETABLE_ITEMS, module.hasTimetableItems ? 1 : 0);
-		values.put(ModulesContract.HAS_WEBLINK_ITEMS, module.hasWeblinkItems ? 1 : 0);
-		values.put(ModulesContract.PERMISSION, module.permission);
+		ContentValues v = new ContentValues();
+		v.put(ModulesContract.IVLE_ID, module.ID);
+		v.put(ModulesContract.ACCOUNT, mAccount.name);
+		v.put(ModulesContract.BADGE, module.badge);
+		v.put(ModulesContract.BADGE_ANNOUNCEMENT, module.badgeAnnouncement);
+		v.put(ModulesContract.COURSE_ACAD_YEAR, module.courseAcadYear);
+		v.put(ModulesContract.COURSE_CLOSE_DATE, module.courseCloseDate.toString());
+		v.put(ModulesContract.COURSE_CODE, module.courseCode);
+		v.put(ModulesContract.COURSE_DEPARTMENT, module.courseDepartment);
+		v.put(ModulesContract.COURSE_LEVEL, module.courseLevel);
+		v.put(ModulesContract.COURSE_MC, module.courseMC);
+		v.put(ModulesContract.COURSE_NAME, module.courseName);
+		v.put(ModulesContract.COURSE_OPEN_DATE, module.courseOpenDate.toString());
+		v.put(ModulesContract.COURSE_SEMESTER, module.courseSemester);
+		v.put(ModulesContract.CREATOR_ID, creatorId);
+		v.put(ModulesContract.HAS_ANNOUNCEMENT_ITEMS, module.hasAnnouncementItems ? 1 : 0);
+		v.put(ModulesContract.HAS_CLASS_GROUPS_FOR_SIGN_UP, module.hasClassGroupsForSignUp ? 1 : 0);
+		v.put(ModulesContract.HAS_CLASS_ROSTER_ITEMS, module.hasClassRosterItems ? 1 : 0);
+		v.put(ModulesContract.HAS_CONSULTATION_ITEMS, module.hasConsultationItems ? 1 : 0);
+		v.put(ModulesContract.HAS_CONSULTATION_SLOTS_FOR_SIGN_UP, module.hasConsultationSlotsForSignUp ? 1 : 0);
+		v.put(ModulesContract.HAS_DESCRIPTION_ITEMS, module.hasDescriptionItems ? 1 : 0);
+		v.put(ModulesContract.HAS_GRADEBOOK_ITEMS, module.hasGradebookItems ? 1 : 0);
+		v.put(ModulesContract.HAS_GROUPS_ITEMS, module.hasGroupsItems ? 1 : 0);
+		v.put(ModulesContract.HAS_GUEST_ROSTER_ITEMS, module.hasGuestRosterItems ? 1 : 0);
+		v.put(ModulesContract.HAS_LECTURER_ITEMS, module.hasLecturerItems ? 1 : 0);
+		v.put(ModulesContract.HAS_PROJECT_GROUP_ITEMS, module.hasProjectGroupItems ? 1 : 0);
+		v.put(ModulesContract.HAS_PROJECT_GROUPS_FOR_SIGN_UP, module.hasProjectGroupsForSignUp ? 1 : 0);
+		v.put(ModulesContract.HAS_READING_ITEMS, module.hasReadingItems ? 1 : 0);
+		v.put(ModulesContract.HAS_TIMETABLE_ITEMS, module.hasTimetableItems ? 1 : 0);
+		v.put(ModulesContract.HAS_WEBLINK_ITEMS, module.hasWeblinkItems ? 1 : 0);
+		v.put(ModulesContract.PERMISSION, module.permission);
 		
-		// Obtain the ID after insertion.
-		Uri uri = mProvider.insert(ModulesContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Insert or update gradebook items.
+		long id = this.itemExists(ModulesContract.class, module.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertModule: courseName = " + module.courseName + ", ID = " + module.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					ModulesContract.CONTENT_URI, v,
+					ModulesContract.IVLE_ID.concat(" = ? AND ") +
+					ModulesContract.ACCOUNT.concat(" = ?"),
+					new String[] { module.ID, mAccount.name }
+			);
+			return id;
+		} else {
+			Log.v(TAG, "insertModule: courseName = " + module.courseName + ", ID = " + module.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(ModulesContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**
@@ -654,22 +723,36 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a webcast into the webcast table.
 	 */
-	private int insertWebcast(Webcast webcast, int moduleId, int creatorId) throws
+	private long insertWebcast(Webcast webcast, long moduleId, int creatorId) throws
 			RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertWebcast: " + webcast.title);
-		ContentValues values = new ContentValues();
-		values.put(WorkbinsContract.IVLE_ID, webcast.ID);
-		values.put(WorkbinsContract.MODULE_ID, moduleId);
-		values.put(WorkbinsContract.ACCOUNT, mAccount.name);
-		values.put(WorkbinsContract.CREATOR_ID, creatorId);
-		values.put(WorkbinsContract.BADGE_TOOL, webcast.badgeTool);
-		values.put(WorkbinsContract.PUBLISHED, webcast.published);
-		values.put(WorkbinsContract.TITLE, webcast.title);
+		ContentValues v = new ContentValues();
+		v.put(WebcastsContract.IVLE_ID, webcast.ID);
+		v.put(WebcastsContract.MODULE_ID, moduleId);
+		v.put(WebcastsContract.ACCOUNT, mAccount.name);
+		v.put(WebcastsContract.CREATOR_ID, creatorId);
+		v.put(WebcastsContract.BADGE_TOOL, webcast.badgeTool);
+		v.put(WebcastsContract.PUBLISHED, webcast.published);
+		v.put(WebcastsContract.TITLE, webcast.title);
 		
-		// Insert workbins.
-		Uri uri = mProvider.insert(WebcastsContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Insert or update webcast items.
+		long id = this.itemExists(WebcastsContract.class, webcast.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertWebcast: title = " + webcast.title + ", ID = " + webcast.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					WebcastsContract.CONTENT_URI, v,
+					WebcastsContract.IVLE_ID.concat(" = ? AND ") +
+					WebcastsContract.ACCOUNT.concat(" = ?"),
+					new String[] { webcast.ID, mAccount.name }
+			);
+			return id;
+		} else {
+			Log.v(TAG, "insertWebcast: title = " + webcast.title + ", ID = " + webcast.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(WebcastsContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**
@@ -677,30 +760,45 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a webcast file into the webcast file table.
 	 */
-	private int insertWebcastFile(Webcast.File file, int moduleId,
-			int webcastItemGroupId, Integer creatorId) throws
+	private long insertWebcastFile(Webcast.File file, long moduleId,
+			long webcastItemGroupId, Integer creatorId) throws
 			RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertWebcastFile: " + file.fileTitle);
-		ContentValues values = new ContentValues();
-		values.put(WebcastFilesContract.IVLE_ID, file.ID);
-		values.put(WebcastFilesContract.MODULE_ID, moduleId);
-		values.put(WebcastFilesContract.WEBCAST_ITEM_GROUP_ID, webcastItemGroupId);
-		values.put(WebcastFilesContract.ACCOUNT, mAccount.name);
-		values.put(WebcastFilesContract.CREATOR_ID, creatorId);
-		values.put(WebcastFilesContract.BANK_ITEM_ID, file.bankItemID);
-		values.put(WebcastFilesContract.CREATE_DATE, file.createDate.toString());
-		values.put(WebcastFilesContract.FILE_DESCRIPTION, file.fileDescription);
-		values.put(WebcastFilesContract.FILE_NAME, file.fileName);
-		values.put(WebcastFilesContract.FILE_TITLE, file.fileTitle);
-		values.put(WebcastFilesContract.MP3, file.MP3);
-		values.put(WebcastFilesContract.MP4, file.MP4);
-		values.put(WebcastFilesContract.MEDIA_FORMAT, file.mediaFormat);
-		values.put(WebcastFilesContract.IS_READ, file.isRead);
+		ContentValues v = new ContentValues();
+		v.put(WebcastFilesContract.IVLE_ID, file.ID);
+		v.put(WebcastFilesContract.MODULE_ID, moduleId);
+		v.put(WebcastFilesContract.WEBCAST_ITEM_GROUP_ID, webcastItemGroupId);
+		v.put(WebcastFilesContract.ACCOUNT, mAccount.name);
+		v.put(WebcastFilesContract.CREATOR_ID, creatorId);
+		v.put(WebcastFilesContract.BANK_ITEM_ID, file.bankItemID);
+		v.put(WebcastFilesContract.CREATE_DATE, file.createDate.toString());
+		v.put(WebcastFilesContract.FILE_DESCRIPTION, file.fileDescription);
+		v.put(WebcastFilesContract.FILE_NAME, file.fileName);
+		v.put(WebcastFilesContract.FILE_TITLE, file.fileTitle);
+		v.put(WebcastFilesContract.MP3, file.MP3);
+		v.put(WebcastFilesContract.MP4, file.MP4);
+		v.put(WebcastFilesContract.MEDIA_FORMAT, file.mediaFormat);
+		v.put(WebcastFilesContract.IS_READ, file.isRead);
 		
-		// Insert webcast files.
-		Uri uri = mProvider.insert(WebcastFilesContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Insert or update webcast file items.
+		long id = this.itemExists(WebcastFilesContract.class, file.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertWebcastFile: fileTitle = " + file.fileTitle + ", ID = " + file.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					WebcastFilesContract.CONTENT_URI, v,
+					WebcastFilesContract.IVLE_ID.concat(" = ? AND ") +
+					WebcastFilesContract.ACCOUNT.concat(" = ? AND ") +
+					WebcastFilesContract.WEBCAST_ITEM_GROUP_ID.concat(" = ?"),
+					new String[] { file.ID, mAccount.name, Long.toString(webcastItemGroupId) }
+			);
+			return id;
+		} else {
+			Log.v(TAG, "insertWebcastFile: fileTitle = " + file.fileTitle + ", ID = " + file.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(WebcastFilesContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**
@@ -708,20 +806,25 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a webcast item group into the webcast item group table.
 	 */
-	private int insertWebcastItemGroup(Webcast.ItemGroup item, int moduleId, 
-			int webcastId) throws RemoteException {
+	private long insertWebcastItemGroup(Webcast.ItemGroup group, long moduleId, 
+			long webcastId) throws RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertWebcastItemGroup: " + item.itemGroupTitle);
-		ContentValues values = new ContentValues();
-		values.put(WebcastItemGroupsContract.IVLE_ID, item.ID);
-		values.put(WebcastItemGroupsContract.MODULE_ID, moduleId);
-		values.put(WebcastItemGroupsContract.WEBCAST_ID, webcastId);
-		values.put(WebcastItemGroupsContract.ACCOUNT, mAccount.name);
-		values.put(WebcastItemGroupsContract.ITEM_GROUP_TITLE, item.itemGroupTitle);
+		ContentValues v = new ContentValues();
+		v.put(WebcastItemGroupsContract.IVLE_ID, group.ID);
+		v.put(WebcastItemGroupsContract.MODULE_ID, moduleId);
+		v.put(WebcastItemGroupsContract.WEBCAST_ID, webcastId);
+		v.put(WebcastItemGroupsContract.ACCOUNT, mAccount.name);
+		v.put(WebcastItemGroupsContract.ITEM_GROUP_TITLE, group.itemGroupTitle);
 		
-		// Insert webcast item group.
-		Uri uri = mProvider.insert(WebcastItemGroupsContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Webcast item groups don't have IDs, so we cannot identify whether
+		// to update or insert.
+		mProvider.delete(
+				WebcastItemGroupsContract.CONTENT_URI,
+				WebcastItemGroupsContract.ACCOUNT.concat(" = ? AND ") +
+				WebcastItemGroupsContract.WEBCAST_ID.concat(" = ?"),
+				new String[] { mAccount.name, Long.toString(webcastId) });
+		Uri uri = mProvider.insert(WebcastItemGroupsContract.CONTENT_URI, v);
+		return ContentUris.parseId(uri);
 	}
 	
 	/**
@@ -729,22 +832,37 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a weblink into the user table.
 	 */
-	private int insertWeblink(Weblink weblink, int moduleId) throws
+	private long insertWeblink(Weblink weblink, long moduleId) throws
 			RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertWeblink: " + weblink.description);
-		ContentValues values = new ContentValues();
-		values.put(WeblinksContract.IVLE_ID, weblink.ID);
-		values.put(WeblinksContract.MODULE_ID, moduleId);
-		values.put(WeblinksContract.ACCOUNT, mAccount.name);
-		values.put(WeblinksContract.DESCRIPTION, weblink.description);
-		values.put(WeblinksContract.ORDER, weblink.order);
-		values.put(WeblinksContract.RATING, weblink.rating);
-		values.put(WeblinksContract.SITE_TYPE, weblink.siteType);
-		values.put(WeblinksContract.URL, weblink.url.toString());
+		ContentValues v = new ContentValues();
+		v.put(WeblinksContract.IVLE_ID, weblink.ID);
+		v.put(WeblinksContract.MODULE_ID, moduleId);
+		v.put(WeblinksContract.ACCOUNT, mAccount.name);
+		v.put(WeblinksContract.DESCRIPTION, weblink.description);
+		v.put(WeblinksContract.ORDER, weblink.order);
+		v.put(WeblinksContract.RATING, weblink.rating);
+		v.put(WeblinksContract.SITE_TYPE, weblink.siteType);
+		v.put(WeblinksContract.URL, weblink.url.toString());
 		
-		Uri uri = mProvider.insert(WeblinksContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Insert or update weblink items.
+		long id = this.itemExists(WeblinksContract.class, weblink.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertWeblink: description = " + weblink.description + ", ID = " + weblink.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					WeblinksContract.CONTENT_URI, v,
+					WeblinksContract.IVLE_ID.concat(" = ? AND ") +
+					WeblinksContract.ACCOUNT.concat(" = ?"),
+					new String[] { weblink.ID, mAccount.name }
+			);
+			return id;
+		} else {
+			Log.v(TAG, "insertWeblink: description = " + weblink.description + ", ID = " + weblink.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(WeblinksContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**
@@ -752,22 +870,36 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a workbin into the workbin table.
 	 */
-	private int insertWorkbin(Workbin workbin, int moduleId) throws
+	private long insertWorkbin(Workbin workbin, long moduleId) throws
 			RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertWorkbin: " + workbin.title);
-		ContentValues values = new ContentValues();
-		values.put(WorkbinsContract.IVLE_ID, workbin.ID);
-		values.put(WorkbinsContract.MODULE_ID, moduleId);
-		values.put(WorkbinsContract.ACCOUNT, mAccount.name);
-		values.put(WorkbinsContract.CREATOR_ID, workbin.creator.ID);
-		values.put(WorkbinsContract.BADGE_TOOL, workbin.badgeTool);
-		values.put(WorkbinsContract.PUBLISHED, workbin.published);
-		values.put(WorkbinsContract.TITLE, workbin.title);
+		ContentValues v = new ContentValues();
+		v.put(WorkbinsContract.IVLE_ID, workbin.ID);
+		v.put(WorkbinsContract.MODULE_ID, moduleId);
+		v.put(WorkbinsContract.ACCOUNT, mAccount.name);
+		v.put(WorkbinsContract.CREATOR_ID, workbin.creator.ID);
+		v.put(WorkbinsContract.BADGE_TOOL, workbin.badgeTool);
+		v.put(WorkbinsContract.PUBLISHED, workbin.published);
+		v.put(WorkbinsContract.TITLE, workbin.title);
 		
-		// Insert workbins.
-		Uri uri = mProvider.insert(WorkbinsContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Insert or update workbin items.
+		long id = this.itemExists(WorkbinsContract.class, workbin.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertWorkbin: title = " + workbin.title + ", ID = " + workbin.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					WorkbinsContract.CONTENT_URI, v,
+					WorkbinsContract.IVLE_ID.concat(" = ? AND ") +
+					WorkbinsContract.ACCOUNT.concat(" = ?"),
+					new String[] { workbin.ID, mAccount.name }
+			);
+			return id;
+		} else {
+			Log.v(TAG, "insertWorkbin: title = " + workbin.title + ", ID = " + workbin.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(WorkbinsContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**
@@ -775,30 +907,60 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a workbin folder into the workbin folders table.
 	 */
-	private int insertWorkbinFolder(Workbin.Folder folder, int moduleId,
-			int workbinId, Integer workbinFolderId) throws RemoteException {
+	private long insertWorkbinFolder(Workbin.Folder folder, long moduleId,
+			long workbinId, Long workbinFolderId) throws RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertWorkbinFolder: " + folder.folderName);
-		ContentValues values = new ContentValues();
-		values.put(WorkbinFoldersContract.IVLE_ID, folder.ID);
-		values.put(WorkbinFoldersContract.MODULE_ID, moduleId);
-		values.put(WorkbinFoldersContract.ACCOUNT, mAccount.name);
-		values.put(WorkbinFoldersContract.WORKBIN_ID, workbinId);
-		values.put(WorkbinFoldersContract.WORKBIN_FOLDER_ID, workbinFolderId);
-		values.put(WorkbinFoldersContract.ALLOW_UPLOAD, folder.allowUpload);
-		values.put(WorkbinFoldersContract.ALLOW_VIEW, folder.allowView);
-		values.put(WorkbinFoldersContract.CLOSE_DATE, folder.closeDate.toString());
-		values.put(WorkbinFoldersContract.COMMENT_OPTION, folder.commentOption.toString());
-		values.put(WorkbinFoldersContract.FILE_COUNT, folder.fileCount);
-		values.put(WorkbinFoldersContract.FOLDER_NAME, folder.folderName);
-		values.put(WorkbinFoldersContract.ORDER, folder.order);
-		values.put(WorkbinFoldersContract.OPEN_DATE, folder.openDate.toString());
-		values.put(WorkbinFoldersContract.SORT_FILES_BY, folder.sortFilesBy);
-		values.put(WorkbinFoldersContract.UPLOAD_DISPLAY_OPTION, folder.uploadDisplayOption);
-	
-		// Insert workbin folders.
-		Uri uri = mProvider.insert(WorkbinFoldersContract.CONTENT_URI, values);
-		int insertedWorkbinFolderId = Integer.parseInt(uri.getLastPathSegment());
+		ContentValues v = new ContentValues();
+		v.put(WorkbinFoldersContract.IVLE_ID, folder.ID);
+		v.put(WorkbinFoldersContract.MODULE_ID, moduleId);
+		v.put(WorkbinFoldersContract.ACCOUNT, mAccount.name);
+		v.put(WorkbinFoldersContract.WORKBIN_ID, workbinId);
+		v.put(WorkbinFoldersContract.WORKBIN_FOLDER_ID, workbinFolderId);
+		v.put(WorkbinFoldersContract.ALLOW_UPLOAD, folder.allowUpload);
+		v.put(WorkbinFoldersContract.ALLOW_VIEW, folder.allowView);
+		v.put(WorkbinFoldersContract.CLOSE_DATE, folder.closeDate.toString());
+		v.put(WorkbinFoldersContract.COMMENT_OPTION, folder.commentOption.toString());
+		v.put(WorkbinFoldersContract.FILE_COUNT, folder.fileCount);
+		v.put(WorkbinFoldersContract.FOLDER_NAME, folder.folderName);
+		v.put(WorkbinFoldersContract.ORDER, folder.order);
+		v.put(WorkbinFoldersContract.OPEN_DATE, folder.openDate.toString());
+		v.put(WorkbinFoldersContract.SORT_FILES_BY, folder.sortFilesBy);
+		v.put(WorkbinFoldersContract.UPLOAD_DISPLAY_OPTION, folder.uploadDisplayOption);
+		
+		// Insert or update workbin folders.
+		long id = this.itemExists(WorkbinFoldersContract.class, folder.ID);
+		long insertedId;
+		if (id > -1) {
+			Log.v(TAG, "insertWorkbinFolder: folderName = " + folder.folderName + ", ID = " + folder.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			
+			// The workbin folder ID can be null.
+			if (workbinFolderId == null) {
+				mProvider.update(
+						WorkbinFoldersContract.CONTENT_URI, v,
+						WorkbinFoldersContract.IVLE_ID.concat(" = ? AND ") +
+						WorkbinFoldersContract.ACCOUNT.concat(" = ? AND ") +
+						WorkbinFoldersContract.WORKBIN_ID.concat(" = ?"),
+						new String[] { folder.ID, mAccount.name, Long.toString(workbinId) }
+				);
+			} else {
+				mProvider.update(
+						WorkbinFoldersContract.CONTENT_URI, v,
+						WorkbinFoldersContract.IVLE_ID.concat(" = ? AND ") +
+						WorkbinFoldersContract.ACCOUNT.concat(" = ? AND ") +
+						WorkbinFoldersContract.WORKBIN_ID.concat(" = ? AND ") +
+						WorkbinFoldersContract.WORKBIN_FOLDER_ID.concat(" = ?"),
+						new String[] { folder.ID, mAccount.name, Long.toString(workbinId), Long.toString(workbinFolderId) }
+				);
+			}
+			
+			insertedId = id;
+		} else {
+			Log.v(TAG, "insertWorkbinFolder: folderName = " + folder.folderName + ", ID = " + folder.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(WorkbinFoldersContract.CONTENT_URI, v);
+			insertedId = ContentUris.parseId(uri);
+		}
 		
 		// Insert the files inside this folder.
 		Workbin.File[] files = folder.getFiles();
@@ -815,16 +977,16 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 				commenterId = Integer.parseInt(commenterUri.getLastPathSegment());
 			}
 			
-			this.insertWorkbinFile(file, moduleId, insertedWorkbinFolderId, creatorId, commenterId);
+			this.insertWorkbinFile(file, moduleId, insertedId, creatorId, commenterId);
 		}
 		
 		// Insert the subfolders.
 		Workbin.Folder[] subfolders = folder.getFolders();
 		for (Workbin.Folder subfolder : subfolders) {
-			this.insertWorkbinFolder(subfolder, moduleId, workbinId, insertedWorkbinFolderId);
+			this.insertWorkbinFolder(subfolder, moduleId, workbinId, insertedId);
 		}
 		
-		return insertedWorkbinFolderId;
+		return insertedId;
 	}
 	
 	/**
@@ -832,35 +994,50 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a workbin file into the workbin files table.
 	 */
-	private int insertWorkbinFile(Workbin.File file, int moduleId,
-			int workbinFolderId, int creatorId, int commenterId) throws
+	private long insertWorkbinFile(Workbin.File file, long moduleId,
+			long workbinFolderId, int creatorId, int commenterId) throws
 			RemoteException {
 		// Prepare the content values.
-		Log.v(TAG, "insertWorkbinFile: " + file.fileName);
-		ContentValues values = new ContentValues();
-		values.put(WorkbinFilesContract.IVLE_ID, file.ID);
-		values.put(WorkbinFilesContract.MODULE_ID, moduleId);
-		values.put(WorkbinFilesContract.ACCOUNT, mAccount.name);
-		values.put(WorkbinFilesContract.WORKBIN_FOLDER_ID, workbinFolderId);
-		values.put(WorkbinFilesContract.CREATOR_ID, creatorId);
-		values.put(WorkbinFilesContract.COMMENTER_ID, commenterId);
-		values.put(WorkbinFilesContract.FILE_DESCRIPTION, file.fileDescription);
-		values.put(WorkbinFilesContract.FILE_NAME, file.fileName);
-		values.put(WorkbinFilesContract.FILE_REMARKS, file.fileRemarks);
-		values.put(WorkbinFilesContract.FILE_REMARKS_ATTACHMENT, file.fileRemarksAttachment);
-		values.put(WorkbinFilesContract.FILE_SIZE, file.fileSize);
-		values.put(WorkbinFilesContract.FILE_TYPE, file.fileType);
-		values.put(WorkbinFilesContract.IS_DOWNLOADED, file.isDownloaded);
+		ContentValues v = new ContentValues();
+		v.put(WorkbinFilesContract.IVLE_ID, file.ID);
+		v.put(WorkbinFilesContract.MODULE_ID, moduleId);
+		v.put(WorkbinFilesContract.ACCOUNT, mAccount.name);
+		v.put(WorkbinFilesContract.WORKBIN_FOLDER_ID, workbinFolderId);
+		v.put(WorkbinFilesContract.CREATOR_ID, creatorId);
+		v.put(WorkbinFilesContract.COMMENTER_ID, commenterId);
+		v.put(WorkbinFilesContract.FILE_DESCRIPTION, file.fileDescription);
+		v.put(WorkbinFilesContract.FILE_NAME, file.fileName);
+		v.put(WorkbinFilesContract.FILE_REMARKS, file.fileRemarks);
+		v.put(WorkbinFilesContract.FILE_REMARKS_ATTACHMENT, file.fileRemarksAttachment);
+		v.put(WorkbinFilesContract.FILE_SIZE, file.fileSize);
+		v.put(WorkbinFilesContract.FILE_TYPE, file.fileType);
+		v.put(WorkbinFilesContract.IS_DOWNLOADED, file.isDownloaded);
 		
 		try {
-			values.put(WorkbinFilesContract.DOWNLOAD_URL, file.getDownloadURL().toString());
+			v.put(WorkbinFilesContract.DOWNLOAD_URL, file.getDownloadURL().toString());
 		} catch (MalformedURLException e) {
 			// Ignore the exception.
+			Log.w(TAG, "MalformedURLException inserting download URL for workbin file " + file.ID);
 		}
 		
-		// Insert workbin files.
-		Uri uri = mProvider.insert(WorkbinFilesContract.CONTENT_URI, values);
-		return Integer.parseInt(uri.getLastPathSegment());
+		// Insert or update workbin file items.
+		long id = this.itemExists(WorkbinFilesContract.class, file.ID);
+		if (id > -1) {
+			Log.v(TAG, "insertWorkbinFile: fileName = " + file.fileName + ", ID = " + file.ID + " (update)");
+			mSyncResult.stats.numUpdates++;
+			mProvider.update(
+					WorkbinFilesContract.CONTENT_URI, v,
+					WorkbinFilesContract.IVLE_ID.concat(" = ? AND ") +
+					WorkbinFilesContract.ACCOUNT.concat(" = ?"),
+					new String[] { file.ID, mAccount.name }
+			);
+			return id;
+		} else {
+			Log.v(TAG, "insertWorkbinFile: fileName = " + file.fileName + ", ID = " + file.ID);
+			mSyncResult.stats.numInserts++;
+			Uri uri = mProvider.insert(WorkbinFilesContract.CONTENT_URI, v);
+			return ContentUris.parseId(uri);
+		}
 	}
 	
 	/**
@@ -882,58 +1059,33 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		String[] projection = { UsersContract.ID };
 		String selection = UsersContract.IVLE_ID + " = ?";
 		String[] selectionArgs = { user.ID };
-		Cursor cursor = mProvider.query(UsersContract.CONTENT_URI, projection, 
+		Cursor c = mProvider.query(UsersContract.CONTENT_URI, projection, 
 				selection, selectionArgs, null);
 		
 		// Prepare values to be inserted.
-		ContentValues values = new ContentValues();
-		values.put(UsersContract.IVLE_ID, user.ID);
-		values.put(UsersContract.ACCOUNT, mAccount.name);
-		values.put(UsersContract.ACCOUNT_TYPE, user.accountType);
-		values.put(UsersContract.EMAIL, user.email);
-		values.put(UsersContract.NAME, user.name);
-		values.put(UsersContract.TITLE, user.title);
-		values.put(UsersContract.USER_ID, user.userID);
+		ContentValues v = new ContentValues();
+		v.put(UsersContract.IVLE_ID, user.ID);
+		v.put(UsersContract.ACCOUNT, mAccount.name);
+		v.put(UsersContract.ACCOUNT_TYPE, user.accountType);
+		v.put(UsersContract.EMAIL, user.email);
+		v.put(UsersContract.NAME, user.name);
+		v.put(UsersContract.TITLE, user.title);
+		v.put(UsersContract.USER_ID, user.userID);
 		
 		// Check number of users that matched.
-		if (cursor.getCount() < 1) {
-			return mProvider.insert(UsersContract.CONTENT_URI, values);
+		if (c.getCount() < 1) {
+			mSyncResult.stats.numInserts++;
+			return mProvider.insert(UsersContract.CONTENT_URI, v);
 		} else {
 			// Obtain the ID for the user we want to update.
-			cursor.moveToFirst();
-			int userId = cursor.getInt(0);
+			c.moveToFirst();
+			int userId = c.getInt(0);
+			mSyncResult.stats.numUpdates++;
 			return mProvider.insert(
 					Uri.withAppendedPath(UsersContract.CONTENT_URI, "/" + userId),
-					values
+					v
 			);
 		}
-	}
-	
-	/**
-	 * Method: purgeAccountData
-	 * <p>
-	 * Purges all data associated with the currently synced account from 
-	 * the SQLite database backing the content provider.
-	 */
-	private void purgeAccountData() throws RemoteException {
-		// We need to define the account selection.
-		String selection = "account = ?";
-		String selectionArgs[] = { mAccount.name };
-		
-		// Delete all data.
-		mProvider.delete(AnnouncementsContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(GradebooksContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(GradebookItemsContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(ModulesContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(TimetableSlotsContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(UsersContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(WebcastsContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(WebcastItemGroupsContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(WebcastFilesContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(WeblinksContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(WorkbinsContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(WorkbinFoldersContract.CONTENT_URI, selection, selectionArgs);
-		mProvider.delete(WorkbinFilesContract.CONTENT_URI, selection, selectionArgs);
 	}
 	
 	// }}}
