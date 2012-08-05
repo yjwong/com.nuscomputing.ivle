@@ -216,9 +216,9 @@ public class IVLESyncService extends Service {
 							long announcementId = cursor.getLong(cursor.getColumnIndex(AnnouncementsContract.ID));
 							
 							// Create a pending intent.
-							Intent intent = new Intent(context, ViewAnnouncementActivity.class);
+							Intent intent = NotificationDispatcher.createIntent(context, NotificationDispatcher.NOTIFICATION_ANNOUNCEMENT_SINGLE, account.name);
 							intent.putExtra("announcementId", announcementId);
-							PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+							PendingIntent pendingIntent = PendingIntent.getActivity(context, account.hashCode(), intent, 0);
 							
 							// Create notification based on platform version.
 							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -226,6 +226,7 @@ public class IVLESyncService extends Service {
 									.setContentTitle(notifTitle)
 									.setContentText(account.name)
 									.setContentIntent(pendingIntent)
+									.setAutoCancel(true)
 									.setSmallIcon(R.drawable.ic_launcher);
 								
 								notif = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) ? builder.build() : builder.getNotification();
@@ -233,14 +234,16 @@ public class IVLESyncService extends Service {
 								notif = new Notification(R.drawable.ic_launcher, notifTitle, System.currentTimeMillis());
 								notif.setLatestEventInfo(context, notifTitle, account.name, pendingIntent);
 							}
+							
+							// Send the notification.
+							manager.notify(account.name, NotificationDispatcher.NOTIFICATION_ANNOUNCEMENT_SINGLE, notif);
 	
 						} else {
 							String notifTitle = context.getString(R.string.notification_new_announcements, announcementCount);
 							
 							// Create a pending intent.
-							Intent intent = new Intent(context, MainActivity.class);
-							intent.putExtra("withAccount", account.name);
-							PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+							Intent intent = NotificationDispatcher.createIntent(context, NotificationDispatcher.NOTIFICATION_ANNOUNCEMENT_MANY, account.name);
+							PendingIntent pendingIntent = PendingIntent.getActivity(context, account.hashCode(), intent, 0);
 							
 							// Create notification based on platform version.
 							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -248,6 +251,7 @@ public class IVLESyncService extends Service {
 									.setContentTitle(notifTitle)
 									.setContentText(account.name)
 									.setContentIntent(pendingIntent)
+									.setAutoCancel(true)
 									.setSmallIcon(R.drawable.ic_launcher);
 								
 								// Use the inbox style on Jellybean.
@@ -277,10 +281,10 @@ public class IVLESyncService extends Service {
 								notif = new Notification(R.drawable.ic_launcher, notifTitle, System.currentTimeMillis());
 								notif.setLatestEventInfo(context, notifTitle, account.name, pendingIntent);
 							}
+							
+							// Send the notification.
+							manager.notify(account.name, NotificationDispatcher.NOTIFICATION_ANNOUNCEMENT_MANY, notif);
 						}
-						
-						// Send the notification.
-						manager.notify(0, notif);
 					}
 					
 				} catch (RemoteException e) {

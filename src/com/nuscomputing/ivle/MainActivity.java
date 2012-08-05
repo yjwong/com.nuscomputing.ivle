@@ -105,21 +105,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		mViewPager = (ViewPager) findViewById(R.id.main_view_pager);
 		mModulesFragmentContainer = (LinearLayout) findViewById(R.id.main_modules_fragment_container);
 		
-		// Handle account switching.
-		Intent incomingIntent = getIntent();
-		if (incomingIntent.hasExtra("withAccount")) {
-			Account accountSet = AccountUtils.setActiveAccount(this, incomingIntent.getStringExtra("withAccount"));
-			if (accountSet == null) {
-				mActiveAccount = AccountUtils.getActiveAccount(this, true);
-			} else {
-				mActiveAccount = accountSet;
-			}
-			
-		} else {
-			// Check if there's an active account.
-			mActiveAccount = AccountUtils.getActiveAccount(this, true);
-		}
-		
+		// Check if there's an active account.
+		mActiveAccount = AccountUtils.getActiveAccount(this, true);
 		if (mActiveAccount == null) {
 			// Launch activity to add account.
 			Log.d(TAG, "No accounts defined, starting AuthenticatorActivity");

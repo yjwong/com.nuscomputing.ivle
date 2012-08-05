@@ -69,7 +69,15 @@
         </activity>
         <activity android:name=".online.ModuleActivity"></activity>
         <activity android:name=".AboutApplicationActivityLegacy" android:theme="@style/Theme.Sherlock.Light.Dialog"></activity>
-        <activity android:name="org.acra.CrashReportDialog" android:theme="@style/Theme.Sherlock.Light.Dialog" android:launchMode="singleInstance" android:finishOnTaskLaunch="true" android:excludeFromRecents="true"></activity>
+        <activity android:name="NotificationDispatcher"
+            android:noHistory="true">
+        </activity>
+        <activity android:name="org.acra.CrashReportDialog"
+            android:theme="@style/Theme.Sherlock.Light.Dialog"
+            android:launchMode="singleInstance"
+            android:finishOnTaskLaunch="true"
+            android:excludeFromRecents="true">
+        </activity>
         
         <!-- Service declarations -->
         <service
