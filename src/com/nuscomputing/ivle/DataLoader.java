@@ -337,7 +337,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 					WebcastFilesContract.FILE_NAME
 			));
 			selection = DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ACCOUNT + " = ?";
-			selection += " AND " + DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.WEBCAST_ITEM_GROUP_ID + " = ?";
+			selection += " AND " + DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ID + " = ?";
 			selectionArgsList.add(accountName);
 			selectionArgsList.add(Long.toString(webcastFileId));
 			

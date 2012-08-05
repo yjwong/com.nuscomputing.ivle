@@ -87,7 +87,7 @@ public class ViewWebcastFileActivity extends SherlockFragmentActivity implements
 			bar.hide();
 			
 			// Set to low profile mode again.
-			if (Build.VERSION.SDK_INT >= 14) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 				getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 			}
 		}
@@ -116,7 +116,7 @@ public class ViewWebcastFileActivity extends SherlockFragmentActivity implements
 		}
 		
 		// Use overlaid action bar.
-		if (Build.VERSION.SDK_INT >= 11) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 			getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
 		}
@@ -126,7 +126,7 @@ public class ViewWebcastFileActivity extends SherlockFragmentActivity implements
 		bar.setDisplayHomeAsUpEnabled(true);
 		
 		// Set to full screen.
-		if (Build.VERSION.SDK_INT >= 14) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 		}
 		
