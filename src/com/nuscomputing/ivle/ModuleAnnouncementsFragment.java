@@ -172,20 +172,28 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 			cursor.moveToPosition(position);
 			boolean isRead = cursor.getInt(cursor.getColumnIndex(AnnouncementsContract.IS_READ)) == 1 ? true : false;
 			if (!isRead) {
-				convertView.setBackgroundResource(R.drawable.module_announcements_fragment_list_item_unread);
-				
-				// Set the title to be bold.
-				TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
-				tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+				this.uiSetAsUnread(convertView);
 			} else {
-				convertView.setBackgroundResource(0);
-				
-				// Set the title to be normal.
-				TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
-				tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+				this.uiSetAsRead(convertView);
 			}
 			
 			return convertView;
+		}
+		
+		private void uiSetAsUnread(View convertView) {
+			convertView.setBackgroundResource(R.drawable.module_announcements_fragment_list_item_unread);
+			
+			// Set the title to be bold.
+			TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
+			tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+		}
+		
+		private void uiSetAsRead(View convertView) {
+			convertView.setBackgroundResource(0);
+			
+			// Set the title to be normal.
+			TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
+			tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
 		}
 		
 		// }}}

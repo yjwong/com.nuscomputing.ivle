@@ -151,6 +151,7 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 			authToken = mAccountManager.blockingGetAuthToken(account, Constants.AUTHTOKEN_TYPE, true);
 			IVLE ivle = new IVLE(Constants.API_KEY, authToken);
 			Module[] modules = ivle.getModules();
+			this.purgeDeletedModulesFromLocal(modules);
 			Log.v(TAG, modules.length + " modules found: ");
 			
 			// Put those modules into the provider.
@@ -389,10 +390,80 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 	
 	/**
+	 * Method: findDeletedModules
+	 * <p>
+	 * Find modules deleted between the current sync and the time of the
+	 * last sync.
+	 * <p>
+	 * Note: we cannot use the generic implementation because things work
+	 * too differently for modules.
+	 * 
+	 * @param modules An array containing modules from the current sync
+	 */
+	private Set<String> findDeletedModules(Module[] modules) throws
+			RemoteException {
+		// Get the column names.
+		Uri fieldContentUri = ModulesContract.CONTENT_URI;
+		String fieldTable = ModulesContract.TABLE;
+		String fieldIvleId = ModulesContract.IVLE_ID;
+		String fieldAccount = ModulesContract.ACCOUNT;
+		
+		// Get the set of old items.
+		Cursor c = mProvider.query(
+				fieldContentUri,
+				new String[] { fieldIvleId },
+				fieldTable.concat(".").concat(fieldAccount).concat(" = ?"),
+				new String [] { mAccount.name },
+				null);
+		Set<String> oldSet = new HashSet<String>();
+		c.moveToFirst();
+		while (!c.isAfterLast()) {
+			oldSet.add(c.getString(c.getColumnIndex(fieldIvleId)));
+			c.moveToNext();
+		}
+		
+		// Get the set of new items.
+		Set<String> newSet = new HashSet<String>();
+		for (Module module : modules) {
+			newSet.add(module.ID);
+		}
+		
+		oldSet.removeAll(newSet);
+		return oldSet;
+	}
+	
+	/**
+	 * Method: purgeDeletedModulesFromLocal
+	 * <p>
+	 * Removes deleted modules from the local cache.
+	 */
+	private void purgeDeletedModulesFromLocal(Module[] modules) throws
+			RemoteException {
+		Set<String> removeSet = this.findDeletedModules(modules);
+		Uri fieldContentUri = ModulesContract.CONTENT_URI;
+		String fieldIvleId = ModulesContract.IVLE_ID;
+		String fieldAccount = ModulesContract.ACCOUNT;
+		for (String toRemove : removeSet) {
+			mSyncResult.stats.numDeletes++;
+			Log.v(TAG, "purging non-existent module with ID = " + toRemove);
+			mProvider.delete(
+					fieldContentUri,
+					fieldIvleId.concat(" = ?").concat(" AND ")
+						.concat(fieldAccount).concat(" = ?"),
+					new String[] { toRemove, mAccount.name }
+			);
+		}
+	}
+	
+	/**
 	 * Method: findDeletedItemsByType
 	 * <p>
 	 * Generic method to find IVLE items deleted between the current sync
 	 * and the time of the last sync.
+	 * 
+	 * @param contract The contract for the item
+	 * @param objects  An array containing items from the current sync
+	 * @param moduleId The ID of the module the items belong to
 	 */
 	private <T extends IVLEObject> Set<String> findDeletedItemsByType(
 			IVLEContract contract, T[] objects,

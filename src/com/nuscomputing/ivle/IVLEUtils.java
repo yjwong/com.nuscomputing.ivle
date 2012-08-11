@@ -90,5 +90,14 @@ public class IVLEUtils {
 		}
 	}
 	
+	/**
+	 * Method: filterHTML
+	 * <p>
+	 * Filters HTML for use in ListViews.
+	 */
+	public static void filterHTML() {
+		
+	}
+	
 	// }}}
 }
