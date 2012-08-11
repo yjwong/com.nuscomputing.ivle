@@ -8,7 +8,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -25,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.DataLoader;
 import com.nuscomputing.ivle.IVLEUtils;
 import com.nuscomputing.ivle.R;
@@ -40,7 +40,7 @@ import com.nuscomputing.ivlelapi.NoSuchModuleException;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleInfoFragment extends Fragment {
+public class ModuleInfoFragment extends SherlockListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */

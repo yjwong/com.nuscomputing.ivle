@@ -60,6 +60,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int LOADER_MODULE_WEBLINKS_FRAGMENT = 18;
 	public static final int LOADER_SEARCHABLE_FRAGMENT = 19;
 	public static final int LOADER_CHECK_FOR_UPDATES = 20;
+	public static final int LOADER_PUBLIC_NEWS_FRAGMENT = 21;
 	
 	/** Listener for data loader events */
 	private DataLoaderListener mListener;

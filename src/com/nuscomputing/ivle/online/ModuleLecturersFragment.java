@@ -24,7 +24,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -340,8 +339,7 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 					tvNoLecturers.setVisibility(View.VISIBLE);
 					
 					// Hide the list.
-					ListView listview = getListView();
-					listview.setVisibility(View.GONE);
+					getListView().setVisibility(View.GONE);
 					
 				} else {
 					// Create list of cached URLs.

@@ -15,4 +15,11 @@
         android:showAsAction="ifRoom|withText"
         android:orderInCategory="10">
     </item>
+    
+    <item
+        android:id="@+id/main_menu_public_news"
+        android:icon="@drawable/ic_menu_ivle_news"
+        android:title="@string/ivle_news"
+        android:orderInCategory="11">
+    </item>
 </menu>

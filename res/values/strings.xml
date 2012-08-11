@@ -17,6 +17,7 @@
     <string name="refresh">Refresh</string>
     <string name="search">Search</string>
     <string name="share_via">Share via</string>
+    <string name="ivle_news">IVLE News</string>
     
     <!-- Strings for searchable.xml -->
     <string name="searchable_hint">Search IVLE&#8230;</string>
@@ -26,6 +27,9 @@
     <string name="main_activity_my_agenda">My Agenda</string>
     <string name="main_activity_waiting_for_sync">Waiting for sync&#8230;</string>
     <string name="main_activity_modules_will_appear">Your modules will appear here shortly.</string>
+    
+    <!-- Strings for PublicNewsFragment -->
+    <string name="public_news_fragment_no_news">There are no public news.</string>
     
     <!-- Strings for AboutApplicationDialogFragment -->
     <string name="about_application_text">

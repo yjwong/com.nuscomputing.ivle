@@ -8,6 +8,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.nuscomputing.ivle.online.PublicNewsActivity;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
@@ -271,6 +272,10 @@ public class MainActivity extends SherlockFragmentActivity {
 	    		case R.id.main_menu_refresh:
 	    			this.performRefresh();
 	    			return true;
+	    		
+	    		case R.id.main_menu_public_news:
+	    			startActivity(new Intent(this, PublicNewsActivity.class));
+	    			return true;
 	    			
 	    		case android.R.id.home:
 	    			// Remove the search box.
@@ -289,7 +294,7 @@ public class MainActivity extends SherlockFragmentActivity {
     @Override
     public void onBackPressed() {
     	// Close the search view if one is open.
-    	if (Build.VERSION.SDK_INT >= 14 && !mSearchView.isIconified()) {
+    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && !mSearchView.isIconified()) {
     		mSearchView.onActionViewCollapsed();
     		mSearchView.setQuery("", false);
     		ActionBar bar = getSupportActionBar();
