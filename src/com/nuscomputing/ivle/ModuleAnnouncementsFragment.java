@@ -134,6 +134,14 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 		setListAdapter(mAdapter);
 	}
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		// Our announcements list might have changed, requery.
+		getLoaderManager().restartLoader(DataLoader.LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT, getArguments(), mLoader);
+	}
+	
 	public void onLoaderFinished(Bundle result) {
 		TextView tvNoAnnouncements = (TextView) getActivity().findViewById(R.id.module_announcements_fragment_no_announcements);
 		tvNoAnnouncements.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
@@ -169,6 +177,12 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 				// Set the title to be bold.
 				TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
 				tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+			} else {
+				convertView.setBackgroundResource(0);
+				
+				// Set the title to be normal.
+				TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
+				tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
 			}
 			
 			return convertView;

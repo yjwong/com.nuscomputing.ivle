@@ -47,7 +47,7 @@ public class TimetableSlotsContract extends IVLEContract {
 
 	@Override
 	public String getColumnNameModuleId() {
-		return IVLEContract.MODULE_ID;
+		return null;
 	}
 	
 	// }}}

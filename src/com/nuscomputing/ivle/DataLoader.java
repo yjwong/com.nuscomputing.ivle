@@ -198,7 +198,8 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		CursorLoader loader = new CursorLoader(mContext);
 		List<String> projectionList = new ArrayList<String>();
 		List<String> selectionArgsList = new ArrayList<String>();
-		String selection;
+		String selection = null;
+		String sortOrder = null;
 		
 		Log.d(TAG, "loader " + id + " setting up cursorLoader");
 		if (id == LOADER_MODULES_FRAGMENT) {
@@ -241,6 +242,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			));
 			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ?";
 			selectionArgsList.add(accountName);
+			sortOrder = AnnouncementsContract.CREATED_DATE.concat(" DESC");
 			
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId + "/announcements"));
@@ -274,9 +276,11 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
 					AnnouncementsContract.ID,
+					AnnouncementsContract.IVLE_ID,
 					AnnouncementsContract.TITLE,
 					AnnouncementsContract.DESCRIPTION,
 					AnnouncementsContract.CREATED_DATE,
+					AnnouncementsContract.IS_READ,
 					"creator_" + UsersContract.NAME
 			));
 			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ?";
@@ -422,6 +426,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		loader.setProjection(projectionList.toArray(new String[]{}));
 		loader.setSelection(selection);
 		loader.setSelectionArgs(selectionArgsList.toArray(new String[]{}));
+		loader.setSortOrder(sortOrder);
 		return loader;
 	}
 
@@ -449,13 +454,16 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			case LOADER_MODULE_WORKBINS_FRAGMENT:
 				result.putInt("cursorCount", cursor.getCount());
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
+				((SimpleCursorAdapter) mAdapter).notifyDataSetChanged();
 				break;
 			
 			case LOADER_VIEW_ANNOUNCEMENT_FRAGMENT:
 				cursor.moveToFirst();
+				result.putString("ivleId", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.IVLE_ID)));
 				result.putString("title", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.TITLE)));
 				result.putString("userName", cursor.getString(cursor.getColumnIndex(UsersContract.NAME)));
 				result.putString("description", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.DESCRIPTION)));
+				result.putBoolean("isRead", cursor.getInt(cursor.getColumnIndex(AnnouncementsContract.IS_READ)) == 0 ? false : true);
 				break;
 			
 			case LOADER_VIEW_WEBCAST_ACTIVITY:

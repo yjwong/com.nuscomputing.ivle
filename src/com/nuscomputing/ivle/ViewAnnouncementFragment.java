@@ -9,6 +9,7 @@ import com.actionbarsherlock.view.MenuItem;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,6 +101,16 @@ public class ViewAnnouncementFragment extends SherlockFragment
 		
 		// Process the sharing description.
 		mShareDescription = Html.fromHtml(result.getString("description")).toString();
+		
+		// Mark the announcement as read.
+		if (!result.getBoolean("isRead", false)) {
+			Log.v(TAG, "Announcement is not read, marking it as read. ");
+			Intent svcIntent = new Intent(getActivity(), IVLEService.class);
+			svcIntent.putExtra("taskType", IVLEService.TASK_ANNOUNCEMENT_MARK_AS_READ);
+			svcIntent.putExtra("announcementIvleId", result.getString("ivleId"));
+			svcIntent.putExtra("announcementId", mAnnouncementId);
+			getActivity().startService(svcIntent);
+		}
 	}
 	
 	// }}}

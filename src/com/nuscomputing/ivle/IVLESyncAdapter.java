@@ -263,19 +263,14 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 			
 			// Fetch the user's timetable.
 			Log.v(TAG, "Fetching timetable slots");
-			Timetable timetable = ivle.getTimetableStudent();
+			mProvider.delete(
+				TimetableSlotsContract.CONTENT_URI,
+				DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME.concat(".").concat(TimetableSlotsContract.ACCOUNT).concat(" = ?"),
+				new String[] { mAccount.name }
+			);
+			Timetable timetable = ivle.getTimetableStudent("2012/2013", 1);
 			for (Timetable.Slot timetableSlot : timetable.slots) {
-				Cursor cursor = mProvider.query(
-					ModulesContract.CONTENT_URI,
-					new String[]{ ModulesContract.ID },
-					ModulesContract.IVLE_ID + " = ?",
-					new String[]{ timetableSlot.courseId },
-					null
-				);
-				
-				cursor.moveToFirst();
-				int moduleId = cursor.getInt(cursor.getColumnIndex(ModulesContract.ID));
-				this.insertTimetableSlot(timetableSlot, moduleId);
+				this.insertTimetableSlot(timetableSlot);
 			}
 			
 			// Verbose: print sync statistics.
@@ -694,27 +689,26 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 	 * <p>
 	 * Inserts a timetable slot into the timetable slot table.
 	 */
-	private int insertTimetableSlot(Timetable.Slot slot, int moduleId) throws
+	private int insertTimetableSlot(Timetable.Slot slot) throws
 			RemoteException {
 		// Prepare the content values.
-		ContentValues values = new ContentValues();
-		values.put(TimetableSlotsContract.MODULE_ID, moduleId);
-		values.put(TimetableSlotsContract.ACCOUNT, mAccount.name);
-		values.put(TimetableSlotsContract.ACAD_YEAR, slot.acadYear);
-		values.put(TimetableSlotsContract.SEMESTER, slot.semester);
-		values.put(TimetableSlotsContract.START_TIME, slot.startTime);
-		values.put(TimetableSlotsContract.END_TIME, slot.endTime);
-		values.put(TimetableSlotsContract.MODULE_CODE, slot.moduleCode);
-		values.put(TimetableSlotsContract.CLASS_NO, slot.classNo);
-		values.put(TimetableSlotsContract.LESSON_TYPE, slot.lessonType);
-		values.put(TimetableSlotsContract.VENUE, slot.venue);
-		values.put(TimetableSlotsContract.DAY_CODE, slot.dayCode);
-		values.put(TimetableSlotsContract.DAY_TEXT, slot.dayText);
-		values.put(TimetableSlotsContract.WEEK_CODE, slot.weekCode);
-		values.put(TimetableSlotsContract.WEEK_TEXT, slot.weekText);
+		ContentValues v = new ContentValues();
+		v.put(TimetableSlotsContract.ACCOUNT, mAccount.name);
+		v.put(TimetableSlotsContract.ACAD_YEAR, slot.acadYear);
+		v.put(TimetableSlotsContract.SEMESTER, slot.semester);
+		v.put(TimetableSlotsContract.START_TIME, slot.startTime);
+		v.put(TimetableSlotsContract.END_TIME, slot.endTime);
+		v.put(TimetableSlotsContract.MODULE_CODE, slot.moduleCode);
+		v.put(TimetableSlotsContract.CLASS_NO, slot.classNo);
+		v.put(TimetableSlotsContract.LESSON_TYPE, slot.lessonType);
+		v.put(TimetableSlotsContract.VENUE, slot.venue);
+		v.put(TimetableSlotsContract.DAY_CODE, slot.dayCode);
+		v.put(TimetableSlotsContract.DAY_TEXT, slot.dayText);
+		v.put(TimetableSlotsContract.WEEK_CODE, slot.weekCode);
+		v.put(TimetableSlotsContract.WEEK_TEXT, slot.weekText);
 		
 		// Insert timetable slot.
-		Uri uri = mProvider.insert(TimetableSlotsContract.CONTENT_URI, values);
+		Uri uri = mProvider.insert(TimetableSlotsContract.CONTENT_URI, v);
 		return Integer.parseInt(uri.getLastPathSegment());
 	}
 	
