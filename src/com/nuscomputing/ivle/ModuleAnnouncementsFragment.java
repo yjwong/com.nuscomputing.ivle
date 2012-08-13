@@ -14,9 +14,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +39,7 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 	private LoaderManager mLoaderManager;
 	
 	/** The list adapter */
-	private SimpleCursorAdapter mAdapter = null;
+	private AnnouncementsCursorAdapter mAdapter = null;
 	
 	/** The module ID */
 	private long mModuleId = -1;
@@ -68,51 +65,13 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
         	throw new IllegalStateException("No module ID was passed to ModuleAnnouncementsFragment");
         }
         
-		// Load the announcement data.
-		String[] uiBindFrom = {
-				AnnouncementsContract.TITLE,
-				AnnouncementsContract.DESCRIPTION,
-				AnnouncementsContract.CREATED_DATE
-		};
-		int[] uiBindTo = {
-				R.id.module_announcements_fragment_list_title,
-				R.id.module_announcements_fragment_list_description,
-				R.id.module_announcements_fragment_list_created_date
-		};
+		// Set up the announcement adapter.
 		mAdapter = new AnnouncementsCursorAdapter(
 				getActivity(),
-				R.layout.module_announcements_fragment_list_item,
-				null, uiBindFrom, uiBindTo,
-				CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
+				null, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
 		);
-		mAdapter.setViewBinder(new ViewBinder() {
-			@Override
-			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-				// The description field.
-				if (columnIndex == cursor.getColumnIndex(AnnouncementsContract.DESCRIPTION)) {
-					// Filter HTML in description.
-					String description = cursor.getString(columnIndex);
-					description = Html.fromHtml(description).toString();
-					description = description.replace('\r', ' ').replace('\n', ' ').trim();
-					TextView tvDescription = (TextView) view;
-					tvDescription.setText(description);
-					return true;
-				}
-				
-				if (columnIndex == cursor.getColumnIndex(AnnouncementsContract.CREATED_DATE)) {
-					// Format the date.
-					DateTime createdDate = new DateTime(cursor.getString(columnIndex));
-					String month = createdDate.monthOfYear().getAsShortText(Locale.ENGLISH);
-					String day = Integer.toString(createdDate.getDayOfMonth());
-					String createdDateStr = month.concat(" ").concat(day);
-					TextView tvCreatedDate = (TextView) view;
-					tvCreatedDate.setText(createdDateStr);
-					return true;
-				}
-
-				return false;
-			}
-		});
+		
+		// Load announcement data.
         mLoader = new DataLoader(getActivity(), mAdapter, this);
         mLoaderManager = getLoaderManager();
         mLoaderManager.initLoader(DataLoader.LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT, args, mLoader);
@@ -154,49 +113,95 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 	 * Extended SimpleCursorAdapter to also show unread items.
 	 * @author yjwong
 	 */
-	class AnnouncementsCursorAdapter extends SimpleCursorAdapter {
+	class AnnouncementsCursorAdapter extends CursorAdapter {
 		// {{{ methods
 		
-		public AnnouncementsCursorAdapter(Context context, int layout,
-				Cursor c, String[] from, int[] to, int flags) {
-			super(context, layout, c, from, to, flags);
+		public AnnouncementsCursorAdapter(Context context, Cursor c,
+				int flags) {
+			super(context, c, flags);
 		}
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+			// To reference the child views in subsequent actions.
+			AnnouncementsViewHolder holder;
+			
 			// Inflate the list item.
-			convertView = super.getView(position, convertView, parent);
-			
-			// Check whether the item is read.
-			Cursor cursor = getCursor();
-			cursor.moveToPosition(position);
-			boolean isRead = cursor.getInt(cursor.getColumnIndex(AnnouncementsContract.IS_READ)) == 1 ? true : false;
-			if (!isRead) {
-				this.uiSetAsUnread(convertView);
+			if (convertView == null) {
+				convertView = newView(mContext, null, parent);
+				
+				// Cache view fields into the holder.
+				holder = new AnnouncementsViewHolder();
+				holder.tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
+				holder.tvDescription = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_description);
+				holder.tvCreatedDate = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_created_date);
+				
+				// Associate the holder with the view for later lookup.
+				convertView.setTag(holder);
+				
 			} else {
-				this.uiSetAsRead(convertView);
+				// View already exists, get the holder instance.
+				holder = (AnnouncementsViewHolder) convertView.getTag();
 			}
-			
+
+			// Return the view.
+			getCursor().moveToPosition(position);
+			this.bindView(convertView, mContext, getCursor());
 			return convertView;
 		}
-		
-		private void uiSetAsUnread(View convertView) {
-			convertView.setBackgroundResource(R.drawable.module_announcements_fragment_list_item_unread);
+
+		@Override
+		public void bindView(View view, Context context, Cursor c) {
+			// Get the view holder.
+			AnnouncementsViewHolder holder = (AnnouncementsViewHolder) view.getTag();
 			
-			// Set the title to be bold.
-			TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
-			tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+			// Set read status.
+			boolean isRead = c.getInt(c.getColumnIndex(AnnouncementsContract.IS_READ)) == 1 ? true : false;
+			if (!isRead) {
+				view.setBackgroundResource(R.drawable.module_announcements_fragment_list_item_unread);
+				holder.tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+			} else {
+				view.setBackgroundResource(0);
+				holder.tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+			}
+			
+			// Assign the title.
+			String title = c.getString(c.getColumnIndex(AnnouncementsContract.TITLE));
+			holder.tvTitle.setText(title);
+			
+			// Use the filtered HTML description.
+			String description = c.getString(c.getColumnIndex(AnnouncementsContract._DESCRIPTION_NOHTML));
+			holder.tvDescription.setText(description);
+			
+			// Format the date and assign it.
+			DateTime createdDate = new DateTime(c.getString(c.getColumnIndex(AnnouncementsContract.CREATED_DATE)));
+			String month = createdDate.monthOfYear().getAsShortText(Locale.ENGLISH);
+			String day = Integer.toString(createdDate.getDayOfMonth());
+			String createdDateStr = month.concat(" ").concat(day);
+			holder.tvCreatedDate.setText(createdDateStr);
 		}
-		
-		private void uiSetAsRead(View convertView) {
-			convertView.setBackgroundResource(0);
-			
-			// Set the title to be normal.
-			TextView tvTitle = (TextView) convertView.findViewById(R.id.module_announcements_fragment_list_title);
-			tvTitle.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+
+		@Override
+		public View newView(Context context, Cursor c, ViewGroup parent) {
+			// Inflate the layout.
+			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View v = inflater.inflate(R.layout.module_announcements_fragment_list_item, null);
+
+			// Return the view.
+			return v;
 		}
 		
 		// }}}
+	}
+	
+	/**
+	 * A view holder to cache views for scrolling performance.
+	 * @author yjwong
+	 */
+	static class AnnouncementsViewHolder {
+		TextView tvTitle;
+		TextView tvDescription;
+		TextView tvCreatedDate;
 	}
 	
 	// }}}

@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.widget.Adapter;
@@ -237,7 +238,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			projectionList.addAll(Arrays.asList(
 					AnnouncementsContract.ID,
 					AnnouncementsContract.TITLE,
-					AnnouncementsContract.DESCRIPTION,
+					AnnouncementsContract._DESCRIPTION_NOHTML,
 					AnnouncementsContract.CREATED_DATE,
 					AnnouncementsContract.IS_READ
 			));
@@ -451,6 +452,11 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				break;
 			
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
+				result.putInt("cursorCount", cursor.getCount());
+				((CursorAdapter) mAdapter).swapCursor(cursor);
+				((CursorAdapter) mAdapter).notifyDataSetChanged();
+				break;
+				
 			case LOADER_MODULE_WEBCASTS_FRAGMENT:
 			case LOADER_MODULE_WORKBINS_FRAGMENT:
 				result.putInt("cursorCount", cursor.getCount());
@@ -518,6 +524,9 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				break;
 				
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
+				((CursorAdapter) mAdapter).swapCursor(null);
+				break;
+				
 			case LOADER_MODULE_WEBCASTS_FRAGMENT:
 			case LOADER_MODULE_WORKBINS_FRAGMENT:
 			case LOADER_VIEW_WEBCAST_FRAGMENT:

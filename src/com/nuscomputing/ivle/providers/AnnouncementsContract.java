@@ -29,6 +29,9 @@ public class AnnouncementsContract extends IVLEContract {
 	public static final String URL = "url";
 	public static final String IS_READ = "isRead";
 	
+	/** Internal columns that are not in the API */
+	public static final String _DESCRIPTION_NOHTML = "descriptionNoHtml";
+	
 	// }}}
 	// {{{ methods
 	

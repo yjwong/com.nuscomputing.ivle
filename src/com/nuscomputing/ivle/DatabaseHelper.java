@@ -29,7 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 16;
+	private static final int DATABASE_VERSION = 17;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -48,6 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			AnnouncementsContract.ACCOUNT + " TEXT, " +
 			AnnouncementsContract.TITLE + " TEXT, " +
 			AnnouncementsContract.DESCRIPTION + " TEXT, " +
+			AnnouncementsContract._DESCRIPTION_NOHTML + " TEXT, " +
 			AnnouncementsContract.CREATED_DATE + " DATETIME, " +
 			AnnouncementsContract.EXPIRY_DATE + " DATETIME, " +
 			AnnouncementsContract.URL + " TEXT, " +

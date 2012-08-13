@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Log;
 
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
@@ -596,6 +597,11 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 		v.put(AnnouncementsContract.EXPIRY_DATE, announcement.expiryDate.toString());
 		v.put(AnnouncementsContract.URL, announcement.url);
 		v.put(AnnouncementsContract.IS_READ, announcement.isRead ? 1 : 0);
+		
+		// Cache column for description.
+		String description = Html.fromHtml(announcement.description).toString();
+		description = description.replace('\r', ' ').replace('\n', ' ').trim();
+		v.put(AnnouncementsContract._DESCRIPTION_NOHTML, description);
 		
 		// Insert or update announcements.
 		long id = this.itemExists(AnnouncementsContract.class, announcement.ID);

@@ -1174,6 +1174,7 @@ public class IVLEProvider extends ContentProvider {
 				projectionMap.put(AnnouncementsContract.CREATOR_ID, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATOR_ID);
 				projectionMap.put(AnnouncementsContract.TITLE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.TITLE);
 				projectionMap.put(AnnouncementsContract.DESCRIPTION, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.DESCRIPTION);
+				projectionMap.put(AnnouncementsContract._DESCRIPTION_NOHTML, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract._DESCRIPTION_NOHTML);
 				projectionMap.put(AnnouncementsContract.CREATED_DATE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATED_DATE);
 				projectionMap.put(AnnouncementsContract.EXPIRY_DATE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.EXPIRY_DATE);
 				projectionMap.put(AnnouncementsContract.URL, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.URL);
