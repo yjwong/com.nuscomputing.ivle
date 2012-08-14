@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 
 import android.accounts.Account;
@@ -63,6 +64,10 @@ public class SettingsActivityLegacy extends SherlockPreferenceActivity {
         setUpAbout();
         setUpCheckForUpdates();
         setUpSendFeedback();
+        
+        // Set the title.
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle(R.string.settings);
         
         // Create an AlertDialog for "Check for Updates".
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);

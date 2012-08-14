@@ -32,7 +32,11 @@ public class DetailsDialogFragment extends SherlockDialogFragment {
 		LinkedHashMap<?, ?> detailsMapFromBundle = (LinkedHashMap<?, ?>) args.getSerializable("items");
 		LinkedHashMap<String, String> detailsMap = new LinkedHashMap<String, String>();
 		for (Map.Entry<?, ?> detail : detailsMapFromBundle.entrySet()) {
-			detailsMap.put(detail.getKey().toString(), detail.getValue().toString());
+			if (detail.getValue() != null) {
+				detailsMap.put(detail.getKey().toString(), detail.getValue().toString());
+			} else {
+				detailsMap.put(detail.getKey().toString(), "(none)");
+			}
 		}
 		
 		// Create the details list.

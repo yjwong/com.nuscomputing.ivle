@@ -1,5 +1,8 @@
 package com.nuscomputing.ivle.providers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.nuscomputing.ivle.DatabaseHelper;
 
 import android.net.Uri;
@@ -48,6 +51,25 @@ public class TimetableSlotsContract extends IVLEContract {
 	@Override
 	public String getColumnNameModuleId() {
 		return null;
+	}
+
+	@Override
+	public Map<String, String> getJoinProjectionMap(String prefix) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(prefix + TimetableSlotsContract.ACCOUNT, TABLE + "." + TimetableSlotsContract.ACCOUNT);
+		map.put(prefix + TimetableSlotsContract.ACAD_YEAR, TABLE + "." + TimetableSlotsContract.ACAD_YEAR);
+		map.put(prefix + TimetableSlotsContract.SEMESTER, TABLE + "." + TimetableSlotsContract.SEMESTER);
+		map.put(prefix + TimetableSlotsContract.START_TIME, TABLE + "." + TimetableSlotsContract.START_TIME);
+		map.put(prefix + TimetableSlotsContract.END_TIME, TABLE + "." + TimetableSlotsContract.END_TIME);
+		map.put(prefix + TimetableSlotsContract.MODULE_CODE, TABLE + "." + TimetableSlotsContract.MODULE_CODE);
+		map.put(prefix + TimetableSlotsContract.CLASS_NO, TABLE + "." + TimetableSlotsContract.CLASS_NO);
+		map.put(prefix + TimetableSlotsContract.LESSON_TYPE, TABLE + "." + TimetableSlotsContract.LESSON_TYPE);
+		map.put(prefix + TimetableSlotsContract.VENUE, TABLE + "." + TimetableSlotsContract.VENUE);
+		map.put(prefix + TimetableSlotsContract.DAY_CODE, TABLE + "." + TimetableSlotsContract.DAY_CODE);
+		map.put(prefix + TimetableSlotsContract.DAY_TEXT, TABLE + "." + TimetableSlotsContract.DAY_TEXT);
+		map.put(prefix + TimetableSlotsContract.WEEK_CODE, TABLE + "." + TimetableSlotsContract.WEEK_CODE);
+		map.put(prefix + TimetableSlotsContract.WEEK_TEXT, TABLE + "." + TimetableSlotsContract.WEEK_TEXT);
+		return map;
 	}
 	
 	// }}}

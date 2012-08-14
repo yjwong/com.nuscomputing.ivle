@@ -1,5 +1,8 @@
 package com.nuscomputing.ivle.providers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.nuscomputing.ivle.DatabaseHelper;
 
 import android.net.Uri;
@@ -55,6 +58,22 @@ public class WorkbinFilesContract extends IVLEContract {
 	@Override
 	public String getColumnNameModuleId() {
 		return IVLEContract.MODULE_ID;
+	}
+
+	@Override
+	public Map<String, String> getJoinProjectionMap(String prefix) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(prefix + WorkbinFilesContract.IVLE_ID, TABLE + "." + WorkbinFilesContract.IVLE_ID);
+		map.put(prefix + WorkbinFilesContract.ACCOUNT, TABLE + "." + WorkbinFilesContract.ACCOUNT);
+		map.put(prefix + WorkbinFilesContract.FILE_DESCRIPTION, TABLE + "." + WorkbinFilesContract.FILE_DESCRIPTION);
+		map.put(prefix + WorkbinFilesContract.FILE_NAME, TABLE + "." + WorkbinFilesContract.FILE_NAME);
+		map.put(prefix + WorkbinFilesContract.FILE_REMARKS, TABLE + "." + WorkbinFilesContract.FILE_REMARKS);
+		map.put(prefix + WorkbinFilesContract.FILE_REMARKS_ATTACHMENT, TABLE + "." + WorkbinFilesContract.FILE_REMARKS_ATTACHMENT);
+		map.put(prefix + WorkbinFilesContract.FILE_SIZE, TABLE + "." + WorkbinFilesContract.FILE_SIZE);
+		map.put(prefix + WorkbinFilesContract.FILE_TYPE, TABLE + "." + WorkbinFilesContract.FILE_TYPE);
+		map.put(prefix + WorkbinFilesContract.IS_DOWNLOADED, TABLE + "." + WorkbinFilesContract.IS_DOWNLOADED);
+		map.put(prefix + WorkbinFilesContract.DOWNLOAD_URL, TABLE + "." + WorkbinFilesContract.DOWNLOAD_URL);
+		return map;
 	}
 	
 	// }}}

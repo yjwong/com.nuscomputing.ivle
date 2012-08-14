@@ -1,5 +1,8 @@
 package com.nuscomputing.ivle.providers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.nuscomputing.ivle.DatabaseHelper;
 
 import android.net.Uri;
@@ -42,6 +45,17 @@ public class WebcastsContract extends IVLEContract {
 	@Override
 	public String getColumnNameModuleId() {
 		return IVLEContract.MODULE_ID;
+	}
+
+	@Override
+	public Map<String, String> getJoinProjectionMap(String prefix) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(prefix + WebcastsContract.IVLE_ID, TABLE + "." + WebcastsContract.IVLE_ID);
+		map.put(prefix + WebcastsContract.ACCOUNT, TABLE + "." + WebcastsContract.ACCOUNT);
+		map.put(prefix + WebcastsContract.BADGE_TOOL, TABLE + "." + WebcastsContract.BADGE_TOOL);
+		map.put(prefix + WebcastsContract.PUBLISHED, TABLE + "." + WebcastsContract.PUBLISHED);
+		map.put(prefix + WebcastsContract.TITLE, TABLE + "." + WebcastsContract.TITLE);
+		return map;
 	}
 	
 	// }}}

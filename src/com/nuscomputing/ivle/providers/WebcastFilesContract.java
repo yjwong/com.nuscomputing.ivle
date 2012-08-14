@@ -1,5 +1,8 @@
 package com.nuscomputing.ivle.providers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.nuscomputing.ivle.DatabaseHelper;
 
 import android.net.Uri;
@@ -51,6 +54,23 @@ public class WebcastFilesContract extends IVLEContract {
 	@Override
 	public String getColumnNameModuleId() {
 		return IVLEContract.MODULE_ID;
+	}
+
+	@Override
+	public Map<String, String> getJoinProjectionMap(String prefix) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(prefix + WebcastFilesContract.IVLE_ID, TABLE + "." + WebcastFilesContract.IVLE_ID);
+		map.put(prefix + WebcastFilesContract.ACCOUNT, TABLE + "." + WebcastFilesContract.ACCOUNT);
+		map.put(prefix + WebcastFilesContract.BANK_ITEM_ID, TABLE + "." + WebcastFilesContract.BANK_ITEM_ID);
+		map.put(prefix + WebcastFilesContract.CREATE_DATE, TABLE + "." + WebcastFilesContract.CREATE_DATE);
+		map.put(prefix + WebcastFilesContract.FILE_DESCRIPTION, TABLE + "." + WebcastFilesContract.FILE_DESCRIPTION);
+		map.put(prefix + WebcastFilesContract.FILE_NAME, TABLE + "." + WebcastFilesContract.FILE_NAME);
+		map.put(prefix + WebcastFilesContract.FILE_TITLE, TABLE + "." + WebcastFilesContract.FILE_TITLE);
+		map.put(prefix + WebcastFilesContract.MP3, TABLE + "." + WebcastFilesContract.MP3);
+		map.put(prefix + WebcastFilesContract.MP4, TABLE + "." + WebcastFilesContract.MP4);
+		map.put(prefix + WebcastFilesContract.MEDIA_FORMAT, TABLE + "." + WebcastFilesContract.MEDIA_FORMAT);
+		map.put(prefix + WebcastFilesContract.IS_READ, TABLE + "." + WebcastFilesContract.IS_READ);
+		return map;
 	}
 	
 	// }}}

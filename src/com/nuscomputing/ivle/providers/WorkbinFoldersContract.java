@@ -1,5 +1,8 @@
 package com.nuscomputing.ivle.providers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.nuscomputing.ivle.DatabaseHelper;
 
 import android.net.Uri;
@@ -52,6 +55,24 @@ public class WorkbinFoldersContract extends IVLEContract {
 	@Override
 	public String getColumnNameModuleId() {
 		return IVLEContract.MODULE_ID;
+	}
+
+	@Override
+	public Map<String, String> getJoinProjectionMap(String prefix) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(prefix + WorkbinFoldersContract.IVLE_ID, TABLE + "." + WorkbinFoldersContract.IVLE_ID);
+		map.put(prefix + WorkbinFoldersContract.ACCOUNT, TABLE + "." + WorkbinFoldersContract.ACCOUNT);
+		map.put(prefix + WorkbinFoldersContract.ALLOW_UPLOAD, TABLE + "." + WorkbinFoldersContract.ALLOW_UPLOAD);
+		map.put(prefix + WorkbinFoldersContract.ALLOW_VIEW, TABLE + "." + WorkbinFoldersContract.ALLOW_VIEW);
+		map.put(prefix + WorkbinFoldersContract.CLOSE_DATE, TABLE + "." + WorkbinFoldersContract.CLOSE_DATE);
+		map.put(prefix + WorkbinFoldersContract.COMMENT_OPTION, TABLE + "." + WorkbinFoldersContract.COMMENT_OPTION);
+		map.put(prefix + WorkbinFoldersContract.FILE_COUNT, TABLE + "." + WorkbinFoldersContract.FILE_COUNT);
+		map.put(prefix + WorkbinFoldersContract.FOLDER_NAME, TABLE + "." + WorkbinFoldersContract.FOLDER_NAME);
+		map.put(prefix + WorkbinFoldersContract.ORDER, TABLE + "." + WorkbinFoldersContract.ORDER);
+		map.put(prefix + WorkbinFoldersContract.OPEN_DATE, TABLE + "." + WorkbinFoldersContract.OPEN_DATE);
+		map.put(prefix + WorkbinFoldersContract.SORT_FILES_BY, TABLE + "." + WorkbinFoldersContract.SORT_FILES_BY);
+		map.put(prefix + WorkbinFoldersContract.UPLOAD_DISPLAY_OPTION, TABLE + "." + WorkbinFoldersContract.UPLOAD_DISPLAY_OPTION);
+		return map;
 	}
 	
 	// }}}

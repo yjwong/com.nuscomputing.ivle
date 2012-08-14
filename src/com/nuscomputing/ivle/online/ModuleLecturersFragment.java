@@ -63,17 +63,13 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 	
 	// }}}
 	// {{{ methods
-
-	@Override																			
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		// Inflate the module info view.
-		return inflater.inflate(R.layout.module_lecturers_fragment, container, false);
-	}
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		
+		// If the list is empty, show this.
+		setEmptyText(getString(R.string.module_lecturers_fragment_no_lecturers));
 		
 		// Obtain the module ID.
 		Bundle args = getArguments();
@@ -323,10 +319,6 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 		
 		@Override
 		public Loader<List<Lecturer>> onCreateLoader(int id, Bundle args) {
-			// We are loading!
-			ArrayAdapter<String> loadingAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, new String[] { getString(R.string.loading) });
-			setListAdapter(loadingAdapter);
-			
 			return new LecturersLoader(getActivity(), args);
 		}
 		
@@ -335,9 +327,6 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 			// Set the view data.
 			if (result != null) {
 				if (result.size() == 0) {
-					TextView tvNoLecturers = (TextView) getActivity().findViewById(R.id.module_lecturers_fragment_no_lecturers);
-					tvNoLecturers.setVisibility(View.VISIBLE);
-					
 					// Hide the list.
 					getListView().setVisibility(View.GONE);
 					
@@ -346,7 +335,7 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 					mCachedURLs = new URL[result.size()];
 					
 					// Create new list adapter.
-					LecturerAdapter adapter = new LecturerAdapter(getActivity(), R.id.module_lecturers_fragment_no_lecturers, result);
+					LecturerAdapter adapter = new LecturerAdapter(getActivity(), R.id.module_lecturers_fragment_list_name, result);
 					setListAdapter(adapter);
 				}
 				

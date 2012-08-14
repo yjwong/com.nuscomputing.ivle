@@ -284,8 +284,10 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 					AnnouncementsContract.TITLE,
 					AnnouncementsContract.DESCRIPTION,
 					AnnouncementsContract.CREATED_DATE,
+					AnnouncementsContract.EXPIRY_DATE,
+					AnnouncementsContract.URL,
 					AnnouncementsContract.IS_READ,
-					"creator_" + UsersContract.NAME
+					AnnouncementsContract.CREATOR_PREFIX + UsersContract.NAME
 			));
 			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ?";
 			selectionArgsList.add(accountName);
@@ -430,10 +432,12 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 					AnnouncementsContract.TITLE,
 					AnnouncementsContract._DESCRIPTION_NOHTML,
 					AnnouncementsContract.CREATED_DATE,
-					AnnouncementsContract.IS_READ
+					AnnouncementsContract.IS_READ,
+					AnnouncementsContract.MODULE_PREFIX + ModulesContract.COURSE_CODE
 			));
-			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ?";
-			selection += " AND " + DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.IS_READ + " = ?";
+			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ? AND ";
+			selection += DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.IS_READ + " = ? AND ";
+			selection += DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.MODULE_ID + " = " + DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.ID;
 			selectionArgsList.add(accountName);
 			selectionArgsList.add("0");
 			sortOrder = AnnouncementsContract.CREATED_DATE.concat(" DESC");
@@ -491,6 +495,9 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				result.putString("title", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.TITLE)));
 				result.putString("userName", cursor.getString(cursor.getColumnIndex(UsersContract.NAME)));
 				result.putString("description", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.DESCRIPTION)));
+				result.putString("createdDate", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.CREATED_DATE)));
+				result.putString("expiryDate", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.EXPIRY_DATE)));
+				result.putString("url", cursor.getString(cursor.getColumnIndex(AnnouncementsContract.URL)));
 				result.putBoolean("isRead", cursor.getInt(cursor.getColumnIndex(AnnouncementsContract.IS_READ)) == 0 ? false : true);
 				break;
 			

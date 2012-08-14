@@ -1,5 +1,8 @@
 package com.nuscomputing.ivle.providers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.nuscomputing.ivle.DatabaseHelper;
 
 import android.net.Uri;
@@ -48,6 +51,23 @@ public class GradebookItemsContract extends IVLEContract {
 	@Override
 	public String getColumnNameModuleId() {
 		return IVLEContract.MODULE_ID;
+	}
+
+	@Override
+	public Map<String, String> getJoinProjectionMap(String prefix) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(prefix + GradebookItemsContract.IVLE_ID, TABLE + "." + GradebookItemsContract.IVLE_ID);
+		map.put(prefix + GradebookItemsContract.ACCOUNT, TABLE + "." + GradebookItemsContract.ACCOUNT);
+		map.put(prefix + GradebookItemsContract.AVERAGE_MEDIAN_MARKS, TABLE + "." + GradebookItemsContract.AVERAGE_MEDIAN_MARKS);
+		map.put(prefix + GradebookItemsContract.DATE_ENTERED, TABLE + "." + GradebookItemsContract.DATE_ENTERED);
+		map.put(prefix + GradebookItemsContract.HIGHEST_LOWEST_MARKS, TABLE + "." + GradebookItemsContract.HIGHEST_LOWEST_MARKS);
+		map.put(prefix + GradebookItemsContract.ITEM_DESCRIPTION, TABLE + "." + GradebookItemsContract.ITEM_DESCRIPTION);
+		map.put(prefix + GradebookItemsContract.ITEM_NAME, TABLE + "." + GradebookItemsContract.ITEM_NAME);
+		map.put(prefix + GradebookItemsContract.MARKS_OBTAINED, TABLE + "." + GradebookItemsContract.MARKS_OBTAINED);
+		map.put(prefix + GradebookItemsContract.MAX_MARKS, TABLE + "." + GradebookItemsContract.MAX_MARKS);
+		map.put(prefix + GradebookItemsContract.PERCENTILE, TABLE + "." + GradebookItemsContract.PERCENTILE);
+		map.put(prefix + GradebookItemsContract.REMARK, TABLE + "." + GradebookItemsContract.REMARK);
+		return map;
 	}
 	
 	// }}}

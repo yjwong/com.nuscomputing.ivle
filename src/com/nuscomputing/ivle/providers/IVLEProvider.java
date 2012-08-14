@@ -1112,44 +1112,8 @@ public class IVLEProvider extends ContentProvider {
 				
 				// Set projection maps.
 				projectionMap.put(ModulesContract.ID, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.ID);
-				projectionMap.put(ModulesContract.IVLE_ID, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.IVLE_ID);
-				projectionMap.put(ModulesContract.ACCOUNT, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.ACCOUNT);
-				projectionMap.put(ModulesContract.BADGE, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.BADGE);
-				projectionMap.put(ModulesContract.BADGE_ANNOUNCEMENT, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.BADGE_ANNOUNCEMENT);
-				projectionMap.put(ModulesContract.COURSE_ACAD_YEAR, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_ACAD_YEAR);
-				projectionMap.put(ModulesContract.COURSE_CLOSE_DATE, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_CLOSE_DATE);
-				projectionMap.put(ModulesContract.COURSE_CODE, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_CODE);
-				projectionMap.put(ModulesContract.COURSE_DEPARTMENT, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_DEPARTMENT);
-				projectionMap.put(ModulesContract.COURSE_LEVEL, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_LEVEL);
-				projectionMap.put(ModulesContract.COURSE_MC, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_MC);
-				projectionMap.put(ModulesContract.COURSE_NAME, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_NAME);
-				projectionMap.put(ModulesContract.COURSE_OPEN_DATE, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_OPEN_DATE);
-				projectionMap.put(ModulesContract.COURSE_SEMESTER, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.COURSE_SEMESTER);
-				projectionMap.put(ModulesContract.HAS_ANNOUNCEMENT_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_ANNOUNCEMENT_ITEMS);
-				projectionMap.put(ModulesContract.HAS_CLASS_GROUPS_FOR_SIGN_UP, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_CLASS_GROUPS_FOR_SIGN_UP);
-				projectionMap.put(ModulesContract.HAS_CLASS_ROSTER_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_CLASS_ROSTER_ITEMS);
-				projectionMap.put(ModulesContract.HAS_CONSULTATION_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_CONSULTATION_ITEMS);
-				projectionMap.put(ModulesContract.HAS_CONSULTATION_SLOTS_FOR_SIGN_UP, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_CONSULTATION_SLOTS_FOR_SIGN_UP);
-				projectionMap.put(ModulesContract.HAS_DESCRIPTION_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_DESCRIPTION_ITEMS);
-				projectionMap.put(ModulesContract.HAS_GRADEBOOK_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_GRADEBOOK_ITEMS);
-				projectionMap.put(ModulesContract.HAS_GROUPS_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_GROUPS_ITEMS);
-				projectionMap.put(ModulesContract.HAS_GUEST_ROSTER_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_GUEST_ROSTER_ITEMS);
-				projectionMap.put(ModulesContract.HAS_LECTURER_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_LECTURER_ITEMS);
-				projectionMap.put(ModulesContract.HAS_PROJECT_GROUP_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_PROJECT_GROUP_ITEMS);
-				projectionMap.put(ModulesContract.HAS_PROJECT_GROUPS_FOR_SIGN_UP, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_PROJECT_GROUPS_FOR_SIGN_UP);
-				projectionMap.put(ModulesContract.HAS_READING_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_READING_ITEMS);
-				projectionMap.put(ModulesContract.HAS_TIMETABLE_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_TIMETABLE_ITEMS);
-				projectionMap.put(ModulesContract.HAS_WEBLINK_ITEMS, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.HAS_WEBLINK_ITEMS);
-				projectionMap.put(ModulesContract.IS_ACTIVE, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.IS_ACTIVE);
-				projectionMap.put(ModulesContract.PERMISSION, DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.PERMISSION);
-				projectionMap.put("creator" + UsersContract.ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID);
-				projectionMap.put("creator_" + UsersContract.IVLE_ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.IVLE_ID);
-				projectionMap.put("creator_" + UsersContract.ACCOUNT, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ACCOUNT);
-				projectionMap.put("creator_" + UsersContract.ACCOUNT_TYPE, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ACCOUNT_TYPE);
-				projectionMap.put("creator_" + UsersContract.EMAIL, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.EMAIL);
-				projectionMap.put("creator_" + UsersContract.NAME, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.NAME);
-				projectionMap.put("creator_" + UsersContract.TITLE, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.TITLE);
-				projectionMap.put("creator_" + UsersContract.USER_ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.USER_ID);
+				projectionMap.putAll(new ModulesContract().getJoinProjectionMap(""));
+				projectionMap.putAll(new UsersContract().getJoinProjectionMap("creator_"));
 				queryBuilder.setProjectionMap(projectionMap);
 				break;
 				
@@ -1159,34 +1123,21 @@ public class IVLEProvider extends ContentProvider {
 			case ANNOUNCEMENTS:
 				// Set table names and joins.
 				queryBuilder.setTables(
-						DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + " JOIN " + 
-						DatabaseHelper.USERS_TABLE_NAME + " ON " + "(" +
-							DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATOR_ID + " = " +
-							DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID +
-						")"
+					DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + " JOIN " +
+					DatabaseHelper.MODULES_TABLE_NAME + " ON (" +
+						DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.MODULE_ID + "=" +
+						DatabaseHelper.MODULES_TABLE_NAME + "." + ModulesContract.ID +
+					") JOIN " + DatabaseHelper.USERS_TABLE_NAME + " ON (" +
+						DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATOR_ID + "=" +
+						DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID +
+					")"
 				);
 				
 				// Set projection maps.
 				projectionMap.put(AnnouncementsContract.ID, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ID);
-				projectionMap.put(AnnouncementsContract.IVLE_ID, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.IVLE_ID);
-				projectionMap.put(AnnouncementsContract.MODULE_ID, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.MODULE_ID);
-				projectionMap.put(AnnouncementsContract.ACCOUNT, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT);
-				projectionMap.put(AnnouncementsContract.CREATOR_ID, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATOR_ID);
-				projectionMap.put(AnnouncementsContract.TITLE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.TITLE);
-				projectionMap.put(AnnouncementsContract.DESCRIPTION, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.DESCRIPTION);
-				projectionMap.put(AnnouncementsContract._DESCRIPTION_NOHTML, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract._DESCRIPTION_NOHTML);
-				projectionMap.put(AnnouncementsContract.CREATED_DATE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.CREATED_DATE);
-				projectionMap.put(AnnouncementsContract.EXPIRY_DATE, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.EXPIRY_DATE);
-				projectionMap.put(AnnouncementsContract.URL, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.URL);
-				projectionMap.put(AnnouncementsContract.IS_READ, DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.IS_READ);
-				projectionMap.put("creator" + UsersContract.ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID);
-				projectionMap.put("creator_" + UsersContract.IVLE_ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.IVLE_ID);
-				projectionMap.put("creator_" + UsersContract.ACCOUNT, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ACCOUNT);
-				projectionMap.put("creator_" + UsersContract.ACCOUNT_TYPE, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ACCOUNT_TYPE);
-				projectionMap.put("creator_" + UsersContract.EMAIL, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.EMAIL);
-				projectionMap.put("creator_" + UsersContract.NAME, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.NAME);
-				projectionMap.put("creator_" + UsersContract.TITLE, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.TITLE);
-				projectionMap.put("creator_" + UsersContract.USER_ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.USER_ID);
+				projectionMap.putAll(new AnnouncementsContract().getJoinProjectionMap(""));
+				projectionMap.putAll(new ModulesContract().getJoinProjectionMap("module_"));
+				projectionMap.putAll(new UsersContract().getJoinProjectionMap("creator_"));
 				queryBuilder.setProjectionMap(projectionMap);
 				break;
 				
@@ -1255,7 +1206,6 @@ public class IVLEProvider extends ContentProvider {
 				projectionMap.put(WebcastFilesContract.MP4, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.MP4);
 				projectionMap.put(WebcastFilesContract.MEDIA_FORMAT, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.MEDIA_FORMAT);
 				projectionMap.put(WebcastFilesContract.IS_READ, DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.IS_READ);
-				projectionMap.put("creator" + UsersContract.ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ID);
 				projectionMap.put("creator_" + UsersContract.IVLE_ID, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.IVLE_ID);
 				projectionMap.put("creator_" + UsersContract.ACCOUNT, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ACCOUNT);
 				projectionMap.put("creator_" + UsersContract.ACCOUNT_TYPE, DatabaseHelper.USERS_TABLE_NAME + "." + UsersContract.ACCOUNT_TYPE);

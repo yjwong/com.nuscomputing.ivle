@@ -1,13 +1,18 @@
 package com.nuscomputing.ivle;
 
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -79,6 +84,28 @@ public class ViewAnnouncementFragment extends SherlockFragment
 				intent.putExtra(Intent.EXTRA_TEXT, mShareDescription);
 				startActivity(Intent.createChooser(intent, getString(R.string.share_via)));
 				return true;
+				
+			case R.id.view_announcement_fragment_menu_details:
+				// Add the details.
+				Map<String, String> detailsMap = new LinkedHashMap<String, String>();
+				detailsMap.put("Title", mLoaderResult.getString("title"));
+				detailsMap.put("Creator", mLoaderResult.getString("userName"));
+				detailsMap.put("Created", mLoaderResult.getString("createdDate"));
+				detailsMap.put("Expiry", mLoaderResult.getString("expiryDate"));
+				detailsMap.put("URL", mLoaderResult.getString("url"));
+				
+				// Define dialog fragment arguments.
+				Bundle fragmentArgs = new Bundle();
+				fragmentArgs.putSerializable("items", (Serializable) detailsMap);
+				fragmentArgs.putString("title", getString(R.string.details));
+				
+				// Create the fragment.
+				DialogFragment fragment = new DetailsDialogFragment();
+				fragment.setArguments(fragmentArgs);
+				
+				// Add the fragment.
+				FragmentManager manager = getFragmentManager();
+				fragment.show(manager, null);
 				
 			default:
 				return super.onOptionsItemSelected(item);

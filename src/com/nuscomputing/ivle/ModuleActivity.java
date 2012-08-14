@@ -91,7 +91,7 @@ public class ModuleActivity extends SherlockFragmentActivity {
     		getString(R.string.module_activity_weblinks),
     		getString(R.string.module_activity_workbins)
     	));
-    	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(this, R.id.module_activity_spinner_subtitle, spinnerItems);
+    	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(bar.getThemedContext(), R.id.module_activity_spinner_subtitle, spinnerItems);
     	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
     	
         // Plug the pager tabs.

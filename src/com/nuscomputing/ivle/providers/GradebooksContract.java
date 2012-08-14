@@ -1,5 +1,8 @@
 package com.nuscomputing.ivle.providers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.nuscomputing.ivle.DatabaseHelper;
 
 import android.net.Uri;
@@ -37,6 +40,15 @@ public class GradebooksContract extends IVLEContract {
 	@Override
 	public String getColumnNameModuleId() {
 		return IVLEContract.MODULE_ID;
+	}
+
+	@Override
+	public Map<String, String> getJoinProjectionMap(String prefix) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put(prefix + GradebooksContract.IVLE_ID, TABLE + "." + GradebooksContract.IVLE_ID);
+		map.put(prefix + GradebooksContract.ACCOUNT, TABLE + "." + GradebooksContract.ACCOUNT);
+		map.put(prefix + GradebooksContract.CATEGORY_TITLE, TABLE + "." + GradebooksContract.CATEGORY_TITLE);
+		return map;
 	}
 	
 	// }}}

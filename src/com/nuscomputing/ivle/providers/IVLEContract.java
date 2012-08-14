@@ -1,5 +1,7 @@
 package com.nuscomputing.ivle.providers;
 
+import java.util.Map;
+
 import android.net.Uri;
 
 /**
@@ -86,6 +88,13 @@ public abstract class IVLEContract {
 	public String getColumnNameAccount() {
 		return IVLEContract.ACCOUNT;
 	}
+	
+	/**
+	 * Method: getJoinProjectionMap
+	 * <p>
+	 * Returns the projection map for this object type.
+	 */
+	public abstract Map<String, String> getJoinProjectionMap(String prefix);
 	
 	// }}}
 }

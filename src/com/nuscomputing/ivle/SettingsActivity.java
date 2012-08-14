@@ -1,6 +1,7 @@
 package com.nuscomputing.ivle;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -22,6 +23,11 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
         
+        // Set the title.
+        ActionBar bar = getActionBar();
+        bar.setTitle(R.string.settings);
+        
+        // Load the fragment.
         if (savedInstanceState == null) {
         	Fragment fragment = new SettingsFragment();
         	FragmentManager manager = getFragmentManager();
