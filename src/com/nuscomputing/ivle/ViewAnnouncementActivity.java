@@ -1,18 +1,13 @@
 package com.nuscomputing.ivle;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-public class ViewAnnouncementActivity extends SherlockFragmentActivity {
+public class ViewAnnouncementActivity extends IVLESherlockFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -53,32 +48,6 @@ public class ViewAnnouncementActivity extends SherlockFragmentActivity {
     		FragmentTransaction transaction = manager.beginTransaction();
     		transaction.add(R.id.view_announcement_activity_fragment_container, fragment);
     		transaction.commit();
-    	}
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getSupportMenuInflater();
-    	inflater.inflate(R.menu.global, menu);
-    	return true;
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	// Handle item selection.
-    	if (!MainApplication.onOptionsItemSelected(this, item)) {
-	    	// Handle item selection.
-	    	switch (item.getItemId()) {
-	    		case android.R.id.home:
-	    			finish();
-	    			return true;
-	    		
-	    		default:
-	    			return super.onOptionsItemSelected(item);
-	    	}
-	    	
-    	} else {
-    		return true;
     	}
     }
 

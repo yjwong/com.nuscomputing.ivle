@@ -6,16 +6,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 
 /**
  * An activity to display new announcements.
  * @author yjwong
  */
-public class NewAnnouncementsActivity extends SherlockFragmentActivity {
+public class NewAnnouncementsActivity extends IVLESherlockFragmentActivity {
 	// {{{ methods
 	
 	@Override
@@ -39,32 +35,6 @@ public class NewAnnouncementsActivity extends SherlockFragmentActivity {
 			transaction.commit();
 		}
 	}
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getSupportMenuInflater();
-    	inflater.inflate(R.menu.global, menu);
-    	return true;
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	// Handle item selection.
-    	if (!MainApplication.onOptionsItemSelected(this, item)) {
-	    	// Handle item selection.
-	    	switch (item.getItemId()) {
-	    		case android.R.id.home:
-	    			finish();
-	    			return true;
-	    		
-	    		default:
-	    			return super.onOptionsItemSelected(item);
-	    	}
-	    	
-    	} else {
-    		return true;
-    	}
-    }
 	
 	// }}}
 }

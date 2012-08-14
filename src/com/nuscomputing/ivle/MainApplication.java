@@ -6,15 +6,11 @@ import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.net.Uri;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 /**
  * The entire application.
@@ -103,59 +99,13 @@ public class MainApplication extends Application {
 	}
 	
 	public static boolean onOptionsItemSelected(Context context, com.actionbarsherlock.view.MenuItem item) {
-    	// Handle item selection.
-    	switch (item.getItemId()) {
-    		case R.id.main_menu_settings:
-    			Intent intent = new Intent();
-    			if (Build.VERSION.SDK_INT >= 11) {
-    				intent.setClass(context, SettingsActivity.class);
-    			} else {
-    				intent.setClass(context, SettingsActivityLegacy.class);
-    			}
-    			intent.setAction(Intent.ACTION_MAIN);
-    			intent.addCategory(Intent.CATEGORY_PREFERENCE);
-    			context.startActivity(intent);
-    			return true;
-    			
-    		case R.id.main_menu_help:
-    			// TODO: Implement a real help system here.
-    			Uri uri = Uri.parse("https://ivle.nus.edu.sg/");
-    			intent = new Intent(Intent.ACTION_VIEW, uri);
-    			context.startActivity(intent);
-    			Toast.makeText(context, context.getString(R.string.temp_help_not_available_yet), Toast.LENGTH_SHORT).show();
-    			return true;
-    			
-    		default:
-    			return false;
-    	}
+		Log.e(TAG, "should not call this anymore");
+		return false;
 	}
 	
     public static boolean onOptionsItemSelected(Context context, MenuItem item) {
-    	// Handle item selection.
-    	switch (item.getItemId()) {
-    		case R.id.main_menu_settings:
-    			Intent intent = new Intent();
-    			if (Build.VERSION.SDK_INT >= 11) {
-    				intent.setClass(context, SettingsActivity.class);
-    			} else {
-    				intent.setClass(context, SettingsActivityLegacy.class);
-    			}
-    			intent.setAction(Intent.ACTION_MAIN);
-    			intent.addCategory(Intent.CATEGORY_PREFERENCE);
-    			context.startActivity(intent);
-    			return true;
-    			
-    		case R.id.main_menu_help:
-    			// TODO: Implement a real help system here.
-    			Uri uri = Uri.parse("https://ivle.nus.edu.sg/");
-    			intent = new Intent(Intent.ACTION_VIEW, uri);
-    			context.startActivity(intent);
-    			Toast.makeText(context, context.getString(R.string.temp_help_not_available_yet), Toast.LENGTH_SHORT).show();
-    			return true;
-    			
-    		default:
-    			return false;
-    	}
+    	Log.e(TAG, "should not call this anymore");
+    	return false;
     }
     
 	// }}}

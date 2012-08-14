@@ -1,7 +1,6 @@
 package com.nuscomputing.ivle;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -35,7 +34,7 @@ import android.preference.PreferenceManager;
  * @author yjwong
  */
 @TargetApi(11)
-public class ViewWebcastFileActivity extends SherlockFragmentActivity implements 
+public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implements 
 		MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
 		DataLoaderListener {
 	// {{{ properties
@@ -211,84 +210,77 @@ public class ViewWebcastFileActivity extends SherlockFragmentActivity implements
 	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+    	// Create the global menu.
+    	super.onCreateOptionsMenu(menu);
+    	
+    	// Create the local menu.
     	MenuInflater inflater = getSupportMenuInflater();
     	inflater.inflate(R.menu.view_webcast_file_activity_menu, menu);
-    	inflater.inflate(R.menu.global, menu);
     	return true;
     }
 	
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection.
-    	if (!MainApplication.onOptionsItemSelected(this, item)) {
-	    	// Handle item selection.
-	    	switch (item.getItemId()) {
-	    		case R.id.view_webcast_file_activity_menu_open_in_browser:
-	    			Intent intent = new Intent(Intent.ACTION_VIEW);
-	    			intent.setData(Uri.parse(mVideoFileName));
-	    			startActivity(intent);
-	    			return true;
+    	switch (item.getItemId()) {
+    		case R.id.view_webcast_file_activity_menu_open_in_browser:
+    			Intent intent = new Intent(Intent.ACTION_VIEW);
+    			intent.setData(Uri.parse(mVideoFileName));
+    			startActivity(intent);
+    			return true;
+    			
+    		case R.id.view_webcast_file_activity_menu_save:
+    			// Obtain the preference manager.
+    			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    			
+    			// Check if we allow downloads over mobile network.
+    			boolean downloadOverMobile = prefs.getBoolean("download_over_mobile_networks", true)	;
+    			int allowedNetworkTypes = DownloadManager.Request.NETWORK_WIFI;
+    			allowedNetworkTypes |= downloadOverMobile ? DownloadManager.Request.NETWORK_MOBILE : 0; 
+    			
+    			// Get connectivity state.
+    			ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    			NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+    			int networkType = networkInfo.getType();
+    			
+    			// Construct video file name.
+    			String fileName = mVideoUri.getLastPathSegment();
+    			//String filePath = "IVLE Webcasts/" + fileName;
+    			if (Build.VERSION.SDK_INT < 11) {
+    				com.nuscomputing.support.android.app.DownloadManager.Request request = new com.nuscomputing.support.android.app.DownloadManager.Request(mVideoUri);
+	    			request.setDescription("IVLE Webcast");
+	    			request.setAllowedNetworkTypes(allowedNetworkTypes);
+	    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
 	    			
-	    		case R.id.view_webcast_file_activity_menu_save:
-	    			// Obtain the preference manager.
-	    			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+	    			// Request a save of the video file.
+	    			com.nuscomputing.support.android.app.DownloadManager manager = new com.nuscomputing.support.android.app.DownloadManager(getContentResolver(), getClass().getPackage().getName());
+	    			manager.enqueue(request);
 	    			
-	    			// Check if we allow downloads over mobile network.
-	    			boolean downloadOverMobile = prefs.getBoolean("download_over_mobile_networks", true)	;
-	    			int allowedNetworkTypes = DownloadManager.Request.NETWORK_WIFI;
-	    			allowedNetworkTypes |= downloadOverMobile ? DownloadManager.Request.NETWORK_MOBILE : 0; 
+    			} else {
+    				DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
+	    			request.allowScanningByMediaScanner();
+	    			request.setDescription("IVLE Webcast");
+	    			request.setAllowedNetworkTypes(allowedNetworkTypes);
+	    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
 	    			
-	    			// Get connectivity state.
-	    			ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	    			NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
-	    			int networkType = networkInfo.getType();
-	    			
-	    			// Construct video file name.
-	    			String fileName = mVideoUri.getLastPathSegment();
-	    			//String filePath = "IVLE Webcasts/" + fileName;
-	    			if (Build.VERSION.SDK_INT < 11) {
-	    				com.nuscomputing.support.android.app.DownloadManager.Request request = new com.nuscomputing.support.android.app.DownloadManager.Request(mVideoUri);
-		    			request.setDescription("IVLE Webcast");
-		    			request.setAllowedNetworkTypes(allowedNetworkTypes);
-		    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
-		    			
-		    			// Request a save of the video file.
-		    			com.nuscomputing.support.android.app.DownloadManager manager = new com.nuscomputing.support.android.app.DownloadManager(getContentResolver(), getClass().getPackage().getName());
-		    			manager.enqueue(request);
-		    			
-	    			} else {
-	    				DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
-		    			request.allowScanningByMediaScanner();
-		    			request.setDescription("IVLE Webcast");
-		    			request.setAllowedNetworkTypes(allowedNetworkTypes);
-		    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
-		    			
-		    			// Request a save of the video file.
-		    			DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-		    			manager.enqueue(request);
-	    			}
-	    			
-	    			// Show a toast.
-	    			if (networkType == ConnectivityManager.TYPE_MOBILE && !downloadOverMobile) {
-	    				Toast.makeText(this, getString(R.string.view_webcast_file_activity_webcast_queued_wifi), Toast.LENGTH_SHORT)
-	    					.show();
-	    			} else {
-	    				Toast.makeText(this, getString(R.string.view_webcast_file_activity_webcast_queued), Toast.LENGTH_SHORT)
-	    					.show();
-	    			}
-	    			
-	    			return true;
-	
-				case android.R.id.home:
-					finish();
-					return true;
-					
-				default:
-					return super.onOptionsItemSelected(item);
-	    	}
-	    	
-    	} else {
-    		return true;
+	    			// Request a save of the video file.
+	    			DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+	    			manager.enqueue(request);
+    			}
+    			
+    			// Show a toast.
+    			if (networkType == ConnectivityManager.TYPE_MOBILE && !downloadOverMobile) {
+    				Toast.makeText(this, getString(R.string.view_webcast_file_activity_webcast_queued_wifi), Toast.LENGTH_SHORT)
+    					.show();
+    			} else {
+    				Toast.makeText(this, getString(R.string.view_webcast_file_activity_webcast_queued), Toast.LENGTH_SHORT)
+    					.show();
+    			}
+    			
+    			return true;
+				
+			default:
+				return super.onOptionsItemSelected(item);
     	}
     }
     

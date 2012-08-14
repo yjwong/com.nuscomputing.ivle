@@ -38,7 +38,7 @@ import android.widget.SearchView.OnCloseListener;
  * @author yjwong
  */
 @TargetApi(14)
-public class MainActivity extends SherlockFragmentActivity {
+public class MainActivity extends IVLESherlockFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -219,9 +219,12 @@ public class MainActivity extends SherlockFragmentActivity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+    	// Inflate the main menu.
     	MenuInflater inflater = getSupportMenuInflater();
     	inflater.inflate(R.menu.main_menu, menu);
-    	inflater.inflate(R.menu.global, menu);
+    	
+    	// Inflate the global menu.
+    	super.onCreateOptionsMenu(menu);
     	
     	// Get the SearchView and set the searchable configuration
     	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -263,31 +266,26 @@ public class MainActivity extends SherlockFragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection.
-    	if (!MainApplication.onOptionsItemSelected(this, item)) {
-        	switch (item.getItemId()) {
-        		case R.id.main_menu_search:
-        			onSearchRequested();
-        			return true;
-        			
-	    		case R.id.main_menu_refresh:
-	    			this.performRefresh();
-	    			return true;
-	    		
-	    		case R.id.main_menu_public_news:
-	    			startActivity(new Intent(this, PublicNewsActivity.class));
-	    			return true;
-	    			
-	    		case android.R.id.home:
-	    			// Remove the search box.
-    				onBackPressed();
-	    			return true;
+    	switch (item.getItemId()) {
+    		case R.id.main_menu_search:
+    			onSearchRequested();
+    			return true;
+    			
+    		case R.id.main_menu_refresh:
+    			this.performRefresh();
+    			return true;
+    		
+    		case R.id.main_menu_public_news:
+    			startActivity(new Intent(this, PublicNewsActivity.class));
+    			return true;
+    			
+    		case android.R.id.home:
+    			// Remove the search box.
+				onBackPressed();
+    			return true;
 
-	    		default:
-	    			return super.onOptionsItemSelected(item);
-	    	}
-        	
-    	} else {
-    		return true;
+    		default:
+    			return super.onOptionsItemSelected(item);
     	}
     }
     

@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.nuscomputing.ivle.online.ModuleLecturersFragment;
 import com.nuscomputing.ivle.online.ModuleWeblinksFragment;
 
@@ -30,7 +26,7 @@ import android.widget.TextView;
  * Main IVLE application activity.
  * @author yjwong
  */
-public class ModuleActivity extends SherlockFragmentActivity {
+public class ModuleActivity extends IVLESherlockFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -119,33 +115,6 @@ public class ModuleActivity extends SherlockFragmentActivity {
 			@Override
 			public void onPageScrollStateChanged(int state) { }
     	});
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getSupportMenuInflater();
-    	inflater.inflate(R.menu.global, menu);
-    	return true;
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	// Handle item selection.
-    	if (!MainApplication.onOptionsItemSelected(this, item)) {
-	    	// Handle item selection.
-	    	switch (item.getItemId()) {
-	    		case android.R.id.home:
-	    			// App icon tapped, go home.
-	    			finish();
-	    			return true;
-	    			
-	    		default:
-	    			return super.onOptionsItemSelected(item);
-	    	}
-	    	
-    	} else {
-    		return true;
-    	}
     }
 
     // }}}

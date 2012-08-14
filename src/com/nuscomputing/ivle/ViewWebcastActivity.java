@@ -1,17 +1,12 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-public class ViewWebcastActivity extends SherlockFragmentActivity
+public class ViewWebcastActivity extends IVLESherlockFragmentActivity
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -59,34 +54,6 @@ public class ViewWebcastActivity extends SherlockFragmentActivity
         // Load the action bar title.
         DataLoader loader = new DataLoader(this, this);
         getSupportLoaderManager().initLoader(DataLoader.LOADER_VIEW_WEBCAST_ACTIVITY, args, loader).forceLoad();
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
-    	MenuInflater inflater = getSupportMenuInflater();
-    	inflater.inflate(R.menu.global, menu);
-    	return true;
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	// Handle item selection.
-    	if (!MainApplication.onOptionsItemSelected(this, item)) {
-	    	// Handle item selection.
-	    	switch (item.getItemId()) {
-				case android.R.id.home:
-					// Up pressed, go back to previous screen.
-					finish();
-					return true;
-					
-	    		default:
-	    			return super.onOptionsItemSelected(item);
-	    	}
-	    	
-    	} else {
-    		return true;
-    	}
     }
     
     public void onLoaderFinished(Bundle result) {

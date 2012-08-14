@@ -1,7 +1,6 @@
 package com.nuscomputing.ivle;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -21,7 +20,7 @@ import android.widget.SearchView;
  * The main universal search activity.
  * @author yjwong
  */
-public class SearchableActivity extends SherlockFragmentActivity {
+public class SearchableActivity extends IVLESherlockFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -108,8 +107,11 @@ public class SearchableActivity extends SherlockFragmentActivity {
     @TargetApi(11)
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
+    	// Create the global menu.
+    	super.onCreateOptionsMenu(menu);
+    	
+    	// Create the searchable activity menu.
     	MenuInflater inflater = getSupportMenuInflater();
-    	inflater.inflate(R.menu.global, menu);
     	inflater.inflate(R.menu.searchable_activity_menu, menu);
     	
     	// Get the SearchView and set the searchable configuration
@@ -128,22 +130,13 @@ public class SearchableActivity extends SherlockFragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	// Handle item selection.
-    	if (!MainApplication.onOptionsItemSelected(this, item)) {
-        	switch (item.getItemId()) {
-	    		case R.id.main_menu_search:
-	    			onSearchRequested();
-	    			return true;
-	    			
-        		case android.R.id.home:
-        			finish();
-        			return true;
-	    			
-	    		default:
-	    			return super.onOptionsItemSelected(item);
-	    	}
-        	
-    	} else {
-    		return true;
+    	switch (item.getItemId()) {
+    		case R.id.main_menu_search:
+    			onSearchRequested();
+    			return true;
+    			
+    		default:
+    			return super.onOptionsItemSelected(item);
     	}
     }
 	
