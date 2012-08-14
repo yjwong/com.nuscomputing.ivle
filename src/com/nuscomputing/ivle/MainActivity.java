@@ -158,7 +158,7 @@ public class MainActivity extends IVLESherlockFragmentActivity {
     				Log.v(TAG, "Authentication suceeded");
     				if (mActiveAccount == null) {
     					showSyncInProgress();
-    				}    				
+    				}
     				this.performRefresh();
     			}
     	}

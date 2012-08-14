@@ -57,6 +57,10 @@ public class ViewAnnouncementFragment extends SherlockFragment
 		// We have a menu to populate.
 		this.setHasOptionsMenu(true);
 		
+		// Get the Action Bar.
+		ActionBar bar = getSherlockActivity().getSupportActionBar();
+		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		
 		// Obtain the announcement ID.
 		Bundle args = getArguments();
 		mAnnouncementId = args.getLong("announcementId");

@@ -107,6 +107,9 @@ public class ModuleWeblinksFragment extends SherlockListFragment {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(weblink.url));
 		startActivity(intent);
+		
+		// Remove the selection.
+		l.setItemChecked(position, false);
 	}
 	
 	// }}}

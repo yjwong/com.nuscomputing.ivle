@@ -12,6 +12,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
@@ -81,11 +84,28 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
-				// Should start a webview here.
-				Intent intent = new Intent();
-				intent.setClass(getActivity(), ViewAnnouncementActivity.class);
-				intent.putExtra("announcementId", id);
-				startActivity(intent);
+				// Multi-pane support.
+				View multipane = getActivity().findViewById(R.id.main_multipane);
+				if (multipane == null) {
+					// Should start a webview here.
+					Intent intent = new Intent();
+					intent.setClass(getActivity(), ViewAnnouncementActivity.class);
+					intent.putExtra("announcementId", id);
+					startActivity(intent);
+				} else {
+					// Create the fragment.
+					Bundle args = new Bundle();
+					args.putLong("announcementId", id);
+					Fragment fragment = new ViewAnnouncementFragment();
+					fragment.setArguments(args);
+					
+					// Add the fragment.
+					FragmentManager manager = getFragmentManager();
+					FragmentTransaction transaction = manager.beginTransaction();
+					transaction.addToBackStack(TAG);
+					transaction.replace(R.id.main_right_fragment_container, fragment);
+					transaction.commit();
+				}
 			}
 		});
 		
@@ -103,7 +123,9 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 	
 	public void onLoaderFinished(Bundle result) {
 		TextView tvNoAnnouncements = (TextView) getActivity().findViewById(R.id.module_announcements_fragment_no_announcements);
-		tvNoAnnouncements.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
+		if (tvNoAnnouncements != null) {
+			tvNoAnnouncements.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
+		}
 	}
 	
 	// }}}

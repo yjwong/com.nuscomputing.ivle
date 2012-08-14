@@ -50,7 +50,7 @@ public class AccountSettingsActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
         	// Obtain all the accounts.
         	final Account[] accounts = AccountUtils.getAllAccounts(this);
-        	ArrayAdapter<Account> adapter = new AccountsSpinnerAdapter(this, android.R.layout.simple_list_item_1, accounts);
+        	ArrayAdapter<Account> adapter = new AccountsSpinnerAdapter(mActionBar.getThemedContext(), android.R.layout.simple_list_item_1, accounts);
         	
         	// Use a spinner action bar.
         	mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);

@@ -67,6 +67,9 @@ public class ModulesFragment extends SherlockListFragment implements DataLoaderL
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
+		// Allow ListView selection.
+		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		
 		// Fetch data for the list adapter.
 		mAdapter = new ModulesCursorAdapter(getActivity(), null, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         mLoader = new DataLoader(getActivity(), mAdapter);
@@ -99,13 +102,16 @@ public class ModulesFragment extends SherlockListFragment implements DataLoaderL
 				startActivity(intent);
 			}
 			
+			// Don't check the item.
+			l.setItemChecked(position, false);
+			
 		} else {
 			// Prepare the fragment.
 			Bundle args = new Bundle();
 			args.putLong("moduleId", id);
 			args.putString("moduleCourseName", courseName);
 			args.putString("moduleIvleId", v.getTag().toString());
-			Fragment fragment = new ModuleInfoFragment();
+			Fragment fragment = new ModuleFragment();
 			fragment.setArguments(args);
 			
 			// Add the fragment.
