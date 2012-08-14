@@ -58,7 +58,8 @@ public class NotificationDispatcher extends SherlockActivity {
         		break;
         	
         	case NOTIFICATION_ANNOUNCEMENT_MANY:
-        		startMainActivity();
+        		outIntent.setClass(getApplicationContext(), NewAnnouncementsActivity.class);
+        		startActivity(outIntent);
         		break;
         	
         	default:

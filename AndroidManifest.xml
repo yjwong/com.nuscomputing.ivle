@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nuscomputing.ivle"
-    android:versionCode="17"
-    android:versionName="0.5.1" >
+    android:versionCode="18"
+    android:versionName="0.5.2" >
 
     <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="16"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -54,6 +54,7 @@
         <activity android:name="SettingsActivity"></activity>
         <activity android:name="SettingsActivityLegacy"></activity>
         <activity android:name="ModuleActivity"></activity>
+        <activity android:name="NewAnnouncementsActivity"></activity>
         <activity android:name="ViewAnnouncementActivity"></activity>
         <activity android:name="ViewWebcastActivity"></activity>
         <activity android:name="ViewWebcastFileActivity"

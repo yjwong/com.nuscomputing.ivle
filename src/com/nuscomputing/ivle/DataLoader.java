@@ -53,6 +53,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final int LOADER_VIEW_WORKBIN_FRAGMENT = 12;
 	public static final int LOADER_VIEW_WORKBIN_FILES_FRAGMENT = 13;
 	public static final int LOADER_VIEW_WORKBIN_FOLDERS_FRAGMENT = 14;
+	public static final int LOADER_NEW_ANNOUNCEMENTS_FRAGMENT = 15;
 	
 	/** Loader IDs for AsyncTaskLoaders that are not handled by this loader */
 	public static final int LOADER_MODULE_INFO_FRAGMENT_INFO = 15;
@@ -190,6 +191,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				break;
 				
 			case LOADER_MODULES_FRAGMENT:
+			case LOADER_NEW_ANNOUNCEMENTS_FRAGMENT:
 				break;
 				
 			default:
@@ -421,6 +423,24 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/workbin_folders"));
 			
+		} else if (id == LOADER_NEW_ANNOUNCEMENTS_FRAGMENT) {
+			// Set up our query parameters.
+			projectionList.addAll(Arrays.asList(
+					AnnouncementsContract.ID,
+					AnnouncementsContract.TITLE,
+					AnnouncementsContract._DESCRIPTION_NOHTML,
+					AnnouncementsContract.CREATED_DATE,
+					AnnouncementsContract.IS_READ
+			));
+			selection = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.ACCOUNT + " = ?";
+			selection += " AND " + DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + AnnouncementsContract.IS_READ + " = ?";
+			selectionArgsList.add(accountName);
+			selectionArgsList.add("0");
+			sortOrder = AnnouncementsContract.CREATED_DATE.concat(" DESC");
+			
+			// Set up the cursor loader.
+			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/announcements"));
+			
 		} else {
 			throw new IllegalArgumentException("No such loader");
 		}
@@ -452,6 +472,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				break;
 			
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
+			case LOADER_NEW_ANNOUNCEMENTS_FRAGMENT:
 				result.putInt("cursorCount", cursor.getCount());
 				((CursorAdapter) mAdapter).swapCursor(cursor);
 				((CursorAdapter) mAdapter).notifyDataSetChanged();
@@ -505,7 +526,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				result.putInt("cursorCount", cursor.getCount());
 				((SimpleCursorAdapter) mAdapter).swapCursor(cursor);
 				break;
-				
+
 			default:
 				throw new IllegalArgumentException("No such loader");
 		}
@@ -524,6 +545,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				break;
 				
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
+			case LOADER_NEW_ANNOUNCEMENTS_FRAGMENT:
 				((CursorAdapter) mAdapter).swapCursor(null);
 				break;
 				
