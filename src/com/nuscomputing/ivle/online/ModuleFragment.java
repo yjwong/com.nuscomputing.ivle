@@ -1,14 +1,15 @@
-package com.nuscomputing.ivle;
+package com.nuscomputing.ivle.online;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -20,22 +21,17 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
-import com.nuscomputing.ivle.online.ModuleInfoFragment;
-import com.nuscomputing.ivle.online.ModuleLecturersFragment;
-import com.nuscomputing.ivle.online.ModuleWeblinksFragment;
+import com.nuscomputing.ivle.R;
 
 /**
- * A fragment that hosts most of the module options.
+ * A fragment that hosts most of the module options (online).
  * @author yjwong
  */
 public class ModuleFragment extends SherlockFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
-	public static final String TAG = "ModuleFragment";
-	
-	/** The module ID */
-	public long moduleId;
+	public static final String TAG = "ModuleActivity";
 	
 	/** The module IVLE ID */
 	public String moduleIvleId;
@@ -64,6 +60,7 @@ public class ModuleFragment extends SherlockFragment {
 		return inflater.inflate(R.layout.module_fragment, null);
 	}
 	
+    @TargetApi(11)
 	@Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -72,9 +69,8 @@ public class ModuleFragment extends SherlockFragment {
         Bundle args = getArguments();
         moduleCourseName = args.getString("moduleCourseName");
         moduleIvleId = args.getString("moduleIvleId");
-        moduleId = args.getLong("moduleId", -1);
-        if (moduleId == -1) {
-        	throw new IllegalStateException("No module ID was passed to ModuleActivity");
+        if (moduleIvleId == null) {
+        	throw new IllegalStateException("No module IVLE ID was passed to ModuleActivity");
         }
         
         // Create the view pager.
@@ -90,11 +86,8 @@ public class ModuleFragment extends SherlockFragment {
     	ArrayList<String> spinnerItems = new ArrayList<String>();
     	spinnerItems.addAll(Arrays.asList(
     		getString(R.string.module_activity_info),
-    		getString(R.string.module_activity_announcements),
     		getString(R.string.module_activity_lecturers),
-    		getString(R.string.module_activity_webcasts),
-    		getString(R.string.module_activity_weblinks),
-    		getString(R.string.module_activity_workbins)
+    		getString(R.string.module_activity_weblinks)
     	));
     	mSpinnerAdapter = new ModuleActivitySpinnerAdapter(bar.getThemedContext(), spinnerItems);
     	bar.setListNavigationCallbacks(mSpinnerAdapter, new ModuleActivityOnNavigationListener());
@@ -102,18 +95,15 @@ public class ModuleFragment extends SherlockFragment {
         // Plug the pager tabs.
     	ArrayList<Fragment> fragmentList = new ArrayList<Fragment>();
     	fragmentList.add(Fragment.instantiate(getActivity(), ModuleInfoFragment.class.getName(), args));
-    	fragmentList.add(Fragment.instantiate(getActivity(), ModuleAnnouncementsFragment.class.getName(), args));
     	fragmentList.add(Fragment.instantiate(getActivity(), ModuleLecturersFragment.class.getName(), args));
-    	fragmentList.add(Fragment.instantiate(getActivity(), ModuleWebcastsFragment.class.getName(), args));
     	fragmentList.add(Fragment.instantiate(getActivity(), ModuleWeblinksFragment.class.getName(), args));
-    	fragmentList.add(Fragment.instantiate(getActivity(), ModuleWorkbinsFragment.class.getName(), args));
     	mPagerAdapter = new ModuleActivityPagerAdapter(getActivity().getSupportFragmentManager(), fragmentList);
     	
     	// Configure the view pager.
     	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageSelected(int position) {
-				getSherlockActivity().getSupportActionBar().setSelectedNavigationItem(position);
+				getSherlockActivity().getActionBar().setSelectedNavigationItem(position);
 			}
 			
 			@Override
@@ -129,7 +119,7 @@ public class ModuleFragment extends SherlockFragment {
     		public void run() {
     			mViewPager.setAdapter(mPagerAdapter);
     		}
-    	});	
+    	});
     }
 
     // }}}
@@ -211,7 +201,7 @@ public class ModuleFragment extends SherlockFragment {
      * Helper class for pager adapter.
      * @author yjwong
      */
-    public class ModuleActivityPagerAdapter extends FragmentStatePagerAdapter {
+    public class ModuleActivityPagerAdapter extends FragmentPagerAdapter {
     	// {{{ properties
     	
     	/** The list of fragments */

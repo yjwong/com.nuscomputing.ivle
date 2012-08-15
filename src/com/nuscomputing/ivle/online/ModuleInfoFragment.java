@@ -74,7 +74,7 @@ public class ModuleInfoFragment extends SherlockListFragment {
         }
         
 		// Obtain the listview.
-		mListView = (ListView) getActivity().findViewById(R.id.module_info_fragment_listview);
+        mListView = getListView();
 		
 		// Find and insert the linear layout.
 		LinearLayout layout = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.module_info_fragment_list_header, null);

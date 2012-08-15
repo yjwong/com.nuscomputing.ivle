@@ -37,7 +37,8 @@ public class AccountSettingsActivity extends Activity {
 	// {{{ methods
 	
     /** Called when the activity is first created. */
-    @Override
+    @TargetApi(14)
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_settings_activity);
@@ -50,7 +51,7 @@ public class AccountSettingsActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
         	// Obtain all the accounts.
         	final Account[] accounts = AccountUtils.getAllAccounts(this);
-        	ArrayAdapter<Account> adapter = new AccountsSpinnerAdapter(mActionBar.getThemedContext(), android.R.layout.simple_list_item_1, accounts);
+        	ArrayAdapter<Account> adapter = new AccountsSpinnerAdapter(mActionBar.getThemedContext(), android.R.id.text1, accounts);
         	
         	// Use a spinner action bar.
         	mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
@@ -129,6 +130,9 @@ public class AccountSettingsActivity extends Activity {
     	/** The list of accounts */
     	private Account[] mAccounts;
     	
+    	/** The layout inflater */
+    	private LayoutInflater mLayoutInflater;
+    	
     	// }}}
     	// {{{ methods
     	
@@ -137,13 +141,15 @@ public class AccountSettingsActivity extends Activity {
 			super(context, textViewResourceId, accounts);
 			mContext = context;
 			mAccounts = accounts;
+			
+			// Get the layout inflater.
+			mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// View for the spinner.
-			LayoutInflater inflater = getLayoutInflater();
-			convertView = inflater.inflate(R.layout.account_settings_activity_spinner, null);
+			convertView = mLayoutInflater.inflate(R.layout.account_settings_activity_spinner, null);
 			
 			// Insert the title.
 			TextView tvTitle = (TextView) convertView.findViewById(R.id.account_settings_activity_spinner_title);
@@ -158,12 +164,10 @@ public class AccountSettingsActivity extends Activity {
 		@Override
 		public View getDropDownView(int position, View convertView, ViewGroup parent) {
 			// Create a view to contain the name of the account.
-			LayoutInflater inflater = getLayoutInflater();
-			convertView = inflater.inflate(android.R.layout.simple_list_item_1, null);
+			convertView = mLayoutInflater.inflate(android.R.layout.simple_list_item_1, null);
 			
 			// Insert the name.
 			TextView tvAccountName = (TextView) convertView.findViewById(android.R.id.text1);
-			tvAccountName.setTextAppearance(mContext, android.R.style.TextAppearance_Holo_Medium_Inverse);
 			tvAccountName.setText(mAccounts[position].name);
 			return convertView;
 		}
