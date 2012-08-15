@@ -414,6 +414,7 @@ public class SearchableFragment extends ListFragment {
 			switch (viewType) {
 				case VIEW_TYPE_HEADING:
 					convertView = mLayoutInflater.inflate(R.layout.searchable_fragment_list_heading, null);
+					convertView.setClickable(true);
 					TextView tvHeadingTitle = (TextView) convertView.findViewById(R.id.searchable_fragment_list_heading_title);
 					tvHeadingTitle.setText(resultDetails.getString(SearchResult.KEY_HEADING_TITLE));
 					return convertView;

@@ -78,6 +78,7 @@ public class ModuleInfoFragment extends SherlockListFragment {
 		
 		// Find and insert the linear layout.
 		LinearLayout layout = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.module_info_fragment_list_header, null);
+		layout.setClickable(true);
 		ArrayAdapter<String> loadingAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, new String[] { getString(R.string.loading) });
 		mListView.addHeaderView(layout);
 		mListView.setAdapter(loadingAdapter);
