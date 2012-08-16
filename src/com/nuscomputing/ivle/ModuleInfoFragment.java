@@ -1,11 +1,9 @@
-package com.nuscomputing.ivle.online;
+package com.nuscomputing.ivle;
 
 import java.util.Arrays;
 import java.util.List;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -40,14 +38,18 @@ import com.nuscomputing.ivlelapi.NoSuchModuleException;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleInfoFragment extends SherlockListFragment {
+public class ModuleInfoFragment extends SherlockListFragment implements
+		DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
 	public static final String TAG = "ModuleInfoFragment";
 	
-	/** The module IVLE ID */
-	private String mModuleIvleId;
+	/** Data loader instance */
+	private DataLoader mLoader;
+	
+	/** The module ID */
+	private long mModuleId = -1;
 	
 	/** The main listview */
 	private ListView mListView;
@@ -68,9 +70,9 @@ public class ModuleInfoFragment extends SherlockListFragment {
 		
 		// Obtain the module ID.
 		Bundle args = getArguments();
-		mModuleIvleId = args.getString("moduleIvleId");
-        if (mModuleIvleId == null) {
-        	throw new IllegalStateException("No module IVLE ID was passed to ModuleInfoFragment");
+		mModuleId = args.getLong("moduleId", -1);
+        if (mModuleId == -1) {
+        	throw new IllegalStateException("No module ID was passed to ModuleInfoFragment");
         }
         
 		// Obtain the listview.
@@ -84,126 +86,28 @@ public class ModuleInfoFragment extends SherlockListFragment {
 		mListView.setAdapter(loadingAdapter);
 		
 		// Load the module info.
-		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_INFO, args, new InfoLoaderCallbacks());
+		mLoader = new DataLoader(getActivity(), this);
+		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT, args, mLoader);
         
 		// Load the module descriptions.
 		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS, args, new DescriptionsLoaderCallbacks());
 	}
 	
+	public void onLoaderFinished(Bundle result) {
+		// Set the view data.
+		TextView tvCourseName = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_name);
+		tvCourseName.setText(result.getString("courseName"));
+		TextView tvCourseCode = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_code);
+		tvCourseCode.setText(result.getString("courseCode"));
+		TextView tvCourseAcadYear = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_acad_year);
+		tvCourseAcadYear.setText(result.getString("courseAcadYear"));
+		TextView tvCourseSemester = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_semester);
+		tvCourseSemester.setText(result.getString("courseSemester"));
+	}
+	
 	// }}}
 	// {{{ classes
-	
-	/**
-	 * The loader callbacks for module information.
-	 * @author yjwong
-	 */
-	class InfoLoaderCallbacks implements
-		LoaderManager.LoaderCallbacks<Module> {
-		// {{{ methods
-		
-		@Override
-		public Loader<Module> onCreateLoader(int id, Bundle args) {
-			return new InfoLoader(getActivity(), args);
-		}
-		
-		@TargetApi(11)
-		@Override
-		public void onLoadFinished(Loader<Module> loader, Module result) {
-			// Set the view data.
-			if (result != null) {
-				TextView tvCourseName = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_name);
-				tvCourseName.setText(result.courseName);
-				TextView tvCourseCode = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_code);
-				tvCourseCode.setText(result.courseCode);
-				TextView tvCourseAcadYear = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_acad_year);
-				tvCourseAcadYear.setText(result.courseAcadYear);
-				TextView tvCourseSemester = (TextView) getActivity().findViewById(R.id.module_info_fragment_course_semester);
-				tvCourseSemester.setText(result.courseSemester);
-				
-			}  else {
-				Toast.makeText(getActivity(), R.string.module_info_fragment_unable_to_load, Toast.LENGTH_SHORT).show();
-				
-				// Stop all other tasks.
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_INFO);
-					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS);
-					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_LECTURERS_FRAGMENT);
-				}
-				
-				getActivity().finish();
-			}
-		}
-		
-		@Override
-		public void onLoaderReset(Loader<Module> loader) {
-			// Do nothing.
-		}
-		
-		// }}}
-	}
-	
-	/**
-	 * The module information loader.
-	 * @author yjwong
-	 */
-	static class InfoLoader extends AsyncTaskLoader<Module> {
-		// {{{ properties
-		
-		/** Arguments to this loader */
-		private Bundle mArgs;
-		
-		/** The context */
-		private Context mContext;
-		
-		/** The module information */
-		private Module mModule;
-		
-		// }}}
-		// {{{ methods
-		
-		InfoLoader(Context context, Bundle args) {
-			super(context);
-			mContext = context;
-			mArgs = args;
-		}
-		
-		@Override
-		public void onStartLoading() {
-			if (mModule != null	) {
-				deliverResult(mModule);
-			}
-			if (takeContentChanged() || mModule == null) {
-				forceLoad();
-			}
-		}
-		
-		@Override
-		public Module loadInBackground() {
-			// Obtain the IVLE ID.
-			String moduleIvleId = mArgs.getString("moduleIvleId");
-			
-			// Acquire a new IVLE object.
-			IVLE ivle = IVLEUtils.getIVLEInstance(mContext);
-			try {
-				Module module = ivle.getModule(moduleIvleId);
-				return module;
-				
-			} catch (NetworkErrorException e) {
-				Log.e(TAG, "NetworkErrorException encountered while loading module");
-			} catch (FailedLoginException e) {
-				Log.e(TAG, "FailedLoginException encountered while loading module");
-			} catch (JSONParserException e) {
-				Log.e(TAG, "JSONParserException encountered while loading module");
-			} catch (NoSuchModuleException e) {
-				Log.e(TAG, "NoSuchModuleException encountered while loading module");
-			}
-			
-			return null;
-		}
-		
-		// }}}
-	}
-	
+
 	/**
 	 * The array adapter for module descriptions.
 	 * @author yjwong

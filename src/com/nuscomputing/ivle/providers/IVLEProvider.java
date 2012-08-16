@@ -37,48 +37,52 @@ public class IVLEProvider extends ContentProvider {
 	private static final int MODULES_ID = 2;
 	private static final int MODULES_ANNOUNCEMENTS = 3;
 	private static final int MODULES_ANNOUNCEMENTS_ID = 4;
-	private static final int MODULES_GRADEBOOKS = 5;
-	private static final int MODULES_GRADEBOOKS_ID = 6;
-	private static final int MODULES_GRADEBOOK_ITEMS = 7;
-	private static final int MODULES_GRADEBOOK_ITEMS_ID = 8;
-	private static final int MODULES_WEBCASTS = 9;
-	private static final int MODULES_WEBCASTS_ID = 10;
-	private static final int MODULES_WEBCAST_FILES = 11;
-	private static final int MODULES_WEBCAST_FILES_ID = 12;
-	private static final int MODULES_WEBCAST_ITEM_GROUPS = 13;
-	private static final int MODULES_WEBCAST_ITEM_GROUPS_ID = 14;
-	private static final int MODULES_WEBLINKS  = 15;
-	private static final int MODULES_WEBLINKS_ID = 16;
-	private static final int MODULES_WORKBINS = 17;
-	private static final int MODULES_WORKBINS_ID = 18;
-	private static final int MODULES_WORKBIN_FOLDERS = 19;
-	private static final int MODULES_WORKBIN_FOLDERS_ID = 20;
-	private static final int MODULES_WORKBIN_FILES = 21;
-	private static final int MODULES_WORKBIN_FILES_ID = 22;
-	private static final int ANNOUNCEMENTS = 23;
-	private static final int ANNOUNCEMENTS_ID = 24;
-	private static final int GRADEBOOKS = 25;
-	private static final int GRADEBOOKS_ID = 26;
-	private static final int GRADEBOOK_ITEMS = 27;
-	private static final int GRADEBOOK_ITEMS_ID = 28;
-	private static final int TIMETABLE_SLOTS = 29;
-	private static final int TIMETABLE_SLOTS_ID = 30;
-	private static final int USERS = 31;
-	private static final int USERS_ID = 32;
-	private static final int WEBCASTS = 33;
-	private static final int WEBCASTS_ID = 34;
-	private static final int WEBCAST_FILES = 35;
-	private static final int WEBCAST_FILES_ID = 36;
-	private static final int WEBCAST_ITEM_GROUPS = 37;
-	private static final int WEBCAST_ITEM_GROUPS_ID = 38;
-	private static final int WEBLINKS = 39;
-	private static final int WEBLINKS_ID = 40;
-	private static final int WORKBINS = 41;
-	private static final int WORKBINS_ID = 42;
-	private static final int WORKBIN_FOLDERS = 43;
-	private static final int WORKBIN_FOLDERS_ID = 44;
-	private static final int WORKBIN_FILES = 45;
-	private static final int WORKBIN_FILES_ID = 46;
+	private static final int MODULES_DESCRIPTIONS = 5;
+	private static final int MODULES_DESCRIPTIONS_ID = 6;
+	private static final int MODULES_GRADEBOOKS = 7;
+	private static final int MODULES_GRADEBOOKS_ID = 8;
+	private static final int MODULES_GRADEBOOK_ITEMS = 9;
+	private static final int MODULES_GRADEBOOK_ITEMS_ID = 10;
+	private static final int MODULES_WEBCASTS = 11;
+	private static final int MODULES_WEBCASTS_ID = 12;
+	private static final int MODULES_WEBCAST_FILES = 13;
+	private static final int MODULES_WEBCAST_FILES_ID = 14;
+	private static final int MODULES_WEBCAST_ITEM_GROUPS = 15;
+	private static final int MODULES_WEBCAST_ITEM_GROUPS_ID = 16;
+	private static final int MODULES_WEBLINKS  = 17;
+	private static final int MODULES_WEBLINKS_ID = 18;
+	private static final int MODULES_WORKBINS = 19;
+	private static final int MODULES_WORKBINS_ID = 20;
+	private static final int MODULES_WORKBIN_FOLDERS = 21;
+	private static final int MODULES_WORKBIN_FOLDERS_ID = 22;
+	private static final int MODULES_WORKBIN_FILES = 23;
+	private static final int MODULES_WORKBIN_FILES_ID = 24;
+	private static final int ANNOUNCEMENTS = 25;
+	private static final int ANNOUNCEMENTS_ID = 26;
+	private static final int DESCRIPTIONS = 27;
+	private static final int DESCRIPTIONS_ID = 28;
+	private static final int GRADEBOOKS = 29;
+	private static final int GRADEBOOKS_ID = 30;
+	private static final int GRADEBOOK_ITEMS = 31;
+	private static final int GRADEBOOK_ITEMS_ID = 32;
+	private static final int TIMETABLE_SLOTS = 33;
+	private static final int TIMETABLE_SLOTS_ID = 34;
+	private static final int USERS = 35;
+	private static final int USERS_ID = 36;
+	private static final int WEBCASTS = 37;
+	private static final int WEBCASTS_ID = 38;
+	private static final int WEBCAST_FILES = 39;
+	private static final int WEBCAST_FILES_ID = 40;
+	private static final int WEBCAST_ITEM_GROUPS = 41;
+	private static final int WEBCAST_ITEM_GROUPS_ID = 42;
+	private static final int WEBLINKS = 43;
+	private static final int WEBLINKS_ID = 44;
+	private static final int WORKBINS = 45;
+	private static final int WORKBINS_ID = 46;
+	private static final int WORKBIN_FOLDERS = 47;
+	private static final int WORKBIN_FOLDERS_ID = 48;
+	private static final int WORKBIN_FILES = 49;
+	private static final int WORKBIN_FILES_ID = 50;
 	
 	// }}}
 	// {{{ methods
@@ -88,6 +92,8 @@ public class IVLEProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#", MODULES_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/announcements", MODULES_ANNOUNCEMENTS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/announcements/#", MODULES_ANNOUNCEMENTS_ID);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/descriptions", MODULES_DESCRIPTIONS);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/descriptions/#", MODULES_DESCRIPTIONS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/gradebooks", MODULES_GRADEBOOKS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/gradebooks/#", MODULES_GRADEBOOKS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/gradebook_items", MODULES_GRADEBOOK_ITEMS);
@@ -108,6 +114,8 @@ public class IVLEProvider extends ContentProvider {
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "modules/#/workbin_files/#", MODULES_WORKBIN_FILES_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "announcements", ANNOUNCEMENTS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "announcements/#", ANNOUNCEMENTS_ID);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "descriptions", DESCRIPTIONS);
+		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "descriptions/#", DESCRIPTIONS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "gradebooks", GRADEBOOKS);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "gradebooks/#", GRADEBOOKS_ID);
 		sUriMatcher.addURI(Constants.PROVIDER_AUTHORITY, "gradebook_items", GRADEBOOK_ITEMS);
@@ -139,6 +147,9 @@ public class IVLEProvider extends ContentProvider {
 			mDatabase = mDatabaseHelper.getWritableDatabase();
 		}
 		
+		// Get the contract.
+		IVLEContract contract = getContractFromUri(uri);
+		
 		// Build query based on URI.
 		int ret = -1;
 		String moduleId = null;
@@ -159,407 +170,83 @@ public class IVLEProvider extends ContentProvider {
 				break;
 				
 			case MODULES_ANNOUNCEMENTS:
+			case MODULES_DESCRIPTIONS:
+			case MODULES_GRADEBOOKS:
+			case MODULES_GRADEBOOK_ITEMS:
+			case MODULES_WEBCASTS:
+			case MODULES_WEBCAST_FILES:
+			case MODULES_WEBCAST_ITEM_GROUPS:
+			case MODULES_WEBLINKS:
+			case MODULES_WORKBINS:
+			case MODULES_WORKBIN_FOLDERS:
+			case MODULES_WORKBIN_FILES:
 				moduleId = uri.getPathSegments().get(2);
-				whereClause = AnnouncementsContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection + 
+				whereClause = contract.getColumnNameModuleId() + "=" + moduleId +
+						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
 						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME, 
-						whereClause, selectionArgs);
+				ret = mDatabase.delete(contract.getTableName(), whereClause,
+						selectionArgs);
 				break;
 			
 			case MODULES_ANNOUNCEMENTS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = AnnouncementsContract.MODULE_ID + "=" + moduleId +
-						" AND " + AnnouncementsContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-				
-			case MODULES_GRADEBOOKS:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = GradebooksContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection + 
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.GRADEBOOKS_TABLE_NAME, 
-						whereClause, selectionArgs);
-				break;
-			
+			case MODULES_DESCRIPTIONS_ID:
 			case MODULES_GRADEBOOKS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = GradebooksContract.MODULE_ID + "=" + moduleId +
-						" AND " + GradebooksContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.GRADEBOOKS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
-			case MODULES_GRADEBOOK_ITEMS:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = GradebookItemsContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-				
 			case MODULES_GRADEBOOK_ITEMS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = GradebookItemsContract.MODULE_ID + "=" + moduleId +
-						" AND " + GradebookItemsContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-
-			case MODULES_WEBCASTS:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WebcastsContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCASTS_TABLE_NAME, 
-						whereClause, selectionArgs);
-				break;
-			
 			case MODULES_WEBCASTS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WebcastsContract.MODULE_ID + "=" + moduleId +
-						" AND " + WebcastsContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCASTS_TABLE_NAME, 
-						whereClause, selectionArgs);
-				break;
-				
-			case MODULES_WEBCAST_FILES:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WebcastFilesContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCAST_FILES_TABLE_NAME, 
-						whereClause, selectionArgs);
-				break;
-			
 			case MODULES_WEBCAST_FILES_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WebcastFilesContract.MODULE_ID + "=" + moduleId +
-						" AND " + WebcastFilesContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCAST_FILES_TABLE_NAME, 
-						whereClause, selectionArgs);
-				break;
-				
-			case MODULES_WEBCAST_ITEM_GROUPS:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WebcastItemGroupsContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME, 
-						whereClause, selectionArgs);
-				break;
-				
 			case MODULES_WEBCAST_ITEM_GROUPS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WebcastItemGroupsContract.MODULE_ID + "=" + moduleId +
-						" AND " + WebcastItemGroupsContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-				
-			case MODULES_WEBLINKS:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WeblinksContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBLINKS_TABLE_NAME, 
-						whereClause, selectionArgs);
-				break;
-			
 			case MODULES_WEBLINKS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WeblinksContract.MODULE_ID + "=" + moduleId +
-						" AND " + WeblinksContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBLINKS_TABLE_NAME, 
-						whereClause, selectionArgs);
-				break;
-				
-			case MODULES_WORKBINS:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WorkbinsContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBINS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case MODULES_WORKBINS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WorkbinsContract.MODULE_ID + "=" + moduleId +
-						" AND " + WorkbinsContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBINS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
-			case MODULES_WORKBIN_FOLDERS:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WorkbinFoldersContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case MODULES_WORKBIN_FOLDERS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WorkbinFoldersContract.MODULE_ID + "=" + moduleId +
-						" AND " + WorkbinFoldersContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-				
-			case MODULES_WORKBIN_FILES:
-				moduleId = uri.getPathSegments().get(2);
-				whereClause = WorkbinFilesContract.MODULE_ID + "=" + moduleId +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FILES_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case MODULES_WORKBIN_FILES_ID:
 				moduleId = uri.getPathSegments().get(2);
-				whereClause = WorkbinFilesContract.MODULE_ID + "=" + moduleId +
-						" AND " + WorkbinFilesContract.ID + "=" +
+				whereClause = contract.getColumnNameModuleId() + "=" + moduleId +
+						" AND " + contract.getColumnNameId() + "=" +
 						uri.getLastPathSegment() +
 						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
 						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FILES_TABLE_NAME,
-						whereClause, selectionArgs);
+				ret = mDatabase.delete(contract.getTableName(), whereClause,
+						selectionArgs);
 				break;
-				
+					
 			case ANNOUNCEMENTS_ID:
-				whereClause = AnnouncementsContract.ID + "=" +
+			case DESCRIPTIONS_ID:
+			case GRADEBOOKS_ID:
+			case GRADEBOOK_ITEMS_ID:
+			case TIMETABLE_SLOTS_ID:
+			case USERS_ID:
+			case WEBCASTS_ID:
+			case WEBCAST_FILES_ID:
+			case WEBCAST_ITEM_GROUPS_ID:
+			case WEBLINKS_ID:
+			case WORKBINS_ID:
+			case WORKBIN_FOLDERS_ID:
+			case WORKBIN_FILES_ID:
+				whereClause = contract.getColumnNameId() + "=" +
 						uri.getLastPathSegment() +
 						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
 						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME,
-						whereClause, selectionArgs);
+				ret = mDatabase.delete(contract.getTableName(), whereClause,
+						selectionArgs);
 				break;
 				
 			case ANNOUNCEMENTS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all announcements");
-				}
-				ret = mDatabase.delete(DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME, 
-						selection, selectionArgs);
-				break;
-				
-			case GRADEBOOKS_ID:
-				whereClause = GradebooksContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.GRADEBOOKS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-				
+			case DESCRIPTIONS:
 			case GRADEBOOKS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all gradebooks");
-				}
-				ret = mDatabase.delete(DatabaseHelper.GRADEBOOKS_TABLE_NAME, 
-						selection, selectionArgs);
-				break;
-			
-			case GRADEBOOK_ITEMS_ID:
-				whereClause = GradebookItemsContract.ID + "=" + 
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case GRADEBOOK_ITEMS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all gradebook items");
-				}
-				ret = mDatabase.delete(DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-				
-			case TIMETABLE_SLOTS_ID:
-				whereClause = TimetableSlotsContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case TIMETABLE_SLOTS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all timetable slots");
-				}
-				ret = mDatabase.delete(DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-			
-			case USERS_ID:
-				whereClause = UsersContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.USERS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case USERS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all users");
-				}
-				ret = mDatabase.delete(DatabaseHelper.USERS_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-				
-			case WEBCASTS_ID:
-				whereClause = WebcastsContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCASTS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case WEBCASTS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all webcasts");
-				}
-				ret = mDatabase.delete(DatabaseHelper.WEBCASTS_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-				
-			case WEBCAST_FILES_ID:
-				whereClause = WebcastFilesContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCAST_FILES_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case WEBCAST_FILES:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all webcast files");
-				}
-				ret = mDatabase.delete(DatabaseHelper.WEBCAST_FILES_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-				
-			case WEBCAST_ITEM_GROUPS_ID:
-				whereClause = WebcastItemGroupsContract.ID + "=" + 
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case WEBCAST_ITEM_GROUPS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all webcast item groups");
-				}
-				ret = mDatabase.delete(DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-				
-			case WEBLINKS_ID:
-				whereClause = WeblinksContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WEBLINKS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case WEBLINKS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all weblinks");
-				}
-				ret = mDatabase.delete(DatabaseHelper.WEBLINKS_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-			
-			case WORKBINS_ID:
-				whereClause = WorkbinsContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBINS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case WORKBINS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all workbins");
-				}
-				ret = mDatabase.delete(DatabaseHelper.WORKBINS_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-				
-			case WORKBIN_FOLDERS_ID:
-				whereClause = WorkbinFoldersContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case WORKBIN_FOLDERS:
-				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all workbin folders");
-				}
-				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME,
-						selection, selectionArgs);
-				break;
-				
-			case WORKBIN_FILES_ID:
-				whereClause = WorkbinFilesContract.ID + "=" +
-						uri.getLastPathSegment() +
-						(!TextUtils.isEmpty(selection) ? " AND (" + selection +
-						")" : "");
-				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FILES_TABLE_NAME,
-						whereClause, selectionArgs);
-				break;
-			
 			case WORKBIN_FILES:
 				if (selection == null && selectionArgs == null) {
-					Log.d(TAG, "Removing all workbin files");
+					Log.d(TAG, "Removing all items of type " + contract.getContentUri());
 				}
-				ret = mDatabase.delete(DatabaseHelper.WORKBIN_FILES_TABLE_NAME,
-						selection, selectionArgs);
+				ret = mDatabase.delete(contract.getTableName(), selection, selectionArgs);
 				break;
 			
 			default:
@@ -583,21 +270,13 @@ public class IVLEProvider extends ContentProvider {
 			mDatabase = mDatabaseHelper.getWritableDatabase();
 		}
 		
+		// Get the contract.
+		IVLEContract contract = getContractFromUri(uri);
+		
 		// Build query based on URI.
 		String selection = null;
-		String announcementId = null;
-		String gradebookId = null;
-		String gradebookItemId = null;
+		String id = null;
 		String moduleId = null;
-		String timetableSlotId = null;
-		String userId = null;
-		String webcastId = null;
-		String webcastFileId = null;
-		String webcastItemGroupId = null;
-		String weblinkId = null;
-		String workbinId = null;
-		String workbinFolderId = null;
-		String workbinFileId = null;
 		long rowId = 0;
 		switch (sUriMatcher.match(uri)) {
 			case MODULES:
@@ -612,215 +291,58 @@ public class IVLEProvider extends ContentProvider {
 				break;
 			
 			case MODULES_ANNOUNCEMENTS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				announcementId = uri.getLastPathSegment();
-				selection = AnnouncementsContract.MODULE_ID + " = " + moduleId +
-						" AND " + AnnouncementsContract.ID + " = " + announcementId;
-				this.update(uri, values, selection, null);
-				break;
-				
+			case MODULES_DESCRIPTIONS_ID:
 			case MODULES_GRADEBOOKS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				gradebookId = uri.getLastPathSegment();
-				selection = GradebooksContract.MODULE_ID + " = " + moduleId +
-						" AND " + GradebooksContract.ID + " = " + gradebookId;
-				this.update(uri, values, selection, null);
-				break;
-				
 			case MODULES_GRADEBOOK_ITEMS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				gradebookItemId = uri.getLastPathSegment();
-				selection = GradebookItemsContract.MODULE_ID + "=" + moduleId +
-						" AND " + GradebookItemsContract.ID + " = " + gradebookItemId;
-				this.update(uri, values, selection, null);
-				
 			case MODULES_WEBCASTS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				webcastId = uri.getLastPathSegment();
-				selection = WebcastsContract.MODULE_ID + " = " + moduleId +
-						" AND " + WebcastsContract.ID + " = " + webcastId;
-				this.update(uri, values, selection, null);
-				break;
-				
 			case MODULES_WEBCAST_FILES_ID:
-				moduleId = uri.getPathSegments().get(2);
-				webcastFileId = uri.getLastPathSegment();
-				selection = WebcastFilesContract.MODULE_ID + " = " + moduleId +
-						" AND " + WebcastFilesContract.ID + " = " + webcastFileId;
-				this.update(uri, values, selection, null);
-				break;
-				
 			case MODULES_WEBCAST_ITEM_GROUPS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				webcastItemGroupId = uri.getLastPathSegment();
-				selection = WebcastItemGroupsContract.MODULE_ID + "=" + moduleId +
-						" AND " + WebcastItemGroupsContract.ID + " = " + webcastItemGroupId;
-				this.update(uri, values, selection, null);
-				
 			case MODULES_WEBLINKS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				weblinkId = uri.getLastPathSegment();
-				selection = WeblinksContract.MODULE_ID + " = " + moduleId +
-						" AND " + WeblinksContract.ID + " = " + weblinkId;
-				this.update(uri, values, selection, null);
-				break;
-			
 			case MODULES_WORKBINS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				workbinId = uri.getLastPathSegment();
-				selection = WorkbinsContract.MODULE_ID + " = " + moduleId +
-						" AND " + WorkbinsContract.ID + " = " + workbinId;
-				this.update(uri, values, selection, null);
-				break;
-				
 			case MODULES_WORKBIN_FOLDERS_ID:
-				moduleId = uri.getPathSegments().get(2);
-				workbinFolderId = uri.getLastPathSegment();
-				selection = WorkbinFoldersContract.MODULE_ID + " = " + moduleId +
-						" AND " + WorkbinFoldersContract.ID + " = " + workbinFolderId;
-				this.update(uri, values, selection, null);
-				break;
-				
 			case MODULES_WORKBIN_FILES_ID:
 				moduleId = uri.getPathSegments().get(2);
-				workbinFileId = uri.getLastPathSegment();
-				selection = WorkbinFilesContract.MODULE_ID + " = " + moduleId +
-						" AND " + WorkbinFilesContract.ID + " = " + workbinFileId;
+				id = uri.getLastPathSegment();
+				selection = contract.getColumnNameModuleId() + " = " + moduleId +
+						" AND " + contract.getColumnNameId() + " = " + id;
 				this.update(uri, values, selection, null);
 				break;
-				
+
 			case ANNOUNCEMENTS:
-				rowId = mDatabase.insert(DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME, null, values);
+			case DESCRIPTIONS:
+			case GRADEBOOKS:
+			case GRADEBOOK_ITEMS:
+			case TIMETABLE_SLOTS:
+			case USERS:
+			case WEBCASTS:
+			case WEBCAST_FILES:
+			case WEBCAST_ITEM_GROUPS:
+			case WEBLINKS:
+			case WORKBINS:
+			case WORKBIN_FOLDERS:
+			case WORKBIN_FILES:
+				rowId = mDatabase.insert(contract.getTableName(), null, values);
 				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
 				break;
 				
 			case ANNOUNCEMENTS_ID:
-				announcementId = uri.getLastPathSegment();
-				selection = AnnouncementsContract.ID + " = " + announcementId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case GRADEBOOKS:
-				rowId = mDatabase.insert(DatabaseHelper.GRADEBOOKS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-				
+			case DESCRIPTIONS_ID:
 			case GRADEBOOKS_ID:
-				gradebookId = uri.getLastPathSegment();
-				selection = GradebooksContract.ID + " = " + gradebookId;
-				this.update(uri, values, selection, null);
-				break;
-			
-			case GRADEBOOK_ITEMS:
-				rowId = mDatabase.insert(DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case GRADEBOOK_ITEMS_ID:
-				gradebookItemId = uri.getLastPathSegment();
-				selection = GradebookItemsContract.ID + "=" + gradebookItemId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case TIMETABLE_SLOTS:
-				rowId = mDatabase.insert(DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case TIMETABLE_SLOTS_ID:
-				timetableSlotId = uri.getLastPathSegment();
-				selection = TimetableSlotsContract.ID + "=" + timetableSlotId;
-				this.update(uri, values, selection, null);
-				break;
-			
-			case USERS:
-				rowId = mDatabase.insert(DatabaseHelper.USERS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case USERS_ID:
-				userId = uri.getLastPathSegment();
-				selection = UsersContract.ID + " = " + userId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case WEBCASTS:
-				rowId = mDatabase.insert(DatabaseHelper.WEBCASTS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case WEBCASTS_ID:
-				webcastId = uri.getLastPathSegment();
-				selection = WebcastsContract.ID + " = " + webcastId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case WEBCAST_FILES:
-				rowId = mDatabase.insert(DatabaseHelper.WEBCAST_FILES_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case WEBCAST_FILES_ID:
-				webcastFileId = uri.getLastPathSegment();
-				selection = WebcastFilesContract.ID + " = " + webcastFileId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case WEBCAST_ITEM_GROUPS:
-				rowId = mDatabase.insert(DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case WEBCAST_ITEM_GROUPS_ID:
-				webcastItemGroupId = uri.getLastPathSegment();
-				selection = WebcastItemGroupsContract.ID + " = " + webcastItemGroupId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case WEBLINKS:
-				rowId = mDatabase.insert(DatabaseHelper.WEBLINKS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case WEBLINKS_ID:
-				weblinkId = uri.getLastPathSegment();
-				selection = WeblinksContract.ID + " = " + weblinkId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case WORKBINS:
-				rowId = mDatabase.insert(DatabaseHelper.WORKBINS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case WORKBINS_ID:
-				workbinId = uri.getLastPathSegment();
-				selection = WorkbinsContract.ID + " = " + workbinId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case WORKBIN_FOLDERS:
-				rowId = mDatabase.insert(DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case WORKBIN_FOLDERS_ID:
-				workbinFolderId = uri.getLastPathSegment();
-				selection = WorkbinFoldersContract.ID + " = " + workbinFolderId;
-				this.update(uri, values, selection, null);
-				break;
-				
-			case WORKBIN_FILES:
-				rowId = mDatabase.insert(DatabaseHelper.WORKBIN_FILES_TABLE_NAME, null, values);
-				uri = Uri.withAppendedPath(uri, Long.toString(rowId));
-				break;
-			
 			case WORKBIN_FILES_ID:
-				workbinFileId = uri.getLastPathSegment();
-				selection = WorkbinFilesContract.ID + " = " + workbinFileId;
+				id = uri.getLastPathSegment();
+				selection = contract.getColumnNameId() + " = " + id;
 				this.update(uri, values, selection, null);
 				break;
-				
+
 			default:
 				throw new IllegalArgumentException();
 		}
@@ -850,6 +372,9 @@ public class IVLEProvider extends ContentProvider {
 			mDatabase = mDatabaseHelper.getWritableDatabase();
 		}
 		
+		// Get the contract.
+		IVLEContract contract = getContractFromUri(uri);
+		
 		// Use a query builder.
 		SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 		
@@ -864,221 +389,60 @@ public class IVLEProvider extends ContentProvider {
 				break;
 				
 			case MODULES_ANNOUNCEMENTS_ID:
+			case MODULES_DESCRIPTIONS_ID:
+			case MODULES_GRADEBOOKS_ID:
+			case MODULES_GRADEBOOK_ITEMS_ID:
+			case MODULES_WEBCASTS_ID:
+			case MODULES_WEBCAST_FILES_ID:
+			case MODULES_WEBCAST_ITEM_GROUPS_ID:
+			case MODULES_WEBLINKS_ID:
+			case MODULES_WORKBINS_ID:
+			case MODULES_WORKBIN_FOLDERS_ID:
+			case MODULES_WORKBIN_FILES_ID:
 				queryBuilder.appendWhere(
-						DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + 
-						AnnouncementsContract.ID + "=" + uri.getLastPathSegment()
+						contract.getTableName() + "." + 
+						contract.getColumnNameId() + "=" + uri.getLastPathSegment()
 				);
 				
 			case MODULES_ANNOUNCEMENTS: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." + 
-						AnnouncementsContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
-			case MODULES_GRADEBOOKS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.GRADEBOOKS_TABLE_NAME + "." +
-						GradebooksContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
+			case MODULES_DESCRIPTIONS: // Fall through
 			case MODULES_GRADEBOOKS: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.GRADEBOOKS_TABLE_NAME + "." + 
-						GradebooksContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-			
-			case MODULES_GRADEBOOK_ITEMS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME + "." +
-						GradebookItemsContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
 			case MODULES_GRADEBOOK_ITEMS: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME + "." + 
-						GradebookItemsContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
-			case MODULES_WEBCASTS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCASTS_TABLE_NAME + "." +
-						WebcastsContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
 			case MODULES_WEBCASTS: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCASTS_TABLE_NAME + "." + 
-						WebcastsContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
-			case MODULES_WEBCAST_FILES_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." +
-						WebcastFilesContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
 			case MODULES_WEBCAST_FILES: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + 
-						WebcastFilesContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
-			case MODULES_WEBCAST_ITEM_GROUPS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME + "." +
-						WebcastItemGroupsContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
 			case MODULES_WEBCAST_ITEM_GROUPS: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME + "." + 
-						WebcastItemGroupsContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
-			case MODULES_WEBLINKS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBLINKS_TABLE_NAME + "." +
-						WeblinksContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
 			case MODULES_WEBLINKS: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBLINKS_TABLE_NAME + "." + 
-						WeblinksContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
-			case MODULES_WORKBINS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBINS_TABLE_NAME + "." +
-						WorkbinsContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
 			case MODULES_WORKBINS: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBINS_TABLE_NAME + "." + 
-						WorkbinsContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
-			case MODULES_WORKBIN_FOLDERS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." +
-						WorkbinFoldersContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
 			case MODULES_WORKBIN_FOLDERS: // Fall through
-				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." + 
-						WorkbinFoldersContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
-			case MODULES_WORKBIN_FILES_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBIN_FILES_TABLE_NAME + "." +
-						WorkbinFilesContract.ID + "=" + uri.getLastPathSegment()
-				);
-				
 			case MODULES_WORKBIN_FILES: // Fall through
 				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBIN_FILES_TABLE_NAME + "." + 
-						WorkbinFilesContract.MODULE_ID + "=" + uri.getPathSegments().get(1)
+						contract.getTableName() + "." + 
+						contract.getColumnNameModuleId() + "=" + uri.getPathSegments().get(1)
 				);
 				break;
 				
 			case ANNOUNCEMENTS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME + "." +
-						AnnouncementsContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
+			case DESCRIPTIONS_ID:
 			case GRADEBOOKS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.GRADEBOOKS_TABLE_NAME + "." +
-						GradebooksContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-			
 			case GRADEBOOK_ITEMS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME + "." +
-						GradebookItemsContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-			
 			case TIMETABLE_SLOTS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME + "." +
-						TimetableSlotsContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-			
 			case USERS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.USERS_TABLE_NAME + "." +
-						UsersContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
 			case WEBCASTS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCASTS_TABLE_NAME + "." +
-						WebcastsContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
 			case WEBCAST_FILES_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." +
-						WebcastFilesContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
 			case WEBCAST_ITEM_GROUPS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME + "." +
-						WebcastItemGroupsContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-			
 			case WEBLINKS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WEBLINKS_TABLE_NAME + "." +
-						WeblinksContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-			
 			case WORKBINS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBINS_TABLE_NAME + "." +
-						WorkbinsContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
 			case WORKBIN_FOLDERS_ID:
-				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME + "." +
-						WorkbinFoldersContract.ID + "=" + uri.getPathSegments().get(1)
-				);
-				break;
-				
 			case WORKBIN_FILES_ID:
 				queryBuilder.appendWhere(
-						DatabaseHelper.WORKBIN_FILES_TABLE_NAME + "." +
-						WorkbinFilesContract.ID + "" + uri.getPathSegments().get(1)
+						contract.getTableName() + "." +
+						contract.getColumnNameId() + "=" + uri.getPathSegments().get(1)
 				);
 				break;
 			
 			case MODULES:
 			case ANNOUNCEMENTS:
+			case DESCRIPTIONS:
 			case GRADEBOOKS:
 			case GRADEBOOK_ITEMS:
 			case TIMETABLE_SLOTS:
@@ -1139,6 +503,13 @@ public class IVLEProvider extends ContentProvider {
 				projectionMap.putAll(new ModulesContract().getJoinProjectionMap("module_"));
 				projectionMap.putAll(new UsersContract().getJoinProjectionMap("creator_"));
 				queryBuilder.setProjectionMap(projectionMap);
+				break;
+				
+			case MODULES_DESCRIPTIONS_ID:
+			case MODULES_DESCRIPTIONS:
+			case DESCRIPTIONS_ID:
+			case DESCRIPTIONS:
+				queryBuilder.setTables(DatabaseHelper.DESCRIPTIONS_TABLE_NAME);
 				break;
 				
 			case MODULES_GRADEBOOKS_ID:
@@ -1276,86 +647,110 @@ public class IVLEProvider extends ContentProvider {
 			mDatabase = mDatabaseHelper.getWritableDatabase();
 		}
 		
-		String tableName = null;
+		// Obtain the table name.
+		IVLEContract contract = getContractFromUri(uri);
+		String tableName = contract.getTableName();
+		int ret = mDatabase.update(tableName, values, selection, selectionArgs);
+		return ret;
+	}
+	
+	private static IVLEContract getContractFromUri(Uri uri) {
+		// Attempt to match the URI.
+		Class<? extends IVLEContract> contractClass;
 		switch (sUriMatcher.match(uri)) {
 			case MODULES_ID:
 			case MODULES:
-				tableName = DatabaseHelper.MODULES_TABLE_NAME;
+				contractClass = ModulesContract.class;
 				break;
 			case MODULES_ANNOUNCEMENTS_ID:
 			case MODULES_ANNOUNCEMENTS:
 			case ANNOUNCEMENTS_ID:
 			case ANNOUNCEMENTS:
-				tableName = DatabaseHelper.ANNOUNCEMENTS_TABLE_NAME;
+				contractClass = AnnouncementsContract.class;
+				break;
+			case MODULES_DESCRIPTIONS_ID:
+			case MODULES_DESCRIPTIONS:
+			case DESCRIPTIONS_ID:
+			case DESCRIPTIONS:
+				contractClass = DescriptionsContract.class;
 				break;
 			case MODULES_GRADEBOOKS_ID:
 			case MODULES_GRADEBOOKS:
 			case GRADEBOOKS_ID:
 			case GRADEBOOKS:
-				tableName = DatabaseHelper.GRADEBOOKS_TABLE_NAME;
+				contractClass = GradebooksContract.class;
 				break;
 			case MODULES_GRADEBOOK_ITEMS_ID:
 			case MODULES_GRADEBOOK_ITEMS:
 			case GRADEBOOK_ITEMS_ID:
 			case GRADEBOOK_ITEMS:
-				tableName = DatabaseHelper.GRADEBOOK_ITEMS_TABLE_NAME;
+				contractClass = GradebookItemsContract.class;
 				break;
 			case TIMETABLE_SLOTS_ID:
 			case TIMETABLE_SLOTS:
-				tableName = DatabaseHelper.TIMETABLE_SLOTS_TABLE_NAME;
+				contractClass = TimetableSlotsContract.class;
 				break;
 			case USERS_ID:
 			case USERS:
-				tableName = DatabaseHelper.USERS_TABLE_NAME;
+				contractClass = UsersContract.class;
 				break;
 			case MODULES_WEBCASTS_ID:
 			case MODULES_WEBCASTS:
 			case WEBCASTS_ID:
 			case WEBCASTS:
-				tableName = DatabaseHelper.WEBCASTS_TABLE_NAME;
+				contractClass = WebcastsContract.class;
 				break;
 			case MODULES_WEBCAST_FILES_ID:
 			case MODULES_WEBCAST_FILES:
 			case WEBCAST_FILES_ID:
 			case WEBCAST_FILES:
-				tableName = DatabaseHelper.WEBCAST_FILES_TABLE_NAME;
+				contractClass = WebcastFilesContract.class;
 				break;
 			case MODULES_WEBCAST_ITEM_GROUPS_ID:
 			case MODULES_WEBCAST_ITEM_GROUPS:
 			case WEBCAST_ITEM_GROUPS_ID:
 			case WEBCAST_ITEM_GROUPS:
-				tableName = DatabaseHelper.WEBCAST_ITEM_GROUPS_TABLE_NAME;
+				contractClass = WebcastItemGroupsContract.class;
 				break;
 			case MODULES_WEBLINKS_ID:
 			case MODULES_WEBLINKS:
 			case WEBLINKS_ID:
 			case WEBLINKS:
-				tableName = DatabaseHelper.WEBLINKS_TABLE_NAME;
+				contractClass = WeblinksContract.class;
 				break;
 			case MODULES_WORKBINS_ID:
 			case MODULES_WORKBINS:
 			case WORKBINS_ID:
 			case WORKBINS:
-				tableName = DatabaseHelper.WORKBINS_TABLE_NAME;
+				contractClass = WorkbinsContract.class;
 				break;
 			case MODULES_WORKBIN_FOLDERS_ID:
 			case MODULES_WORKBIN_FOLDERS:
 			case WORKBIN_FOLDERS_ID:
 			case WORKBIN_FOLDERS:
-				tableName = DatabaseHelper.WORKBIN_FOLDERS_TABLE_NAME;
+				contractClass = WorkbinFoldersContract.class;
 				break;
 			case MODULES_WORKBIN_FILES_ID:
 			case MODULES_WORKBIN_FILES:
 			case WORKBIN_FILES_ID:
 			case WORKBIN_FILES:
-				tableName = DatabaseHelper.WORKBIN_FILES_TABLE_NAME;
+				contractClass = WorkbinFilesContract.class;
 				break;
 			default:
 				throw new IllegalArgumentException();
 		}
 		
-		int ret = mDatabase.update(tableName, values, selection, selectionArgs);
-		return ret;
+		// Instantiate the class.
+		try {
+			IVLEContract contract = contractClass.newInstance();
+			return contract;
+		} catch (InstantiationException e) {
+			Log.e(TAG, "InstantiationException while trying to obtain contract instance");
+		} catch (IllegalAccessException e) {
+			Log.e(TAG, "IllegalAccessException while trying to obtain contract instance");
+		}
+		
+		return null;
 	}
 	
 	// }}}

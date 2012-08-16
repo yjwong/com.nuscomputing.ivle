@@ -13,5 +13,11 @@
         android:title="Open in Browser"
         android:icon="@drawable/ic_menu_set_as">
     </item>
+    
+    <item
+        android:id="@+id/view_webcast_file_activity_menu_details"
+        android:title="@string/details"
+        android:icon="@drawable/ic_menu_info_details">
+    </item>
 
 </menu>

@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
-import com.nuscomputing.ivle.online.ModuleInfoFragment;
 import com.nuscomputing.ivle.online.ModuleLecturersFragment;
 import com.nuscomputing.ivle.online.ModuleWeblinksFragment;
 

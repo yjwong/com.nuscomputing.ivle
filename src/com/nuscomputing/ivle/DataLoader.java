@@ -342,9 +342,13 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		} else if (id == LOADER_VIEW_WEBCAST_FILE_ACTIVITY) { 
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
-					WebcastFilesContract.MP4,
+					WebcastFilesContract.CREATE_DATE,
 					WebcastFilesContract.FILE_TITLE,
-					WebcastFilesContract.FILE_NAME
+					WebcastFilesContract.FILE_NAME,
+					WebcastFilesContract.FILE_DESCRIPTION,
+					WebcastFilesContract.MEDIA_FORMAT,
+					WebcastFilesContract.MP3,
+					WebcastFilesContract.MP4
 			));
 			selection = DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ACCOUNT + " = ?";
 			selection += " AND " + DatabaseHelper.WEBCAST_FILES_TABLE_NAME + "." + WebcastFilesContract.ID + " = ?";
@@ -514,8 +518,12 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			
 			case LOADER_VIEW_WEBCAST_FILE_ACTIVITY:
 				cursor.moveToFirst();
+				result.putString("createDate", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.CREATE_DATE)));
 				result.putString("fileTitle", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_TITLE)));
 				result.putString("fileName", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_NAME)));
+				result.putString("fileDescription", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.FILE_DESCRIPTION)));
+				result.putString("mediaFormat", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MEDIA_FORMAT)));
+				result.putString("MP3", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP3)));
 				result.putString("MP4", cursor.getString(cursor.getColumnIndex(WebcastFilesContract.MP4)));
 				break;
 				

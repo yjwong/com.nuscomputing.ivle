@@ -3,6 +3,7 @@ package com.nuscomputing.ivle;
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
 import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
+import com.nuscomputing.ivle.providers.DescriptionsContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.TimetableSlotsContract;
 import com.nuscomputing.ivle.providers.UsersContract;
@@ -29,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 17;
+	private static final int DATABASE_VERSION = 18;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -91,6 +92,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			ModulesContract.HAS_WEBLINK_ITEMS + " BOOLEAN, " +
 			ModulesContract.IS_ACTIVE + " BOOLEAN, " + 
 			ModulesContract.PERMISSION + " TEXT" +
+			");";
+	
+	/** Data for module descriptions data table */
+	public static final String DESCRIPTIONS_TABLE_NAME = "descriptions";
+	private static final String DESCRIPTIONS_TABLE_CREATE =
+			"CREATE TABLE " + DESCRIPTIONS_TABLE_NAME + "(" +
+			DescriptionsContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			DescriptionsContract.MODULE_ID + " TEXT, " +
+			DescriptionsContract.TITLE + " TEXT, " +
+			DescriptionsContract.DESCRIPTION + " TEXT, " +
+			DescriptionsContract.ORDER + " INTEGER" +
 			");";
 	
 	/** Data for gradebooks data table */
@@ -315,6 +327,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(GRADEBOOK_ITEMS_TABLE_CREATE);
 		db.execSQL(TIMETABLE_SLOTS_TABLE_CREATE);
 		db.execSQL(MODULES_TABLE_CREATE);
+		db.execSQL(DESCRIPTIONS_TABLE_CREATE);
 		db.execSQL(USERS_TABLE_CREATE);
 		db.execSQL(WEBCASTS_TABLE_CREATE);
 		db.execSQL(WEBCAST_FILES_TABLE_CREATE);
@@ -339,6 +352,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper.drop(db, GRADEBOOK_ITEMS_TABLE_NAME);
 		DatabaseHelper.drop(db, TIMETABLE_SLOTS_TABLE_NAME);
 		DatabaseHelper.drop(db, MODULES_TABLE_NAME);
+		DatabaseHelper.drop(db, DESCRIPTIONS_TABLE_NAME);
 		DatabaseHelper.drop(db, USERS_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBCASTS_TABLE_NAME);
 		DatabaseHelper.drop(db, WEBCAST_FILES_TABLE_NAME);

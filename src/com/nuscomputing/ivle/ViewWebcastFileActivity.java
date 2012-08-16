@@ -1,10 +1,16 @@
 package com.nuscomputing.ivle;
 
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -62,6 +68,9 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
 	
 	/** The file name of the video */
 	private String mVideoFileName;
+	
+	/** The loader result */
+	private Bundle mLoaderResult;
 	
 	/** Checks if the video is already playing */
 	Handler mHandler = new Handler();
@@ -246,7 +255,7 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
     			// Construct video file name.
     			String fileName = mVideoUri.getLastPathSegment();
     			//String filePath = "IVLE Webcasts/" + fileName;
-    			if (Build.VERSION.SDK_INT < 11) {
+    			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
     				com.nuscomputing.support.android.app.DownloadManager.Request request = new com.nuscomputing.support.android.app.DownloadManager.Request(mVideoUri);
 	    			request.setDescription("IVLE Webcast");
 	    			request.setAllowedNetworkTypes(allowedNetworkTypes);
@@ -277,6 +286,31 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
     					.show();
     			}
     			
+    			return true;
+    			
+    		case R.id.view_webcast_file_activity_menu_details:
+				// Add the details.
+				Map<String, String> detailsMap = new LinkedHashMap<String, String>();
+				detailsMap.put("File Title", mLoaderResult.getString("fileTitle"));
+				detailsMap.put("File Name", mLoaderResult.getString("fileName"));
+				detailsMap.put("File Description", mLoaderResult.getString("fileDescription"));
+				detailsMap.put("Media Format", mLoaderResult.getString("mediaFormat"));
+				detailsMap.put("Created", mLoaderResult.getString("createDate"));
+				detailsMap.put("MP3 URL", mLoaderResult.getString("MP3"));
+				detailsMap.put("MP4 URL", mLoaderResult.getString("MP4"));
+				
+				// Define dialog fragment arguments.
+				Bundle fragmentArgs = new Bundle();
+				fragmentArgs.putSerializable("items", (Serializable) detailsMap);
+				fragmentArgs.putString("title", getString(R.string.details));
+				
+				// Create the fragment.
+				DialogFragment fragment = new DetailsDialogFragment();
+				fragment.setArguments(fragmentArgs);
+				
+				// Add the fragment.
+				FragmentManager manager = getSupportFragmentManager();
+				fragment.show(manager, null);
     			return true;
 				
 			default:
@@ -318,6 +352,9 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
 		// Set the file name.
 		String fileName = result.getString("fileName");
 		setVideoFileName(fileName);
+		
+		// Save the loader result.
+		mLoaderResult = result;
     }
 	
 	// }}}
