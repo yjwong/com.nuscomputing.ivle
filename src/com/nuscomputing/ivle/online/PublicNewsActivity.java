@@ -1,19 +1,19 @@
 package com.nuscomputing.ivle.online;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.nuscomputing.ivle.IVLESherlockFragmentActivity;
+import com.nuscomputing.ivle.IVLEFragmentActivity;
 import com.nuscomputing.ivle.R;
 
 /**
  * Activity to display public IVLE news.
  * @author yjwong
  */
-public class PublicNewsActivity extends IVLESherlockFragmentActivity {
+public class PublicNewsActivity extends IVLEFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -27,7 +27,7 @@ public class PublicNewsActivity extends IVLESherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 		
 		// Set up the action bar.
-		ActionBar bar = getSupportActionBar();
+		ActionBar bar = getActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
 		bar.setTitle(getString(R.string.ivle_news));
 		

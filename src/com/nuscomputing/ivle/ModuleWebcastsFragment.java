@@ -98,7 +98,7 @@ public class ModuleWebcastsFragment extends ListFragment
 		setListAdapter(mAdapter);
 	}
 	
-	public void onLoaderFinished(Bundle result) {
+	public void onLoaderFinished(int id, Bundle result) {
 		TextView tvNoWebcasts = (TextView) getActivity().findViewById(R.id.module_webcasts_fragment_no_webcasts);
 		tvNoWebcasts.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}

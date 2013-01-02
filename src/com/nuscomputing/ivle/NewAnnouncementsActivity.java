@@ -1,17 +1,16 @@
 package com.nuscomputing.ivle;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-import com.actionbarsherlock.app.ActionBar;
-
 /**
  * An activity to display new announcements.
  * @author yjwong
  */
-public class NewAnnouncementsActivity extends IVLESherlockFragmentActivity {
+public class NewAnnouncementsActivity extends IVLEFragmentActivity {
 	// {{{ methods
 	
 	@Override
@@ -19,7 +18,7 @@ public class NewAnnouncementsActivity extends IVLESherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 		
 		// Set the action bar parameters.
-		ActionBar bar = getSupportActionBar();
+		ActionBar bar = getActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
 		bar.setTitle("New Announcements");
 		

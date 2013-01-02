@@ -98,11 +98,6 @@ public class MainApplication extends Application {
 		return version;
 	}
 	
-	public static boolean onOptionsItemSelected(Context context, com.actionbarsherlock.view.MenuItem item) {
-		Log.e(TAG, "should not call this anymore");
-		return false;
-	}
-	
     public static boolean onOptionsItemSelected(Context context, MenuItem item) {
     	Log.e(TAG, "should not call this anymore");
     	return false;

@@ -15,7 +15,7 @@ public class DescriptionsContract extends IVLEContract {
 	// {{{ properties
 	
 	/** The content:// style URL for the top level authority */
-	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/module_descriptions");
+	public static final Uri CONTENT_URI = Uri.parse("content://com.nuscomputing.ivle.provider/descriptions");
 	
 	/** The database table backing this type */
 	public static final String TABLE = DatabaseHelper.DESCRIPTIONS_TABLE_NAME;

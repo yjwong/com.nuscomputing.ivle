@@ -2,19 +2,22 @@ package com.nuscomputing.ivle.online;
 
 import java.util.Arrays;
 import java.util.List;
-import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,11 +27,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.nuscomputing.ivle.DataLoader;
 import com.nuscomputing.ivle.IVLEUtils;
 import com.nuscomputing.ivle.R;
@@ -43,7 +41,7 @@ import com.nuscomputing.ivlelapi.Weblink;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleWeblinksFragment extends SherlockListFragment {
+public class ModuleWeblinksFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -80,7 +78,7 @@ public class ModuleWeblinksFragment extends SherlockListFragment {
         mLayoutInflater = getActivity().getLayoutInflater();
 		
 		// Load the weblinks.
-		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_WEBLINKS_FRAGMENT, args, new WeblinksLoaderCallbacks());
+		getLoaderManager().initLoader(DataLoader.LOADER_ONLINE_MODULE_WEBLINKS_FRAGMENT, args, new WeblinksLoaderCallbacks());
 		
 		// Set up the list view.
 		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -91,7 +89,7 @@ public class ModuleWeblinksFragment extends SherlockListFragment {
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				// Use contextual action bar to show items.
-				getSherlockActivity().startActionMode(new WeblinksActionModeCallback(position));
+				getActivity().startActionMode(new WeblinksActionModeCallback(position));
 				getListView().setItemChecked(position, true);
 				return true;
 			}
@@ -119,7 +117,6 @@ public class ModuleWeblinksFragment extends SherlockListFragment {
 	 * The list adapter for lecturers.
 	 * @author yjwong
 	 */
-	@TargetApi(11)
 	class WeblinkAdapter extends ArrayAdapter<Weblink> {
 		// {{{ methods
 		
@@ -300,8 +297,6 @@ public class ModuleWeblinksFragment extends SherlockListFragment {
 		}
 		
 
-		@SuppressWarnings("deprecation")
-		@TargetApi(11)
 		@Override
 		public boolean onActionItemClicked(ActionMode mode,
 				MenuItem item) {
@@ -311,14 +306,9 @@ public class ModuleWeblinksFragment extends SherlockListFragment {
 			switch (item.getItemId()) {
 				case R.id.view_weblinks_fragment_contextual_copy:		
 					// Copy URL to clipboard.
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-						ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-						ClipData clip = ClipData.newPlainText("weblinkUrl", weblink.url);
-						manager.setPrimaryClip(clip);
-					} else {
-						android.text.ClipboardManager manager = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-						manager.setText(weblink.url);
-					}
+					ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+					ClipData clip = ClipData.newPlainText("weblinkUrl", weblink.url);
+					manager.setPrimaryClip(clip);
 					
 					// Show a toast.
 					Toast.makeText(getActivity(), "Weblink copied.", Toast.LENGTH_SHORT).show();

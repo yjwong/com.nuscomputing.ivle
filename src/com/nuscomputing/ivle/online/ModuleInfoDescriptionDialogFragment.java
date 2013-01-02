@@ -1,9 +1,5 @@
 package com.nuscomputing.ivle.online;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.nuscomputing.ivle.R;
-
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -17,17 +13,13 @@ import android.widget.RelativeLayout;
  * Displays module information description.
  * @author yjwong
  */
-public class ModuleInfoDescriptionDialogFragment extends SherlockDialogFragment {
+public class ModuleInfoDescriptionDialogFragment extends DialogFragment {
 	// {{{ methods
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (Build.VERSION.SDK_INT >= 11) {
-			setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light_Dialog);
-		} else {
-			setStyle(SherlockDialogFragment.STYLE_NORMAL, R.style.Theme_Sherlock_Light_Dialog);
-		}
+		setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light_Dialog);
 	}
 	
 	@Override

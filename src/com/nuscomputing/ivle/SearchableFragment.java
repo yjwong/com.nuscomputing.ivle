@@ -16,14 +16,12 @@ import com.nuscomputing.ivlelapi.Module;
 import com.nuscomputing.ivlelapi.NetworkErrorException;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -153,7 +151,6 @@ public class SearchableFragment extends ListFragment {
 			return loader;
 		}
 
-		@TargetApi(11)
 		@Override
 		public void onLoadFinished(Loader<List<SearchResult>> loader,
 				List<SearchResult> results) {
@@ -205,7 +202,6 @@ public class SearchableFragment extends ListFragment {
 		
 		/** Runnable to update results */
 		private Runnable mResultUpdater = new Runnable() {
-			@TargetApi(11)
 			@Override
 			public void run() {
 				mAdapter.clear();
@@ -376,17 +372,10 @@ public class SearchableFragment extends ListFragment {
 			super(context, android.R.id.text1, results);
 		}
 		
-		@TargetApi(11)
 		@Override
 		public void addAll(Collection<? extends SearchResult> collection) {
 			// Wrapper for addAll in case it's not available on <= HONEYCOMB.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				super.addAll(collection);
-			} else {
-				for (SearchResult result : collection) {
-					super.add(result);
-				}
-			}
+			super.addAll(collection);
 		}
 
 		@Override

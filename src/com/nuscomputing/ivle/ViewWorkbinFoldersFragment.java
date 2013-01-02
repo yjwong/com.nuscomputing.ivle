@@ -1,11 +1,11 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -23,7 +23,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * Fragment to view a workbin's folders.
  * @author yjwong
  */
-public class ViewWorkbinFoldersFragment extends SherlockListFragment
+public class ViewWorkbinFoldersFragment extends ListFragment
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -109,7 +109,7 @@ public class ViewWorkbinFoldersFragment extends SherlockListFragment
 		setListAdapter(mAdapter);
 	}
 	
-	public void onLoaderFinished(Bundle result) {
+	public void onLoaderFinished(int id, Bundle result) {
 		TextView tvNoFolders = (TextView) getActivity().findViewById(R.id.view_workbin_folders_fragment_no_folders);
 		tvNoFolders.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}

@@ -6,23 +6,30 @@
 package org.acra.util;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.Map;
 
 import org.acra.ACRA;
+import org.acra.sender.HttpSender.Method;
+import org.acra.sender.HttpSender.Type;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -34,136 +41,202 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-import android.util.Log;
+public final class HttpRequest {
 
-public class HttpRequest {
+    private static class SocketTimeOutRetryHandler implements HttpRequestRetryHandler {
 
-    DefaultHttpClient httpClient;
-    HttpContext localContext;
+        private final HttpParams httpParams;
+        private final int maxNrRetries;
 
-    HttpPost httpPost = null;
-    HttpGet httpGet = null;
-    UsernamePasswordCredentials creds = null;
-
-    public HttpRequest(String login, String password) {
-        if (login != null || password != null) {
-            creds = new UsernamePasswordCredentials(login, password);
+        /**
+         * @param httpParams    HttpParams that will be used in the HttpRequest.
+         * @param maxNrRetries  Max number of times to retry Request on failure due to SocketTimeOutException.
+         */
+        private SocketTimeOutRetryHandler(HttpParams httpParams, int maxNrRetries) {
+            this.httpParams = httpParams;
+            this.maxNrRetries = maxNrRetries;
         }
-        HttpParams httpParams = new BasicHttpParams();
 
-        HttpConnectionParams.setConnectionTimeout(httpParams, ACRA.getConfig().socketTimeout());
-        HttpConnectionParams.setSoTimeout(httpParams, ACRA.getConfig().socketTimeout());
-        HttpConnectionParams.setSocketBufferSize(httpParams, 8192);
-        SchemeRegistry registry = new SchemeRegistry();
-        registry.register(new Scheme("http", new PlainSocketFactory(), 80));
-        registry.register(new Scheme("https", (new FakeSocketFactory()), 443));
-        httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry), httpParams);
-        localContext = new BasicHttpContext();
-    }
+        @Override
+        public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
+            if (exception instanceof SocketTimeoutException) {
+                if (executionCount <= maxNrRetries) {
 
-    public void clearCookies() {
-        httpClient.getCookieStore().clear();
-    }
+                    if (httpParams != null) {
+                        final int newSocketTimeOut = HttpConnectionParams.getSoTimeout(httpParams) * 2;
+                        HttpConnectionParams.setSoTimeout(httpParams, newSocketTimeOut);
+                        ACRA.log.d(ACRA.LOG_TAG, "SocketTimeOut - increasing time out to " + newSocketTimeOut + " millis and trying again");
+                    } else {
+                        ACRA.log.d(ACRA.LOG_TAG, "SocketTimeOut - no HttpParams, cannot increase time out. Trying again with current settings");
+                    }
 
-    public void abort() {
-        try {
-            if (httpClient != null) {
-                Log.d(ACRA.LOG_TAG, "Abort HttpClient request.");
-                httpPost.abort();
+                    return true;
+                }
+
+                ACRA.log.d(ACRA.LOG_TAG, "SocketTimeOut but exceeded max number of retries : " + maxNrRetries);
             }
-        } catch (Exception e) {
-            Log.e(ACRA.LOG_TAG, "Error while aborting HttpClient request", e);
+
+            return false;  //To change body of implemented methods use File | Settings | File Templates.
         }
     }
 
-    public String sendPost(String url, String data) throws ClientProtocolException, IOException {
-        return sendPost(url, data, null);
+
+
+    private String login;
+    private String password;
+    private int connectionTimeOut = 3000;
+    private int socketTimeOut = 3000;
+    private int maxNrRetries = 3;
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 
-    public String sendPost(String url, String data, String contentType) throws ClientProtocolException, IOException {
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-        httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.RFC_2109);
+    public void setConnectionTimeOut(int connectionTimeOut) {
+        this.connectionTimeOut = connectionTimeOut;
+    }
 
-        httpPost = new HttpPost(url);
+    public void setSocketTimeOut(int socketTimeOut) {
+        this.socketTimeOut = socketTimeOut;
+    }
 
-        Log.d(ACRA.LOG_TAG, "Setting httpPost headers");
-        if (creds != null) {
-            httpPost.addHeader(BasicScheme.authenticate(creds, "UTF-8", false));
-        }
-        httpPost.setHeader("User-Agent", "Android");
-        httpPost.setHeader("Accept",
-                "text/html,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
+    /**
+     * The default number of retries is 3.
+     *
+     * @param maxNrRetries  Max number of times to retry Request on failure due to SocketTimeOutException.
+     */
+    public void setMaxNrRetries(int maxNrRetries) {
+        this.maxNrRetries = maxNrRetries;
+    }
 
-        if (contentType != null) {
-            httpPost.setHeader("Content-Type", contentType);
-        } else {
-            httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-        }
+    /**
+     * Posts to a URL.
+     *
+     * @param url           URL to which to post.
+     * @param content    Map of parameters to post to a URL.
+     * @throws IOException if the data cannot be posted.
+     */
+    public void send(URL url, Method method, String content, Type type) throws IOException {
 
-        final StringEntity tmp = new StringEntity(data, "UTF-8");
-        httpPost.setEntity(tmp);
+        final HttpClient httpClient = getHttpClient();
+        final HttpEntityEnclosingRequestBase httpRequest = getHttpRequest(url, method, content, type);
 
-        Log.d(ACRA.LOG_TAG, "Sending request to " + url);
+        ACRA.log.d(ACRA.LOG_TAG, "Sending request to " + url);
+        if (ACRA.DEV_LOGGING) ACRA.log.d(ACRA.LOG_TAG, "Http " + method.name() + " content : ");
+        if (ACRA.DEV_LOGGING) ACRA.log.d(ACRA.LOG_TAG, content);
 
-        final String ret;
-        final HttpResponse response = httpClient.execute(httpPost, localContext);
+        final HttpResponse response = httpClient.execute(httpRequest, new BasicHttpContext());
         if (response != null) {
             final StatusLine statusLine = response.getStatusLine();
             if (statusLine != null) {
                 final String statusCode = Integer.toString(response.getStatusLine().getStatusCode());
                 if (statusCode.startsWith("4") || statusCode.startsWith("5")) {
+                    if (ACRA.DEV_LOGGING) ACRA.log.d(ACRA.LOG_TAG, "Could not send HttpPost : " + httpRequest);
                     throw new IOException("Host returned error code " + statusCode);
                 }
             }
-            ret = EntityUtils.toString(response.getEntity());
-            if (ACRA.DEV_LOGGING) Log.d(ACRA.LOG_TAG,
-                    "HTTP " + (statusLine != null ? statusLine.getStatusCode() : "NoStatusLine#noCode") + " - Returning value:"
-                            + ret.substring(0, Math.min(ret.length(), 200)));
+
+            if (ACRA.DEV_LOGGING) ACRA.log.d(ACRA.LOG_TAG, "HttpResponse Status : " + (statusLine != null ? statusLine.getStatusCode() : "NoStatusLine#noCode"));
+            final String respContent = EntityUtils.toString(response.getEntity());
+            if (ACRA.DEV_LOGGING) ACRA.log.d(ACRA.LOG_TAG, "HttpResponse Content : " + respContent.substring(0, Math.min(respContent.length(), 200)));
+
         } else {
-            ret = null;
-            if (ACRA.DEV_LOGGING) Log.d(ACRA.LOG_TAG, "HTTP no Response!!");
+            if (ACRA.DEV_LOGGING) ACRA.log.d(ACRA.LOG_TAG, "HTTP no Response!!");
+        }
+    }
+
+    /**
+     * @return HttpClient to use with this HttpRequest.
+     */
+    private HttpClient getHttpClient() {
+        final HttpParams httpParams = new BasicHttpParams();
+        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.RFC_2109);
+        HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeOut);
+        HttpConnectionParams.setSoTimeout(httpParams, socketTimeOut);
+        HttpConnectionParams.setSocketBufferSize(httpParams, 8192);
+
+        final SchemeRegistry registry = new SchemeRegistry();
+        registry.register(new Scheme("http", new PlainSocketFactory(), 80));
+        if(ACRA.getConfig().disableSSLCertValidation()) {
+            registry.register(new Scheme("https", (new FakeSocketFactory()), 443));
+        } else {
+            registry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
         }
 
-        return ret;
+        final ClientConnectionManager clientConnectionManager = new ThreadSafeClientConnManager(httpParams, registry);
+        final DefaultHttpClient httpClient = new DefaultHttpClient(clientConnectionManager, httpParams);
+
+        final HttpRequestRetryHandler retryHandler = new SocketTimeOutRetryHandler(httpParams, maxNrRetries);
+        httpClient.setHttpRequestRetryHandler(retryHandler);
+
+        return httpClient;
     }
 
-    public String sendGet(String url) throws ClientProtocolException, IOException {
-        httpGet = new HttpGet(url);
+    /**
+     * @return Credentials to use with this HttpRequest or null if no credentials were supplied.
+     */
+    private UsernamePasswordCredentials getCredentials() {
+        if (login != null || password != null) {
+            return new UsernamePasswordCredentials(login, password);
+        }
 
-        final HttpResponse response = httpClient.execute(httpGet);
-
-        // int status = response.getStatusLine().getStatusCode();
-
-        // we assume that the response body contains the error message
-        final String ret = EntityUtils.toString(response.getEntity());
-
-        return ret;
+        return null;
     }
 
-    public InputStream getHttpStream(String urlString) throws IOException {
-        InputStream in = null;
+    private HttpEntityEnclosingRequestBase getHttpRequest(URL url, Method method, String content, Type type) throws UnsupportedEncodingException, UnsupportedOperationException {
 
-        URL url = new URL(urlString);
-        URLConnection conn = url.openConnection();
+        final HttpEntityEnclosingRequestBase httpRequest;
+        switch (method) {
+        case POST:
+            httpRequest = new HttpPost(url.toString());
+            break;
+        case PUT:
+            httpRequest = new HttpPut(url.toString());
+            break;
+        default:
+            throw new UnsupportedOperationException("Unknown method: " + method.name());
+        }
 
-        if (!(conn instanceof HttpURLConnection))
-            throw new IOException("Not an HTTP connection");
+        final UsernamePasswordCredentials creds = getCredentials();
+        if (creds != null) {
+            httpRequest.addHeader(BasicScheme.authenticate(creds, "UTF-8", false));
+        }
+        httpRequest.setHeader("User-Agent", "Android");
+        httpRequest.setHeader("Accept", "text/html,application/xml,application/json,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5");
+        httpRequest.setHeader("Content-Type", type.getContentType());
 
-        try {
-            HttpURLConnection httpConn = (HttpURLConnection) conn;
-            httpConn.setAllowUserInteraction(false);
-            httpConn.setInstanceFollowRedirects(true);
-            httpConn.setRequestMethod("GET");
-            httpConn.connect();
+        httpRequest.setEntity(new StringEntity(content, "UTF-8"));
 
-            final int response = httpConn.getResponseCode();
-            if (response == HttpURLConnection.HTTP_OK) {
-                in = httpConn.getInputStream();
+        return httpRequest;
+    }
+
+    /**
+     * Converts a Map of parameters into a URL encoded Sting.
+     * 
+     * @param parameters
+     *            Map of parameters to convert.
+     * @return URL encoded String representing the parameters.
+     * @throws UnsupportedEncodingException
+     *             if one of the parameters couldn't be converted to UTF-8.
+     */
+    public static String getParamsAsFormString(Map<?, ?> parameters) throws UnsupportedEncodingException {
+
+        final StringBuilder dataBfr = new StringBuilder();
+        for (final Object key : parameters.keySet()) {
+            if (dataBfr.length() != 0) {
+                dataBfr.append('&');
             }
-        } catch (Exception e) {
-            throw new IOException("Error connecting");
-        } // end try-catch
+            final Object preliminaryValue = parameters.get(key);
+            final Object value = (preliminaryValue == null) ? "" : preliminaryValue;
+            dataBfr.append(URLEncoder.encode(key.toString(), "UTF-8"));
+            dataBfr.append('=');
+            dataBfr.append(URLEncoder.encode(value.toString(), "UTF-8"));
+        }
 
-        return in;
+        return dataBfr.toString();
     }
 }

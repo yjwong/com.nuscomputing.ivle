@@ -1,11 +1,11 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.WebcastItemGroupsContract;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
@@ -20,7 +20,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * Fragment to view an announcement.
  * @author yjwong
  */
-public class ViewWebcastFragment extends SherlockListFragment {
+public class ViewWebcastFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */

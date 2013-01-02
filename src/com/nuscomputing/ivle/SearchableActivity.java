@@ -1,26 +1,23 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
-import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.SearchView;
 
 /**
  * The main universal search activity.
  * @author yjwong
  */
-public class SearchableActivity extends IVLESherlockFragmentActivity {
+public class SearchableActivity extends IVLEFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -47,16 +44,14 @@ public class SearchableActivity extends IVLESherlockFragmentActivity {
 		setContentView(R.layout.searchable_activity);
 		
 		// Set the up button.
-		ActionBar bar = getSupportActionBar();
+		ActionBar bar = getActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
 		
 		// Handle the search intent.
 		this.handleIntent(getIntent());
 
-		// Display the query for Android < HONEYCOMB.
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			bar.setTitle(getString(R.string.searchable_activity_results_for, mSearchQuery));
-		}
+		// Display the query.
+		bar.setTitle(getString(R.string.searchable_activity_results_for, mSearchQuery));
 		
 		// Get the fragment manager.
 		mFragmentManager = getSupportFragmentManager();
@@ -104,25 +99,22 @@ public class SearchableActivity extends IVLESherlockFragmentActivity {
 		}
 	}
 	
-    @TargetApi(11)
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	// Create the global menu.
     	super.onCreateOptionsMenu(menu);
     	
     	// Create the searchable activity menu.
-    	MenuInflater inflater = getSupportMenuInflater();
+    	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.searchable_activity_menu, menu);
     	
     	// Get the SearchView and set the searchable configuration
-    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-	    	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-	    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
-	    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-	    	mSearchView.setQueryHint(getString(R.string.searchable_hint));
-	    	mSearchView.setQuery(mSearchQuery, false);
-	    	mSearchView.setIconifiedByDefault(false);
-    	}
+    	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
+    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+    	mSearchView.setQueryHint(getString(R.string.searchable_hint));
+    	mSearchView.setQuery(mSearchQuery, false);
+    	mSearchView.setIconifiedByDefault(false);
     	
     	return true;
     }

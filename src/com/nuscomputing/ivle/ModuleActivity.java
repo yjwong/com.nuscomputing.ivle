@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentTransaction;
  * Main IVLE application activity.
  * @author yjwong
  */
-public class ModuleActivity extends IVLESherlockFragmentActivity {
+public class ModuleActivity extends IVLEFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */

@@ -13,7 +13,7 @@ public interface DataLoaderListener {
 	 * The main method to run after the loader is complete.
 	 * @param result
 	 */
-	public void onLoaderFinished(Bundle result);
+	public void onLoaderFinished(int id, Bundle result);
 	
 	// }}}
 }

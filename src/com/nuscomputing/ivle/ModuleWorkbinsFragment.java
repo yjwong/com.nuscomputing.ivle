@@ -119,7 +119,7 @@ public class ModuleWorkbinsFragment extends ListFragment
 		getActivity().getApplicationContext().registerReceiver(mRefreshReceiver, new IntentFilter(IVLESyncService.ACTION_SYNC_COMPLETE));
 	}
 	
-	public void onLoaderFinished(Bundle result) {
+	public void onLoaderFinished(int id, Bundle result) {
 		TextView tvNoWorkbins = (TextView) getActivity().findViewById(R.id.module_workbins_fragment_no_workbins);
 		tvNoWorkbins.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}

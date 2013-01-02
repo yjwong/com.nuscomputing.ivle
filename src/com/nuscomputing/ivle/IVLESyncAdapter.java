@@ -30,6 +30,7 @@ import android.text.Html;
 import android.util.Log;
 
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
+import com.nuscomputing.ivle.providers.DescriptionsContract;
 import com.nuscomputing.ivle.providers.GradebookItemsContract;
 import com.nuscomputing.ivle.providers.GradebooksContract;
 import com.nuscomputing.ivle.providers.IVLEContract;
@@ -155,6 +156,13 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 			this.purgeDeletedModulesFromLocal(modules);
 			Log.v(TAG, modules.length + " modules found: ");
 			
+			// Delete old descriptions.
+			provider.delete(
+				DescriptionsContract.CONTENT_URI,
+				DescriptionsContract.ACCOUNT.concat(" = ?"),
+				new String[] { mAccount.name }
+			);
+			
 			// Put those modules into the provider.
 			for (Module module : modules) {
 				// Insert the creator into the user's table.
@@ -181,6 +189,14 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 
 					// Insert announcements.
 					this.insertAnnouncement(announcement, moduleId, announcementCreatorId);
+				}
+				
+				// Fetch descriptions.
+				Log.v(TAG, "Fetching descriptions");
+				Module.Description[] descriptions = module.getDescriptions();
+				for (Module.Description description : descriptions) {
+					// Insert description.
+					this.insertDescription(description, moduleId);
 				}
 				
 				// Fetch gradebooks.
@@ -621,6 +637,28 @@ public class IVLESyncAdapter extends AbstractThreadedSyncAdapter {
 			Uri uri = mProvider.insert(AnnouncementsContract.CONTENT_URI, v);
 			return ContentUris.parseId(uri);
 		}
+	}
+	
+	/**
+	 * Method: insertDescription
+	 * <p>
+	 * Inserts a description into the description table.
+	 */
+	private long insertDescription(Module.Description description,
+			long moduleId) throws RemoteException {
+		// Prepare the content values.
+		ContentValues v = new ContentValues();
+		v.put(DescriptionsContract.MODULE_ID, moduleId);
+		v.put(DescriptionsContract.ACCOUNT, mAccount.name);
+		v.put(DescriptionsContract.TITLE, description.title);
+		v.put(DescriptionsContract.DESCRIPTION, description.description);
+		v.put(DescriptionsContract.ORDER, description.order);
+		
+		// Insert the description.
+		Log.v(TAG, "insertDescription: title = " + description.title);
+		mSyncResult.stats.numInserts++;
+		Uri uri = mProvider.insert(DescriptionsContract.CONTENT_URI, v);
+		return ContentUris.parseId(uri);
 	}
 	
 	/**

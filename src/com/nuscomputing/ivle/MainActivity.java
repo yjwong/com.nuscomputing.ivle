@@ -2,31 +2,29 @@ package com.nuscomputing.ivle;
 
 import java.util.ArrayList;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.nuscomputing.ivle.online.PublicNewsActivity;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
@@ -37,8 +35,7 @@ import android.widget.SearchView.OnCloseListener;
  * Main IVLE application activity.
  * @author yjwong
  */
-@TargetApi(14)
-public class MainActivity extends IVLESherlockFragmentActivity {
+public class MainActivity extends IVLEFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -117,7 +114,7 @@ public class MainActivity extends IVLESherlockFragmentActivity {
 		}
 		
 		// Get the action bar.
-		ActionBar bar = getSupportActionBar();
+		ActionBar bar = getActionBar();
 		
 		// Phone specific configuration.
 		if (mViewPager != null) {
@@ -171,7 +168,7 @@ public class MainActivity extends IVLESherlockFragmentActivity {
     	// Restore the active tab.
     	if (mViewPager != null) {
 	    	int currentTabPosition = savedInstanceState.getInt("currentTab", 0);
-	    	getSupportActionBar().setSelectedNavigationItem(currentTabPosition);
+	    	getActionBar().setSelectedNavigationItem(currentTabPosition);
 	    	Log.v(TAG, "onRestoreInstanceState: Restoring action bar tab, currently selected = " + currentTabPosition);
     	}
     }
@@ -182,7 +179,7 @@ public class MainActivity extends IVLESherlockFragmentActivity {
     	
     	// Save the currently being viewed tab.
     	if (mViewPager != null) {
-	    	int currentTabPosition = getSupportActionBar().getSelectedNavigationIndex();
+	    	int currentTabPosition = getActionBar().getSelectedNavigationIndex();
 	    	outState.putInt("currentTab", currentTabPosition);
 	    	Log.v(TAG, "onSaveInstanceState: Saving action bar tab, currently selected = " + currentTabPosition);
     	}
@@ -220,37 +217,35 @@ public class MainActivity extends IVLESherlockFragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	// Inflate the main menu.
-    	MenuInflater inflater = getSupportMenuInflater();
+    	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.main_menu, menu);
     	
     	// Inflate the global menu.
     	super.onCreateOptionsMenu(menu);
     	
     	// Get the SearchView and set the searchable configuration
-    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-	    	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-	    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
-	    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-	    	mSearchView.setQueryHint(getString(R.string.searchable_hint));
-	    	mSearchView.setOnSearchClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					// Change the back button.
-					ActionBar bar = getSupportActionBar();
-					bar.setHomeButtonEnabled(true);
-					bar.setDisplayHomeAsUpEnabled(true);
-				}
-	    	});
-	    	mSearchView.setOnCloseListener(new OnCloseListener() {
-				@Override
-				public boolean onClose() {
-					ActionBar bar = getSupportActionBar();
-					bar.setHomeButtonEnabled(false);
-					bar.setDisplayHomeAsUpEnabled(false);
-					return false;
-				}
-	    	});
-    	}
+    	SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+    	mSearchView = (SearchView) menu.findItem(R.id.main_menu_search).getActionView();
+    	mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+    	mSearchView.setQueryHint(getString(R.string.searchable_hint));
+    	mSearchView.setOnSearchClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// Change the back button.
+				ActionBar bar = getActionBar();
+				bar.setHomeButtonEnabled(true);
+				bar.setDisplayHomeAsUpEnabled(true);
+			}
+    	});
+    	mSearchView.setOnCloseListener(new OnCloseListener() {
+			@Override
+			public boolean onClose() {
+				ActionBar bar = getActionBar();
+				bar.setHomeButtonEnabled(false);
+				bar.setDisplayHomeAsUpEnabled(false);
+				return false;
+			}
+    	});
     	
     	// Restore the state of the refresh item.
     	mRefreshMenuItem = menu.findItem(R.id.main_menu_refresh);
@@ -292,10 +287,10 @@ public class MainActivity extends IVLESherlockFragmentActivity {
     @Override
     public void onBackPressed() {
     	// Close the search view if one is open.
-    	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && !mSearchView.isIconified()) {
+    	if (!mSearchView.isIconified()) {
     		mSearchView.onActionViewCollapsed();
     		mSearchView.setQuery("", false);
-    		ActionBar bar = getSupportActionBar();
+    		ActionBar bar = getActionBar();
     		bar.setHomeButtonEnabled(false);
     		bar.setDisplayHomeAsUpEnabled(false);
     	} else {
@@ -345,7 +340,7 @@ public class MainActivity extends IVLESherlockFragmentActivity {
     	mActiveAccount = AccountUtils.getActiveAccount(this);
     	
 		// Update the title.
-		ActionBar bar = getSupportActionBar();
+		ActionBar bar = getActionBar();
 		bar.setTitle(getString(R.string.app_name_with_active_account, mActiveAccount.name));
 		
 		// Request a sync.
@@ -373,10 +368,10 @@ public class MainActivity extends IVLESherlockFragmentActivity {
     	// }}}
     	// {{{ methods
     	
-    	public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
+    	public TabsAdapter(FragmentActivity activity, ViewPager pager) {
     		super(activity.getSupportFragmentManager());
     		mContext = activity;
-    		mActionBar = activity.getSupportActionBar();
+    		mActionBar = activity.getActionBar();
     		mViewPager = pager;
     		mViewPager.setAdapter(this);
     		mViewPager.setOnPageChangeListener(this);

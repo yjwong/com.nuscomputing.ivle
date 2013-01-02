@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import org.joda.time.DateTime;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
 
 import android.content.Context;
@@ -12,6 +11,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
@@ -25,7 +25,7 @@ import android.widget.TextView;
  * Fragment to list modules.
  * @author yjwong
  */
-public class NewAnnouncementsFragment extends SherlockListFragment
+public class NewAnnouncementsFragment extends ListFragment
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -91,7 +91,7 @@ public class NewAnnouncementsFragment extends SherlockListFragment
 		getLoaderManager().restartLoader(DataLoader.LOADER_NEW_ANNOUNCEMENTS_FRAGMENT, new Bundle(), mLoader);
 	}
 	
-	public void onLoaderFinished(Bundle result) {
+	public void onLoaderFinished(int id, Bundle result) {
 		TextView tvNoAnnouncements = (TextView) getActivity().findViewById(R.id.new_announcements_fragment_no_announcements);
 		tvNoAnnouncements.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);
 	}

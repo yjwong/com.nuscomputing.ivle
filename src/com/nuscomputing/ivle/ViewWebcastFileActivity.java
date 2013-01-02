@@ -4,14 +4,12 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -20,7 +18,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
-import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +27,6 @@ import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -39,8 +36,7 @@ import android.preference.PreferenceManager;
  * Activity to view webcast videos.
  * @author yjwong
  */
-@TargetApi(11)
-public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implements 
+public class ViewWebcastFileActivity extends IVLEFragmentActivity implements 
 		MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
 		DataLoaderListener {
 	// {{{ properties
@@ -91,20 +87,18 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
 	/** Hides the action bar */
 	Runnable mActionBarHider = new Runnable() {
 		public void run() {
-			ActionBar bar = getSupportActionBar();
+			ActionBar bar = getActionBar();
 			bar.hide();
 			
 			// Set to low profile mode again.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-				getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-			}
+			getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 		}
 	};
 	
 	/** Shows the action bar */
 	Runnable mActionBarShower = new Runnable() {
 		public void run() {
-			ActionBar bar = getSupportActionBar();
+			ActionBar bar = getActionBar();
 			bar.show();
 		}
 	};
@@ -124,19 +118,15 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
 		}
 		
 		// Use overlaid action bar.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-			getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
-		}
+		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
 		
-		ActionBar bar = getSupportActionBar();
+		ActionBar bar = getActionBar();
 		bar.setBackgroundDrawable(getResources().getDrawable(R.drawable.view_webcast_file_activity_action_bar_background));
 		bar.setDisplayHomeAsUpEnabled(true);
 		
 		// Set to full screen.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-		}
+		getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 		
 		// Set the content view.
 		setContentView(R.layout.view_webcast_file_activity);
@@ -223,7 +213,7 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
     	super.onCreateOptionsMenu(menu);
     	
     	// Create the local menu.
-    	MenuInflater inflater = getSupportMenuInflater();
+    	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.view_webcast_file_activity_menu, menu);
     	return true;
     }
@@ -254,28 +244,17 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
     			
     			// Construct video file name.
     			String fileName = mVideoUri.getLastPathSegment();
-    			//String filePath = "IVLE Webcasts/" + fileName;
-    			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-    				com.nuscomputing.support.android.app.DownloadManager.Request request = new com.nuscomputing.support.android.app.DownloadManager.Request(mVideoUri);
-	    			request.setDescription("IVLE Webcast");
-	    			request.setAllowedNetworkTypes(allowedNetworkTypes);
-	    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
-	    			
-	    			// Request a save of the video file.
-	    			com.nuscomputing.support.android.app.DownloadManager manager = new com.nuscomputing.support.android.app.DownloadManager(getContentResolver(), getClass().getPackage().getName());
-	    			manager.enqueue(request);
-	    			
-    			} else {
-    				DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
-	    			request.allowScanningByMediaScanner();
-	    			request.setDescription("IVLE Webcast");
-	    			request.setAllowedNetworkTypes(allowedNetworkTypes);
-	    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
-	    			
-	    			// Request a save of the video file.
-	    			DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-	    			manager.enqueue(request);
-    			}
+    			
+    			// Create the request.
+    			DownloadManager.Request request = new DownloadManager.Request(mVideoUri);
+    			request.setDescription("IVLE Webcast");
+    			request.setAllowedNetworkTypes(allowedNetworkTypes);
+    			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, fileName);
+    			request.allowScanningByMediaScanner();
+    			
+    			// Request a save of the video file.
+    			DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+    			downloadManager.enqueue(request);
     			
     			// Show a toast.
     			if (networkType == ConnectivityManager.TYPE_MOBILE && !downloadOverMobile) {
@@ -337,9 +316,9 @@ public class ViewWebcastFileActivity extends IVLESherlockFragmentActivity implem
     	mVideoFileName = fileName;
     }
     
-    public void onLoaderFinished(Bundle result) {
+    public void onLoaderFinished(int id, Bundle result) {
 		// Set the title.
-		getSupportActionBar().setTitle(result.getString("fileTitle"));
+		getActionBar().setTitle(result.getString("fileTitle"));
 		
 		// Start the video playback.
 		Log.v(TAG, "video = " + result.getString("MP4"));

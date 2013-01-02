@@ -44,5 +44,10 @@ public enum ReportingInteractionMode {
      * A simple Toast is triggered when the application crashes, the Force close
      * dialog is not displayed.
      */
-    TOAST;
+    TOAST,
+    /**
+     * Direct dialog: a report confirmation dialog is displayed right after the crash.
+     * Will replace {@link #NOTIFICATION} mode.
+     */
+    DIALOG
 }

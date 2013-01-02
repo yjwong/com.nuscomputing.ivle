@@ -177,8 +177,8 @@ public class IVLESyncService extends Service {
 	 * Called when the sync was successful. Currently used to display
 	 * notifications.
 	 */
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@SuppressWarnings("deprecation")
-	@TargetApi(16)
 	private static void onSyncSuccess(Context context, Account account) {
 		// Check if we enable notifications.
 		SharedPreferences prefs = context.getSharedPreferences("account_" + account.name, Context.MODE_PRIVATE);
@@ -221,20 +221,14 @@ public class IVLESyncService extends Service {
 							PendingIntent pendingIntent = PendingIntent.getActivity(context, account.hashCode(), intent, 0);
 							
 							// Create notification based on platform version.
-							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-								Notification.Builder builder = new Notification.Builder(context)
-									.setContentTitle(notifTitle)
-									.setContentText(account.name)
-									.setContentIntent(pendingIntent)
-									.setAutoCancel(true)
-									.setSmallIcon(R.drawable.ic_notification);
-								
-								notif = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) ? builder.build() : builder.getNotification();
-							} else {
-								notif = new Notification(R.drawable.ic_notification, notifTitle, System.currentTimeMillis());
-								notif.flags |= Notification.FLAG_AUTO_CANCEL;
-								notif.setLatestEventInfo(context, notifTitle, account.name, pendingIntent);
-							}
+							Notification.Builder builder = new Notification.Builder(context)
+								.setContentTitle(notifTitle)
+								.setContentText(account.name)
+								.setContentIntent(pendingIntent)
+								.setAutoCancel(true)
+								.setSmallIcon(R.drawable.ic_notification);
+							
+							notif = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) ? builder.build() : builder.getNotification();
 							
 							// Send the notification.
 							manager.notify(account.name, NotificationDispatcher.NOTIFICATION_ANNOUNCEMENT_SINGLE, notif);
@@ -247,41 +241,34 @@ public class IVLESyncService extends Service {
 							PendingIntent pendingIntent = PendingIntent.getActivity(context, account.hashCode(), intent, 0);
 							
 							// Create notification based on platform version.
-							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-								Notification.Builder builder = new Notification.Builder(context)
-									.setContentTitle(notifTitle)
-									.setContentText(account.name)
-									.setContentIntent(pendingIntent)
-									.setAutoCancel(true)
-									.setSmallIcon(R.drawable.ic_notification);
+							Notification.Builder builder = new Notification.Builder(context)
+								.setContentTitle(notifTitle)
+								.setContentText(account.name)
+								.setContentIntent(pendingIntent)
+								.setAutoCancel(true)
+								.setSmallIcon(R.drawable.ic_notification);
+							
+							// Use the inbox style on Jellybean.
+							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+								Notification.InboxStyle builderInboxStyle = new Notification.InboxStyle(builder);
 								
-								// Use the inbox style on Jellybean.
-								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-									Notification.InboxStyle builderInboxStyle = new Notification.InboxStyle(builder);
-									
-									// We also want to limit the number of lines to 5.
-									int a = 0;
-									while (!cursor.isAfterLast() && a < 5) {
-										builderInboxStyle.addLine(cursor.getString(cursor.getColumnIndex(AnnouncementsContract.TITLE)));
-										cursor.moveToNext();
-										a++;
-									}
-									
-									// Tap to show the rest.
-									if (announcementCount > 5) {
-										builderInboxStyle.setSummaryText(context.getString(R.string.notification_plus_more, (announcementCount - 5)));
-									}
-									
-									notif = builderInboxStyle.build();
-									
-								} else {
-									notif = builder.getNotification();
+								// We also want to limit the number of lines to 5.
+								int a = 0;
+								while (!cursor.isAfterLast() && a < 5) {
+									builderInboxStyle.addLine(cursor.getString(cursor.getColumnIndex(AnnouncementsContract.TITLE)));
+									cursor.moveToNext();
+									a++;
 								}
 								
+								// Tap to show the rest.
+								if (announcementCount > 5) {
+									builderInboxStyle.setSummaryText(context.getString(R.string.notification_plus_more, (announcementCount - 5)));
+								}
+								
+								notif = builderInboxStyle.build();
+								
 							} else {
-								notif = new Notification(R.drawable.ic_notification, notifTitle, System.currentTimeMillis());
-								notif.flags |= Notification.FLAG_AUTO_CANCEL;
-								notif.setLatestEventInfo(context, notifTitle, account.name, pendingIntent);
+								notif = builder.getNotification();
 							}
 							
 							// Send the notification.

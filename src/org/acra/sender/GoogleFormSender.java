@@ -23,9 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.acra.ACRA;
-import org.acra.CrashReportData;
+import org.acra.ACRAConfiguration;
+import org.acra.ACRAConstants;
 import org.acra.ReportField;
-import org.acra.util.HttpUtils;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender.Method;
+import org.acra.sender.HttpSender.Type;
+import org.acra.util.HttpRequest;
 
 import android.net.Uri;
 import android.util.Log;
@@ -37,45 +41,68 @@ import android.util.Log;
  * 
  */
 public class GoogleFormSender implements ReportSender {
-    private Uri mFormUri = null;
+
+    private final Uri mFormUri;
 
     /**
-     * Creates a new GoogleFormSender which will send data to a Form identified by its key.
-     * @param formKey The key of the form. The key is the formKey parameter value in the Form Url: https://spreadsheets.google.com/viewform?formkey=<b>dDN6NDdnN2I2aWU1SW5XNmNyWVljWmc6MQ</b>
+     * Creates a new dynamic GoogleFormSender which will send data to a Form
+     * identified by its key. All parameters are retrieved from
+     * {@link ACRA#getConfig()} and can thus be changed dynamically with
+     * {@link ACRAConfiguration#setFormKey(String)}
+     */
+    public GoogleFormSender() {
+        mFormUri = null;
+    }
+
+    /**
+     * Creates a new fixed GoogleFormSender which will send data to a Form
+     * identified by its key provided as a parameter. Once set, the destination
+     * form can not be changed dynamically.
+     * 
+     * @param formKey
+     *            The formKey of the destination Google Doc Form.
      */
     public GoogleFormSender(String formKey) {
-        mFormUri = Uri.parse("https://spreadsheets.google.com/formResponse?formkey=" + formKey + "&amp;ifq");
+        mFormUri = Uri.parse(String.format(ACRA.getConfig().googleFormUrlFormat(), formKey));
     }
 
     @Override
     public void send(CrashReportData report) throws ReportSenderException {
-        Map<String, String> formParams = remap(report);
+        Uri formUri = mFormUri == null ? Uri.parse(String.format(ACRA.getConfig().googleFormUrlFormat(), ACRA
+                .getConfig().formKey())) : mFormUri;
+        final Map<String, String> formParams = remap(report);
         // values observed in the GoogleDocs original html form
         formParams.put("pageNumber", "0");
         formParams.put("backupCache", "");
         formParams.put("submit", "Envoyer");
 
         try {
-            final URL reportUrl = new URL(mFormUri.toString());
+            final URL reportUrl = new URL(formUri.toString());
             Log.d(LOG_TAG, "Sending report " + report.get(ReportField.REPORT_ID));
             Log.d(LOG_TAG, "Connect to " + reportUrl);
-            HttpUtils.doPost(formParams, reportUrl, null, null);
+
+            final HttpRequest request = new HttpRequest();
+            request.setConnectionTimeOut(ACRA.getConfig().connectionTimeout());
+            request.setSocketTimeOut(ACRA.getConfig().socketTimeout());
+            request.setMaxNrRetries(ACRA.getConfig().maxNumberOfRequestRetries());
+            request.send(reportUrl, Method.POST, HttpRequest.getParamsAsFormString(formParams), Type.FORM);
+
         } catch (IOException e) {
             throw new ReportSenderException("Error while sending report to Google Form.", e);
         }
-
     }
 
     private Map<String, String> remap(Map<ReportField, String> report) {
-        Map<String, String> result = new HashMap<String, String>();
+
+        ReportField[] fields = ACRA.getConfig().customReportContent();
+        if (fields.length == 0) {
+            fields = ACRAConstants.DEFAULT_REPORT_FIELDS;
+        }
 
         int inputId = 0;
-        ReportField[] fields = ACRA.getConfig().customReportContent();
-        if(fields.length == 0) {
-            fields = ACRA.DEFAULT_REPORT_FIELDS;
-        }
-        for (Object originalKey : fields) {
-            switch ((ReportField) originalKey) {
+        final Map<String, String> result = new HashMap<String, String>();
+        for (ReportField originalKey : fields) {
+            switch (originalKey) {
             case APP_VERSION_NAME:
                 result.put("entry." + inputId + ".single", "'" + report.get(originalKey));
                 break;
@@ -90,5 +117,4 @@ public class GoogleFormSender implements ReportSender {
         }
         return result;
     }
-
 }

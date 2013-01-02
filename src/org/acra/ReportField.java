@@ -15,6 +15,8 @@
  */
 package org.acra;
 
+import org.acra.annotation.ReportsCrashes;
+
 import android.content.res.Configuration;
 
 /**
@@ -30,41 +32,62 @@ public enum ReportField {
     REPORT_ID,
     /**
      * Application version code. This is the incremental integer version code
-     * used to differentiate versions on the android market. {@see
-     * PackageInfo#versionCode}
+     * used to differentiate versions on the android market.
+     * 
+     * @see android.content.pm.PackageInfo#versionCode
      */
     APP_VERSION_CODE,
     /**
-     * Application version name. {@see PackageInfo#versionName}
+     * Application version name.
+     * 
+     * @see android.content.pm.PackageInfo#versionName
      */
     APP_VERSION_NAME,
     /**
-     * Application package name. {@see Context#getPackageName()}
+     * Application package name.
+     * 
+     * @see android.content.Context#getPackageName()
      */
     PACKAGE_NAME,
     /**
-     * Base path of the application's private file folder. {@see
-     * Context#getFilesDir()}
+     * Base path of the application's private file folder.
+     * 
+     * @see android.content.Context#getFilesDir()
      */
     FILE_PATH,
     /**
-     * Device model name. {@see Build#MODEL}
+     * Device model name.
+     * 
+     * @see android.os.Build#MODEL
      */
     PHONE_MODEL,
     /**
-     * Device android version name. {@see VERSION#RELEASE}
+     * Device android version name.
+     * 
+     * @see android.os.Build.VERSION#RELEASE
      */
     ANDROID_VERSION,
     /**
-     * Android Build details. {@see Build}
+     * Android Build details.
+     * 
+     * @see android.os.Build
      */
-    BUILD,
+    BUILD {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
-     * Device brand (manufacturer or carrier). {@see Build#BRAND}
+     * Device brand (manufacturer or carrier).
+     * 
+     * @see android.os.Build#BRAND
      */
     BRAND,
     /**
-     * Device overall product code. {@see Build#PRODUCT}
+     * Device overall product code.
+     * 
+     * @see android.os.Build#PRODUCT
      */
     PRODUCT,
     /**
@@ -79,27 +102,51 @@ public enum ReportField {
      * Contains key = value pairs defined by the application developer during
      * the application execution.
      */
-    CUSTOM_DATA,
+    CUSTOM_DATA {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
      * The Holy Stack Trace.
      */
     STACK_TRACE,
     /**
-     * {@link Configuration} fields state on the application start. {@see
-     * Configuration}
+     * {@link Configuration} fields state on the application start.
+     * 
+     * @see Configuration
      */
-    INITIAL_CONFIGURATION,
+    INITIAL_CONFIGURATION {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
-     * {@link Configuration} fields state on the application crash. {@see
-     * Configuration}
+     * {@link Configuration} fields state on the application crash.
+     * 
+     * @see Configuration
      */
-    CRASH_CONFIGURATION,
+    CRASH_CONFIGURATION {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
-     * Device display specifications. {@see WindowManager#getDefaultDisplay()}
+     * Device display specifications.
+     * 
+     * @see android.view.WindowManager#getDefaultDisplay()
      */
-    DISPLAY,
+    DISPLAY {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
-     * Comment added by the user in the {@link CrashReportDialog} displayed in
+     * Comment added by the user in the CrashReportDialog displayed in
      * {@link ReportingInteractionMode#NOTIFICATION} mode.
      */
     USER_COMMENT,
@@ -147,28 +194,93 @@ public enum ReportField {
     INSTALLATION_ID,
     /**
      * User email address. Can be provided by the user in the
-     * {@value ACRA#PREF_USER_EMAIL_ADDRESS} SharedPreference.
+     * {@link ACRA#PREF_USER_EMAIL_ADDRESS} SharedPreference.
      */
     USER_EMAIL,
     /**
      * Features declared as available on this device by the system.
      */
-    DEVICE_FEATURES,
+    DEVICE_FEATURES {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
      * External storage state and standard directories.
      */
-    ENVIRONMENT,
+    ENVIRONMENT {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
      * System settings.
      */
-    SETTINGS_SYSTEM,
+    SETTINGS_SYSTEM {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
      * Secure settings (applications can't modify them).
      */
-    SETTINGS_SECURE,
+    SETTINGS_SECURE {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
+    /**
+     * Global settings, introduced in Android 4.2 (API level 17) to centralize settings for multiple users.
+     */
+    SETTINGS_GLOBAL {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
     /**
      * SharedPreferences contents
      */
-    SHARED_PREFERENCES
-    ;
+    SHARED_PREFERENCES {
+        @Override
+        public boolean containsKeyValuePairs() {
+            return true;
+        }
+    },
+    /**
+     * Content of your own application log file. To be configured with
+     * {@link ReportsCrashes#applicationLogFile()} to define the path/name of
+     * the log file and {@link ReportsCrashes#applicationLogFileLines()} to set
+     * the number of lines you want to be retrieved.
+     */
+    APPLICATION_LOG,
+    /**
+     * Since Android API Level 16 (Android 4.1 - Jelly Beans), retrieve the list
+     * of supported Media codecs and their capabilities (color format, profile
+     * and level).
+     */
+    MEDIA_CODEC_LIST,
+    /**
+     * Retrieves details of the failing thread (id, name, group name).
+     */
+    THREAD_DETAILS,
+    /**
+     * Retrieves the user IP address(es).
+     */
+    USER_IP;
+
+    /**
+     * Whether this field is a collection of key/value pairs.
+     * 
+     * @return true if the field contains a string with a key/value pair on each
+     *         line, key and value separated by an equal sugn
+     * 
+     */
+    public boolean containsKeyValuePairs() {
+        return false;
+    }
 }

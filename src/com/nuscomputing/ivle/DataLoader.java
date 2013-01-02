@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.nuscomputing.ivle.ModulesFragment.ModulesCursorAdapter;
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
+import com.nuscomputing.ivle.providers.DescriptionsContract;
 import com.nuscomputing.ivle.providers.ModulesContract;
 import com.nuscomputing.ivle.providers.UsersContract;
 import com.nuscomputing.ivle.providers.WebcastFilesContract;
@@ -41,28 +42,29 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 	/** Loader IDs */
 	public static final int LOADER_MODULES_FRAGMENT = 1;
 	public static final int LOADER_MODULE_INFO_FRAGMENT = 2;
-	public static final int LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT = 3;
-	public static final int LOADER_MODULE_WEBCASTS_FRAGMENT = 4;
-	public static final int LOADER_MODULE_WORKBINS_FRAGMENT = 5;
-	public static final int LOADER_VIEW_ANNOUNCEMENT_FRAGMENT = 6;
-	public static final int LOADER_VIEW_WEBCAST_ACTIVITY = 7;
-	public static final int LOADER_VIEW_WEBCAST_FRAGMENT = 8;
-	public static final int LOADER_VIEW_WEBCAST_ITEM_GROUP_FRAGMENT = 9;
-	public static final int LOADER_VIEW_WEBCAST_FILE_ACTIVITY = 10;
-	public static final int LOADER_VIEW_WORKBIN_ACTIVITY = 11;
-	public static final int LOADER_VIEW_WORKBIN_FRAGMENT = 12;
-	public static final int LOADER_VIEW_WORKBIN_FILES_FRAGMENT = 13;
-	public static final int LOADER_VIEW_WORKBIN_FOLDERS_FRAGMENT = 14;
-	public static final int LOADER_NEW_ANNOUNCEMENTS_FRAGMENT = 15;
+	public static final int LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS = 3;
+	public static final int LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT = 4;
+	public static final int LOADER_MODULE_WEBCASTS_FRAGMENT = 5;
+	public static final int LOADER_MODULE_WORKBINS_FRAGMENT = 6;
+	public static final int LOADER_VIEW_ANNOUNCEMENT_FRAGMENT = 7;
+	public static final int LOADER_VIEW_WEBCAST_ACTIVITY = 8;
+	public static final int LOADER_VIEW_WEBCAST_FRAGMENT = 9;
+	public static final int LOADER_VIEW_WEBCAST_ITEM_GROUP_FRAGMENT = 10;
+	public static final int LOADER_VIEW_WEBCAST_FILE_ACTIVITY = 11;
+	public static final int LOADER_VIEW_WORKBIN_ACTIVITY = 12;
+	public static final int LOADER_VIEW_WORKBIN_FRAGMENT = 13;
+	public static final int LOADER_VIEW_WORKBIN_FILES_FRAGMENT = 14;
+	public static final int LOADER_VIEW_WORKBIN_FOLDERS_FRAGMENT = 15;
+	public static final int LOADER_NEW_ANNOUNCEMENTS_FRAGMENT = 16;
 	
 	/** Loader IDs for AsyncTaskLoaders that are not handled by this loader */
-	public static final int LOADER_MODULE_INFO_FRAGMENT_INFO = 15;
-	public static final int LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS = 16;
-	public static final int LOADER_MODULE_LECTURERS_FRAGMENT = 17;
-	public static final int LOADER_MODULE_WEBLINKS_FRAGMENT = 18;
-	public static final int LOADER_SEARCHABLE_FRAGMENT = 19;
-	public static final int LOADER_CHECK_FOR_UPDATES = 20;
-	public static final int LOADER_PUBLIC_NEWS_FRAGMENT = 21;
+	public static final int LOADER_ONLINE_MODULE_INFO_FRAGMENT = 17;
+	public static final int LOADER_ONLINE_MODULE_INFO_FRAGMENT_DESCRIPTIONS = 18;
+	public static final int LOADER_ONLINE_MODULE_LECTURERS_FRAGMENT = 19;
+	public static final int LOADER_ONLINE_MODULE_WEBLINKS_FRAGMENT = 20;
+	public static final int LOADER_SEARCHABLE_FRAGMENT = 21;
+	public static final int LOADER_CHECK_FOR_UPDATES = 22;
+	public static final int LOADER_PUBLIC_NEWS_FRAGMENT = 23;
 	
 	/** Listener for data loader events */
 	private DataLoaderListener mListener;
@@ -126,6 +128,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		long workbinFolderId = -1;
 		switch (id) {
 			case LOADER_MODULE_INFO_FRAGMENT:
+			case LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS:
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
 			case LOADER_MODULE_WEBCASTS_FRAGMENT:
 			case LOADER_MODULE_WORKBINS_FRAGMENT:
@@ -235,6 +238,19 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 			// Set up the cursor loader.
 			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId));
 
+		} else if (id == LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS) {
+			// Set up our query parameters.
+			projectionList.addAll(Arrays.asList(
+					DescriptionsContract.ID,
+					DescriptionsContract.TITLE,
+					DescriptionsContract.DESCRIPTION
+			));
+			selection = DatabaseHelper.DESCRIPTIONS_TABLE_NAME + "." + ModulesContract.ACCOUNT + " = ?";
+			selectionArgsList.add(accountName);
+			
+			// Set up the cursor loader.
+			loader.setUri(Uri.parse("content://com.nuscomputing.ivle.provider/modules/" + moduleId + "/descriptions"));
+			
 		} else if (id == LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT) {
 			// Set up our query parameters.
 			projectionList.addAll(Arrays.asList(
@@ -478,6 +494,12 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				result.putString("courseAcadYear", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_ACAD_YEAR)));
 				result.putString("courseSemester", cursor.getString(cursor.getColumnIndex(ModulesContract.COURSE_SEMESTER)));
 				break;
+				
+			case LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS:
+				result.putInt("cursorCount", cursor.getCount());
+				((CursorAdapter) mAdapter).swapCursor(cursor);
+				((CursorAdapter) mAdapter).notifyDataSetChanged();
+				break;
 			
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
 			case LOADER_NEW_ANNOUNCEMENTS_FRAGMENT:
@@ -547,7 +569,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 		}
 		
 		if (mListener != null) {
-			((DataLoaderListener) mListener).onLoaderFinished(result);
+			((DataLoaderListener) mListener).onLoaderFinished(loader.getId(), result);
 		}
 	}
 
@@ -559,6 +581,7 @@ public class DataLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 				((ModulesCursorAdapter) mAdapter).swapCursor(null);
 				break;
 				
+			case LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS:
 			case LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT:
 			case LOADER_NEW_ANNOUNCEMENTS_FRAGMENT:
 				((CursorAdapter) mAdapter).swapCursor(null);

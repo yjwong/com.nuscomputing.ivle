@@ -3,7 +3,7 @@ package com.nuscomputing.ivle.online;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,15 +19,13 @@ import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragment;
 import com.nuscomputing.ivle.R;
 
 /**
  * A fragment that hosts most of the module options (online).
  * @author yjwong
  */
-public class ModuleFragment extends SherlockFragment {
+public class ModuleFragment extends Fragment {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -60,7 +58,6 @@ public class ModuleFragment extends SherlockFragment {
 		return inflater.inflate(R.layout.module_fragment, null);
 	}
 	
-    @TargetApi(11)
 	@Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -77,7 +74,7 @@ public class ModuleFragment extends SherlockFragment {
         mViewPager = (ViewPager) getActivity().findViewById(R.id.module_activity_view_pager);
         
     	// Configure the action bar.
-    	ActionBar bar = getSherlockActivity().getSupportActionBar();
+    	ActionBar bar = getActivity().getActionBar();
     	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     	bar.setDisplayHomeAsUpEnabled(true);
     	bar.setDisplayShowTitleEnabled(false);
@@ -103,7 +100,7 @@ public class ModuleFragment extends SherlockFragment {
     	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageSelected(int position) {
-				getSherlockActivity().getActionBar().setSelectedNavigationItem(position);
+				getActivity().getActionBar().setSelectedNavigationItem(position);
 			}
 			
 			@Override

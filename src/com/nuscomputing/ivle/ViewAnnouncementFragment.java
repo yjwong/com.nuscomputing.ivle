@@ -4,18 +4,18 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -24,7 +24,7 @@ import android.webkit.WebView;
  * Fragment to view an announcement.
  * @author yjwong
  */
-public class ViewAnnouncementFragment extends SherlockFragment
+public class ViewAnnouncementFragment extends Fragment
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -58,7 +58,7 @@ public class ViewAnnouncementFragment extends SherlockFragment
 		this.setHasOptionsMenu(true);
 		
 		// Get the Action Bar.
-		ActionBar bar = getSherlockActivity().getSupportActionBar();
+		ActionBar bar = getActivity().getActionBar();
 		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		
 		// Obtain the announcement ID.
@@ -116,9 +116,10 @@ public class ViewAnnouncementFragment extends SherlockFragment
 		}
 	}
 	
-	public void onLoaderFinished(Bundle result) {
+	public void onLoaderFinished(int id, Bundle result) {
 		// Set the title and subtitle.
-		ActionBar bar = getSherlockActivity().getSupportActionBar();
+		Log.v(TAG, "setting action bar title");
+		ActionBar bar = getActivity().getActionBar();
 		bar.setTitle(result.getString("title"));
 		bar.setSubtitle(result.getString("userName"));
 		

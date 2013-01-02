@@ -1,7 +1,6 @@
 package com.nuscomputing.ivle;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
@@ -23,7 +22,6 @@ import android.widget.TextView;
  * Allows users to view and update account settings for NUS IVLE.
  * @author yjwong
  */
-@TargetApi(11)
 public class AccountSettingsActivity extends Activity {
 	// {{{ properties
 	
@@ -37,7 +35,6 @@ public class AccountSettingsActivity extends Activity {
 	// {{{ methods
 	
     /** Called when the activity is first created. */
-    @TargetApi(14)
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

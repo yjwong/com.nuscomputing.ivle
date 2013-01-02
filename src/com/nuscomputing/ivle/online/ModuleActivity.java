@@ -1,6 +1,6 @@
 package com.nuscomputing.ivle.online;
 
-import com.nuscomputing.ivle.IVLESherlockFragmentActivity;
+import com.nuscomputing.ivle.IVLEFragmentActivity;
 import com.nuscomputing.ivle.R;
 
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import android.support.v4.app.FragmentTransaction;
  * Main IVLE application activity.
  * @author yjwong
  */
-public class ModuleActivity extends IVLESherlockFragmentActivity {
+public class ModuleActivity extends IVLEFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */

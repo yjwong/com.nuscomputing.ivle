@@ -6,12 +6,12 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -29,7 +29,6 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import com.nuscomputing.ivle.DataLoader;
 import com.nuscomputing.ivle.IVLEUtils;
@@ -46,7 +45,7 @@ import com.nuscomputing.ivlelapi.NoSuchModuleException;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleLecturersFragment extends SherlockListFragment {
+public class ModuleLecturersFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -82,7 +81,7 @@ public class ModuleLecturersFragment extends SherlockListFragment {
         mLayoutInflater = getActivity().getLayoutInflater();
 		
 		// Load the lecturers.
-		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_LECTURERS_FRAGMENT, args, new LecturersLoaderCallbacks());
+		getLoaderManager().initLoader(DataLoader.LOADER_ONLINE_MODULE_LECTURERS_FRAGMENT, args, new LecturersLoaderCallbacks());
 	}
 	
 	// }}}
@@ -92,7 +91,6 @@ public class ModuleLecturersFragment extends SherlockListFragment {
 	 * The list adapter for lecturers.
 	 * @author yjwong
 	 */
-	@TargetApi(11)
 	class LecturerAdapter extends ArrayAdapter<Lecturer> {
 		// {{{ methods
 		
@@ -211,7 +209,7 @@ public class ModuleLecturersFragment extends SherlockListFragment {
     		// Inflate the layout for the item.
     		if (convertView == null) {
     			LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    			convertView = inflater.inflate(R.layout.sherlock_spinner_item, null);
+    			convertView = inflater.inflate(android.R.layout.simple_spinner_item, null);
     		}
     		
 			TextView tvItem = (TextView) convertView.findViewById(android.R.id.text1);

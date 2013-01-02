@@ -9,7 +9,6 @@ import java.net.URL;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
@@ -31,7 +30,6 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.provider.Settings;
 
-@TargetApi(11)
 public class SettingsFragment extends PreferenceFragment {
 	// {{{ properties
 	

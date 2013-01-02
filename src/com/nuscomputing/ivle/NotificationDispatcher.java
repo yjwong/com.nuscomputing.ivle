@@ -1,18 +1,17 @@
 package com.nuscomputing.ivle;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
-import com.actionbarsherlock.app.SherlockActivity;
 
 /**
  * Activity to open other activities from a notification.
  * @author yjwong
  *
  */
-public class NotificationDispatcher extends SherlockActivity {
+public class NotificationDispatcher extends Activity {
 	// {{{ properties
 	
 	/** TAG for logging */

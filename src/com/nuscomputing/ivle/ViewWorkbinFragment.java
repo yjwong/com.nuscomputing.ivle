@@ -1,8 +1,8 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -14,7 +14,7 @@ import android.view.ViewGroup;
  * Fragment to view a workbin.
  * @author yjwong
  */
-public class ViewWorkbinFragment extends SherlockListFragment {
+public class ViewWorkbinFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */

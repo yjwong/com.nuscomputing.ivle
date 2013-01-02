@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import org.joda.time.DateTime;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.AnnouncementsContract;
 
 import android.content.Context;
@@ -15,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
@@ -28,7 +28,7 @@ import android.widget.TextView;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleAnnouncementsFragment extends SherlockListFragment
+public class ModuleAnnouncementsFragment extends ListFragment
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -102,8 +102,8 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 					// Add the fragment.
 					FragmentManager manager = getFragmentManager();
 					FragmentTransaction transaction = manager.beginTransaction();
-					transaction.addToBackStack(TAG);
 					transaction.replace(R.id.main_right_fragment_container, fragment);
+					transaction.addToBackStack(TAG);
 					transaction.commit();
 				}
 			}
@@ -121,7 +121,7 @@ public class ModuleAnnouncementsFragment extends SherlockListFragment
 		getLoaderManager().restartLoader(DataLoader.LOADER_MODULE_ANNOUNCEMENTS_FRAGMENT, getArguments(), mLoader);
 	}
 	
-	public void onLoaderFinished(Bundle result) {
+	public void onLoaderFinished(int id, Bundle result) {
 		TextView tvNoAnnouncements = (TextView) getActivity().findViewById(R.id.module_announcements_fragment_no_announcements);
 		if (tvNoAnnouncements != null) {
 			tvNoAnnouncements.setVisibility(result.getInt("cursorCount") == 0 ? TextView.VISIBLE : TextView.GONE);

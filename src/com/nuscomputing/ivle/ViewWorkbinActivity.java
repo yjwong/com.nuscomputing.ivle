@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 
-public class ViewWorkbinActivity extends IVLESherlockFragmentActivity 
+public class ViewWorkbinActivity extends IVLEFragmentActivity 
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -65,7 +65,7 @@ public class ViewWorkbinActivity extends IVLESherlockFragmentActivity
         mViewPager.setAdapter(mPagerAdapter);
         
         // Set action bar parameters.
-    	ActionBar bar = getSupportActionBar();
+    	ActionBar bar = getActionBar();
     	bar.setDisplayHomeAsUpEnabled(true);
     	bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
     	mTabListener = new ViewWorkbinActivityTabListener();
@@ -96,9 +96,9 @@ public class ViewWorkbinActivity extends IVLESherlockFragmentActivity
         getSupportLoaderManager().initLoader(DataLoader.LOADER_VIEW_WORKBIN_ACTIVITY, args, loader);
     }
     
-    public void onLoaderFinished(Bundle result) {
+    public void onLoaderFinished(int id, Bundle result) {
     	// Set the title.
-		getSupportActionBar().setTitle(result.getString("title"));
+		getActionBar().setTitle(result.getString("title"));
     }
 	
 	// }}}
@@ -172,7 +172,7 @@ public class ViewWorkbinActivity extends IVLESherlockFragmentActivity
 
 		@Override
 		public void onPageSelected(int position) {
-			ActionBar bar = getSupportActionBar();
+			ActionBar bar = getActionBar();
 			bar.selectTab(bar.getTabAt(position));			
 		}
     	

@@ -11,18 +11,17 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleAdapter;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
-
 /**
  * A dialog fragment for item details.
  * @author yjwong
  */
-public class DetailsDialogFragment extends SherlockDialogFragment {
+public class DetailsDialogFragment extends DialogFragment {
 	// {{{ methods
 	
 	@Override

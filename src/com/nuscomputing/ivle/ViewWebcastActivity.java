@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-public class ViewWebcastActivity extends IVLESherlockFragmentActivity
+public class ViewWebcastActivity extends IVLEFragmentActivity
 		implements DataLoaderListener {
 	// {{{ properties
 	
@@ -32,7 +32,7 @@ public class ViewWebcastActivity extends IVLESherlockFragmentActivity
         }
         
         // Set action bar parameters.
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         
         // Set up our view.
         setContentView(R.layout.view_webcast_activity);
@@ -56,9 +56,9 @@ public class ViewWebcastActivity extends IVLESherlockFragmentActivity
         getSupportLoaderManager().initLoader(DataLoader.LOADER_VIEW_WEBCAST_ACTIVITY, args, loader).forceLoad();
     }
     
-    public void onLoaderFinished(Bundle result) {
+    public void onLoaderFinished(int id, Bundle result) {
     	// Set the title.
-		getSupportActionBar().setTitle(result.getString("title"));
+		getActionBar().setTitle(result.getString("title"));
     }
 	
 	// }}}

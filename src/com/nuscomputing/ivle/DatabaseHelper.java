@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// {{{ properties
 	
 	/** Version of the database schema */
-	private static final int DATABASE_VERSION = 18;
+	private static final int DATABASE_VERSION = 19;
 	
 	/** Name of this database */
 	private static final String DATABASE_NAME = "ivle";
@@ -100,6 +100,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			"CREATE TABLE " + DESCRIPTIONS_TABLE_NAME + "(" +
 			DescriptionsContract.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			DescriptionsContract.MODULE_ID + " TEXT, " +
+			DescriptionsContract.ACCOUNT + " TEXT, " +
 			DescriptionsContract.TITLE + " TEXT, " +
 			DescriptionsContract.DESCRIPTION + " TEXT, " +
 			DescriptionsContract.ORDER + " INTEGER" +

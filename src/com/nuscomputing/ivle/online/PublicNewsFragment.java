@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -19,8 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-
-import com.actionbarsherlock.app.SherlockListFragment;
 
 import com.nuscomputing.ivle.DataLoader;
 import com.nuscomputing.ivle.IVLEUtils;
@@ -36,7 +35,7 @@ import com.nuscomputing.ivlelapi.PublicNews;
  * @author yjwong
  *
  */
-public class PublicNewsFragment extends SherlockListFragment {
+public class PublicNewsFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */

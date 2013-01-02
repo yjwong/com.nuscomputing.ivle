@@ -3,12 +3,11 @@ package com.nuscomputing.ivle.online;
 import java.util.Arrays;
 import java.util.List;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -24,7 +23,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.DataLoader;
 import com.nuscomputing.ivle.IVLEUtils;
 import com.nuscomputing.ivle.R;
@@ -40,7 +38,7 @@ import com.nuscomputing.ivlelapi.NoSuchModuleException;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModuleInfoFragment extends SherlockListFragment {
+public class ModuleInfoFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -84,10 +82,10 @@ public class ModuleInfoFragment extends SherlockListFragment {
 		mListView.setAdapter(loadingAdapter);
 		
 		// Load the module info.
-		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_INFO, args, new InfoLoaderCallbacks());
+		getLoaderManager().initLoader(DataLoader.LOADER_ONLINE_MODULE_INFO_FRAGMENT, args, new InfoLoaderCallbacks());
         
 		// Load the module descriptions.
-		getLoaderManager().initLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS, args, new DescriptionsLoaderCallbacks());
+		getLoaderManager().initLoader(DataLoader.LOADER_ONLINE_MODULE_INFO_FRAGMENT_DESCRIPTIONS, args, new DescriptionsLoaderCallbacks());
 	}
 	
 	// }}}
@@ -106,7 +104,6 @@ public class ModuleInfoFragment extends SherlockListFragment {
 			return new InfoLoader(getActivity(), args);
 		}
 		
-		@TargetApi(11)
 		@Override
 		public void onLoadFinished(Loader<Module> loader, Module result) {
 			// Set the view data.
@@ -124,11 +121,9 @@ public class ModuleInfoFragment extends SherlockListFragment {
 				Toast.makeText(getActivity(), R.string.module_info_fragment_unable_to_load, Toast.LENGTH_SHORT).show();
 				
 				// Stop all other tasks.
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_INFO);
-					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_INFO_FRAGMENT_DESCRIPTIONS);
-					getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_MODULE_LECTURERS_FRAGMENT);
-				}
+				getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_ONLINE_MODULE_INFO_FRAGMENT);
+				getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_ONLINE_MODULE_INFO_FRAGMENT_DESCRIPTIONS);
+				getActivity().getLoaderManager().destroyLoader(DataLoader.LOADER_ONLINE_MODULE_LECTURERS_FRAGMENT);
 				
 				getActivity().finish();
 			}

@@ -2,10 +2,9 @@ package com.nuscomputing.ivle;
 
 import java.io.File;
 
-import com.nuscomputing.support.android.app.DownloadManager;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -236,7 +235,7 @@ public class WorkbinFileDownloadDialogFragment extends DialogFragment {
 		super.onResume();
 		
 		// (Re)connect to download manager service.
-		mDownloadManager = new DownloadManager(getActivity().getContentResolver(), getClass().getPackage().getName());
+		mDownloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
 		if (mDownloadInProgress) {
 			// Resume the status updater.
 			mHandler.post(mDownloadStatusUpdater);

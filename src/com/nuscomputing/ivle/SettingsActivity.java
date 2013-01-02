@@ -1,6 +1,5 @@
 package com.nuscomputing.ivle;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
@@ -13,7 +12,6 @@ import android.os.Bundle;
  * Allows users to view and update preferences for NUS IVLE.
  * @author yjwong
  */
-@TargetApi(11)
 public class SettingsActivity extends Activity {
 	// {{{ methods
 	

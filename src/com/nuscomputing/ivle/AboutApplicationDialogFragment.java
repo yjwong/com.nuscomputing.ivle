@@ -1,6 +1,5 @@
 package com.nuscomputing.ivle;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -18,7 +17,6 @@ import android.widget.TextView;
  * A dialog for "About". 
  * @author yjwong
  */
-@TargetApi(11)
 public class AboutApplicationDialogFragment extends DialogFragment {
 	// {{{ methods
 	
@@ -28,7 +26,7 @@ public class AboutApplicationDialogFragment extends DialogFragment {
 		String version = MainApplication.getVersionString();
 		
 		// Determine the context theme.
-		final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_Sherlock_Light_Dialog);
+		final Context context = new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo_Light_Dialog);
 		
 		// Inflate the view and set the contents.
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

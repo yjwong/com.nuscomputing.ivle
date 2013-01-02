@@ -10,7 +10,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.UUID;
 
+import org.acra.ACRA;
+
 import android.content.Context;
+import android.util.Log;
 
 /**
  * <p>
@@ -24,18 +27,24 @@ import android.content.Context;
  * </p>
  */
 public class Installation {
-    private static String sID = null;
+
+    private static String sID;
     private static final String INSTALLATION = "ACRA-INSTALLATION";
 
     public synchronized static String id(Context context) {
         if (sID == null) {
-            File installation = new File(context.getFilesDir(), INSTALLATION);
+            final File installation = new File(context.getFilesDir(), INSTALLATION);
             try {
-                if (!installation.exists())
+                if (!installation.exists()) {
                     writeInstallationFile(installation);
+                }
                 sID = readInstallationFile(installation);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (IOException e) {
+                Log.w(ACRA.LOG_TAG, "Couldn't retrieve InstallationId for " + context.getPackageName(), e);
+                return "Couldn't retrieve InstallationId";
+            } catch (RuntimeException e) {
+                Log.w(ACRA.LOG_TAG, "Couldn't retrieve InstallationId for " + context.getPackageName(), e);
+                return "Couldn't retrieve InstallationId";
             }
         }
         return sID;
@@ -43,7 +52,7 @@ public class Installation {
 
     private static String readInstallationFile(File installation) throws IOException {
         final RandomAccessFile f = new RandomAccessFile(installation, "r");
-        byte[] bytes = new byte[(int) f.length()];
+        final byte[] bytes = new byte[(int) f.length()];
         try {
             f.readFully(bytes);
         } finally {

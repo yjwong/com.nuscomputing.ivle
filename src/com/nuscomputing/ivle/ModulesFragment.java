@@ -1,9 +1,10 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.ModulesContract;
 
 import android.accounts.Account;
+import android.annotation.TargetApi;
+import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
@@ -27,7 +29,7 @@ import android.widget.TextView;
  * Fragment to list modules.
  * @author yjwong
  */
-public class ModulesFragment extends SherlockListFragment implements DataLoaderListener {
+public class ModulesFragment extends ListFragment implements DataLoaderListener {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -78,6 +80,7 @@ public class ModulesFragment extends SherlockListFragment implements DataLoaderL
 		setListAdapter(mAdapter);
 	}
 	
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		// Obtain the module name.
@@ -94,9 +97,8 @@ public class ModulesFragment extends SherlockListFragment implements DataLoaderL
 			intent.putExtra("moduleIvleId", v.getTag().toString());
 			
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-				// Someday, somehow...
-				// Bundle options = ActivityOptions.makeScaleUpAnimation(view, 0, 0, view.getWidth(), view.getHeight()).toBundle();
-				// MainApplication.getContext().startActivity(intent, options);
+				Bundle options = ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getHeight()).toBundle();
+				MainApplication.getContext().startActivity(intent, options);
 				startActivity(intent);
 			} else {
 				startActivity(intent);
@@ -135,7 +137,7 @@ public class ModulesFragment extends SherlockListFragment implements DataLoaderL
 	}
 	
 	@Override
-	public void onLoaderFinished(Bundle result) {
+	public void onLoaderFinished(int id, Bundle result) {
 		// Show message if there are no modules.
 		int cursorCount = result.getInt("cursorCount");
 		if (cursorCount == 0) {

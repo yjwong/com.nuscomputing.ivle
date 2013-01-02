@@ -1,13 +1,13 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.ActionBar;
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-public class ViewAnnouncementActivity extends IVLESherlockFragmentActivity {
+public class ViewAnnouncementActivity extends IVLEFragmentActivity {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -32,7 +32,7 @@ public class ViewAnnouncementActivity extends IVLESherlockFragmentActivity {
         }
         
         // Set up the action bar.
-    	ActionBar bar = getSupportActionBar();
+    	ActionBar bar = getActionBar();
     	bar.setDisplayHomeAsUpEnabled(true);
         
         // Set up our view.

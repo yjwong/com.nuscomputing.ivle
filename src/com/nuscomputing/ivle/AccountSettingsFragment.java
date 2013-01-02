@@ -1,7 +1,6 @@
 package com.nuscomputing.ivle;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -10,7 +9,6 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
-@TargetApi(11)
 public class AccountSettingsFragment extends PreferenceFragment {
 	// {{{ properties
 	

@@ -4,11 +4,6 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.nuscomputing.ivle.providers.WebcastFilesContract;
 
 import android.content.Intent;
@@ -16,12 +11,17 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ListFragment;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 import android.text.Html;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,7 +33,7 @@ import android.widget.TextView;
  * Fragment to view an announcement.
  * @author yjwong
  */
-public class ViewWebcastItemGroupsFragment extends SherlockListFragment {
+public class ViewWebcastItemGroupsFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -127,7 +127,7 @@ public class ViewWebcastItemGroupsFragment extends SherlockListFragment {
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				// Use contextual action bar to show items.
-				getSherlockActivity().startActionMode(new WebcastFilesActionModeCallback(position));
+				getActivity().startActionMode(new WebcastFilesActionModeCallback(position));
 				getListView().setItemChecked(position, true);
 				return true;
 			}

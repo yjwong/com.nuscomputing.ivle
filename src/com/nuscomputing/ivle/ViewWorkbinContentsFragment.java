@@ -1,20 +1,24 @@
 package com.nuscomputing.ivle;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.nuscomputing.ivle.providers.WorkbinFoldersContract;
+
+import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
 /**
  * Fragment to view a workbin.
  * @author yjwong
  */
-public class ViewWorkbinContentsFragment extends SherlockListFragment {
+public class ViewWorkbinContentsFragment extends ListFragment {
 	// {{{ properties
 	
 	/** TAG for logging */
@@ -71,6 +75,92 @@ public class ViewWorkbinContentsFragment extends SherlockListFragment {
         
         // Set the list adapter.
         setListAdapter(mAdapter);
+	}
+	
+	// }}}
+	// {{{ classes
+	
+	/**
+	 * This adapter binds the results for the files and folders query into 
+	 * a single adapter.
+	 * @author yjwong
+	 */
+	class WorkbinContentsAdapter extends BaseAdapter {
+		// {{{ properties
+		
+		/** The context */
+		private Context mContext;
+		
+		/** A cursor holding references to file data */
+		private Cursor mFilesCursor;
+		
+		/** A cursor holding references to folder data */
+		private Cursor mFoldersCursor;
+		
+		// }}}
+		// {{{ methods
+		
+		public WorkbinContentsAdapter(Context context) {
+			super();
+			mContext = context;
+		}
+		
+		/**
+		 * Change the underlying cursor to a new cursor.
+		 * If there is an existing cursor it will be closed.
+		 * @param cursor
+		 */
+		public void changeFilesCursor(Cursor cursor) {
+			if (mFilesCursor != null) {
+				mFilesCursor.close();
+			}
+			
+			mFilesCursor = cursor;
+		}
+		
+		public void changeFoldersCursor(Cursor cursor) {
+			if (mFoldersCursor != null) {
+				mFoldersCursor.close();
+			}
+			
+			mFoldersCursor = cursor;
+		}
+
+		@Override
+		public int getCount() {
+			// We need to add one to a cursor of each type because the heading
+			// should be included as well.
+			int count = 0;
+			if (mFoldersCursor != null) {
+				count =+ mFoldersCursor.getCount() + 1;
+			}
+			
+			if (mFilesCursor != null) {
+				count =+ mFilesCursor.getCount() + 1;
+			}
+			
+			return count;
+		}
+
+		@Override
+		public Cursor getItem(int position) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		// }}}
 	}
 	
 	// }}}
