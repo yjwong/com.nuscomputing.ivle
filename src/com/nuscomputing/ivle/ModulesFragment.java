@@ -98,7 +98,7 @@ public class ModulesFragment extends ListFragment implements DataLoaderListener 
 			
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 				Bundle options = ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getHeight()).toBundle();
-				MainApplication.getContext().startActivity(intent, options);
+				getActivity().startActivity(intent, options);
 				startActivity(intent);
 			} else {
 				startActivity(intent);
