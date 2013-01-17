@@ -126,15 +126,12 @@ public class ModuleInfoFragment extends ListFragment implements
 		}
 
 		// Obtain the description.
-		Object item = l.getItemAtPosition(position);
-		if (item != null) {
-			Cursor c = (Cursor) item;
-			
+		Cursor c = (Cursor) l.getItemAtPosition(position);
+		if (c != null) {
 			// Add the description and title as arguments.
 			Bundle args = new Bundle();
 			args.putString("description", c.getString(c.getColumnIndex(DescriptionsContract.DESCRIPTION)));
 			args.putString("title", c.getString(c.getColumnIndex(DescriptionsContract.TITLE)));
-			c.close();
 			
 			// Instantiate a new dialog fragment.
 			FragmentManager manager = getActivity().getSupportFragmentManager();
