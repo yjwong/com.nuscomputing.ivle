@@ -6,7 +6,6 @@ import java.util.Arrays;
 import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -52,9 +51,6 @@ public class ModuleFragment extends Fragment {
 	
 	/** Arguments for the fragment */
 	private Bundle mFragmentArgs;
-	
-	/** Handler to run stuff on the UI */
-	private Handler mHandler = new Handler();
 	
 	// }}}
 	// {{{ methods
@@ -132,13 +128,7 @@ public class ModuleFragment extends Fragment {
 			public void onPageScrollStateChanged(int state) { }
     	});
     	
-    	// HACK: Fragments inside fragments.
-    	mHandler.post(new Runnable() {
-    		@Override
-    		public void run() {
-    			mViewPager.setAdapter(mPagerAdapter);
-    		}
-    	});
+    	mViewPager.setAdapter(mPagerAdapter);
 	}
 
     // }}}
