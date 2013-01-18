@@ -115,6 +115,10 @@ public class ModuleFragment extends Fragment {
     	mPagerAdapter = new ModuleFragmentPagerAdapter(getActivity().getSupportFragmentManager(), fragmentList, mFragmentArgs);
     	
     	// Configure the view pager.
+    	if (mViewPager.getAdapter() == null) {
+    		mViewPager.setAdapter(mPagerAdapter);
+    	}
+    	
     	mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageSelected(int position) {
@@ -127,8 +131,6 @@ public class ModuleFragment extends Fragment {
 			@Override
 			public void onPageScrollStateChanged(int state) { }
     	});
-    	
-    	mViewPager.setAdapter(mPagerAdapter);
 	}
 
     // }}}
