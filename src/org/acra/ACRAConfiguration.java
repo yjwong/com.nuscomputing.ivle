@@ -38,8 +38,10 @@ import static org.acra.ACRAConstants.DEFAULT_STRING_VALUE;
 import static org.acra.ACRAConstants.NULL_VALUE;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 
 import org.acra.annotation.ReportsCrashes;
+import org.acra.sender.HttpSender;
 import org.acra.sender.HttpSender.Method;
 import org.acra.sender.HttpSender.Type;
 
@@ -100,6 +102,29 @@ public class ACRAConfiguration implements ReportsCrashes {
     private Boolean mDisableSSLCertValidation = null;
     private Method mHttpMethod = null;
     private Type mReportType = null;
+    private Map<String, String> mHttpHeaders;
+
+    /**
+     * Set custom HTTP headers to be sent by the provided {@link HttpSender}.
+     * This should be used also by third party senders.
+     * 
+     * @param headers
+     *            A map associating HTTP header names to their values.
+     */
+    public void setHttpHeaders(Map<String, String> headers) {
+        this.mHttpHeaders = headers;
+    }
+
+    /**
+     * Retrieve HTTP headers defined by the application developer. These should
+     * be added to requests sent by any third-party sender (over HTTP of
+     * course).
+     * 
+     * @return A map associating http header names to their values.
+     */
+    public Map<String, String> getHttpHeaders() {
+        return mHttpHeaders;
+    }
 
     /**
      * @param additionalDropboxTags
@@ -449,7 +474,7 @@ public class ACRAConfiguration implements ReportsCrashes {
 
     /**
      * 
-     * @param excludeMatchingSettingssKeys
+     * @param excludeMatchingSettingsKeys
      *            an array of Strings containing regexp defining
      *            Settings.System, Settings.Secure and Settings.Global keys that
      *            should be excluded from the data collection.
@@ -500,7 +525,7 @@ public class ACRAConfiguration implements ReportsCrashes {
 
     /**
      * 
-     * @param httpMethod
+     * @param type
      *            The type of content encoding to be used to send data to the
      *            server.
      */
